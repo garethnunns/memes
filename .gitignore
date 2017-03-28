@@ -41,3 +41,19 @@ captures/
 
 # MySQL Workbench Backups
 *.mwb.bak
+
+# Database login file
+secure.php
+
+# SASS files
+.sass-cache
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

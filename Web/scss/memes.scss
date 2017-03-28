@@ -1,0 +1,40 @@
+@charset 'utf-8';
+
+@import 'compass/css3';
+@import "compass/utilities/general/clearfix";
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700');
+
+$white: white;
+$lblue: #78B5E4;
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: auto;
+
+	color: $white;
+	background-color: $lblue;
+
+	h1 {
+		font-weight: 400;
+	}
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 98%;
+	max-width: 1000px;
+}
+
+header + .wrapper {
+	margin-top: 80px;
+}
