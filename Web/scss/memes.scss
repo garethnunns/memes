@@ -6,12 +6,34 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700');
 
 $white: white;
+$black: #444;
+$grey: lighten($black, 10%);
 $lblue: #78B5E4;
+$dblue: darken($lblue, 15%);
+$red: #f91616;
+
+// generics
+
+table {
+	width: 100%;
+
+	th {
+		text-align: left;
+	}
+	td {
+		text-align: center;
+	}
+}
+
+
+//specifics 
 
 body {
-	font-family: 'Open Sans', sans-serif;
 	margin: 0;
 	padding: 0;
+
+	font-family: 'Open Sans', sans-serif;
+	color: $black;
 }
 
 header {
@@ -36,5 +58,28 @@ header {
 }
 
 header + .wrapper {
-	margin-top: 80px;
+	margin-top: 100px;
+}
+
+#login, #signup {
+	td:not([colspan="2"]) {
+		width: 50%;
+	}
+
+	td:nth-child(1) {
+		text-align: right;
+	}
+
+	td:nth-child(2) {
+		text-align: left;
+	}
+
+	[colspan="2"] {
+		text-align: center !important;
+	}
+}
+
+.error {
+	color: $red;
+	font-weight: bold;
 }

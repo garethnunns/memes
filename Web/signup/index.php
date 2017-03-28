@@ -1,5 +1,5 @@
 <?php
-	require_once 'site/functions.php';
+	require_once '../site/functions.php';
 
 	if(isset($_POST['signup'])) { // adding a user
 
