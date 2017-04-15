@@ -1,9 +1,13 @@
 <?php
 	session_start();
+	
 	require_once dirname(__FILE__).'/secure.php';
+
+	$res = "http://memes-store.garethnunns.com/"; // resource server
 
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
+
 		global $dbh;
 
 		list($table, $column) = explode('.',$field);
@@ -57,6 +61,9 @@
 
 			if(($field == 'user.password') && ($pError = validPassword($text))!==true) // check the password
 				return $pError;
+
+			if(($field == 'user.email') && ($eError = validEmail($text))!==true) // check the password
+				return $eError;
 
 			return true;
 		}
@@ -112,6 +119,32 @@
 		preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,50}$/', $password, $passmatches, PREG_OFFSET_CAPTURE);
 		if(($passmatches[0][0]!=$password) || ($passmatches[0][1]!=0))
 			return " The password must contain a lowercase letter, an uppercase letter and a number.";
+
+		return true;
+	}
+
+	function validEmail($email) {
+		// checks it's a valid email and it hasn't already been used
+
+		global $dbh;
+
+		if(!filter_var($email, FILTER_VALIDATE_EMAIL)) // built in function to check emails
+			return " This email address doesn't look right.";
+
+		// check the email hasn't already used by another user
+		try {
+			$sql = "SELECT COUNT(iduser) FROM user WHERE lower(email) = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array(strtolower($email)));
+
+			if($sth->fetchColumn()>0) 
+				return " The email address '".htmlspecialchars($email)."' has already been used.";
+		}
+		catch (PDOException $e) {
+			echo $e->getMessage();
+		}
 
 		return true;
 	}

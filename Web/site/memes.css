@@ -2,26 +2,34 @@
 /* line 17, ../scss/memes.scss */
 a {
   color: #3892d7;
+  text-decoration: none;
+  border-bottom: 1px solid #3892d7;
+  -moz-transition: all 0.15s ease-out 0s;
+  -o-transition: all 0.15s ease-out 0s;
+  -webkit-transition: all 0.15s ease-out;
+  -webkit-transition-delay: 0s;
+  transition: all 0.15s ease-out 0s;
 }
-/* line 20, ../scss/memes.scss */
+/* line 23, ../scss/memes.scss */
 a:hover {
   color: #78B5E4;
+  border-bottom-color: #78B5E4;
 }
 
-/* line 25, ../scss/memes.scss */
+/* line 29, ../scss/memes.scss */
 table {
   width: 100%;
 }
-/* line 28, ../scss/memes.scss */
+/* line 32, ../scss/memes.scss */
 table th {
   text-align: left;
 }
-/* line 31, ../scss/memes.scss */
+/* line 35, ../scss/memes.scss */
 table td {
   text-align: center;
 }
 
-/* line 39, ../scss/memes.scss */
+/* line 43, ../scss/memes.scss */
 body {
   margin: 0;
   padding: 0;
@@ -29,7 +37,7 @@ body {
   color: #444;
 }
 
-/* line 47, ../scss/memes.scss */
+/* line 51, ../scss/memes.scss */
 header {
   position: fixed;
   top: 0;
@@ -39,27 +47,28 @@ header {
   color: white;
   background-color: #78B5E4;
 }
-/* line 58, ../scss/memes.scss */
+/* line 62, ../scss/memes.scss */
 header h1 a {
-  text-decoration: none;
   font-weight: 400;
 }
-/* line 64, ../scss/memes.scss */
+/* line 67, ../scss/memes.scss */
 header a {
   color: white;
+  border-bottom-color: #78B5E4;
 }
-/* line 67, ../scss/memes.scss */
+/* line 71, ../scss/memes.scss */
 header a:hover {
   color: white;
+  border-bottom-color: white;
 }
-/* line 72, ../scss/memes.scss */
+/* line 77, ../scss/memes.scss */
 header .buttons {
   position: absolute;
   right: 0;
   top: 0;
 }
 
-/* line 79, ../scss/memes.scss */
+/* line 84, ../scss/memes.scss */
 .wrapper {
   position: relative;
   margin: 0 auto;
@@ -67,29 +76,29 @@ header .buttons {
   max-width: 1000px;
 }
 
-/* line 86, ../scss/memes.scss */
+/* line 91, ../scss/memes.scss */
 header + .wrapper {
   margin-top: 100px;
 }
 
-/* line 91, ../scss/memes.scss */
+/* line 96, ../scss/memes.scss */
 #login td:not([colspan="2"]), #signup td:not([colspan="2"]) {
   width: 50%;
 }
-/* line 95, ../scss/memes.scss */
+/* line 100, ../scss/memes.scss */
 #login td:nth-child(1), #signup td:nth-child(1) {
   text-align: right;
 }
-/* line 99, ../scss/memes.scss */
+/* line 104, ../scss/memes.scss */
 #login td:nth-child(2), #signup td:nth-child(2) {
   text-align: left;
 }
-/* line 103, ../scss/memes.scss */
+/* line 108, ../scss/memes.scss */
 #login [colspan="2"], #signup [colspan="2"] {
   text-align: center !important;
 }
 
-/* line 108, ../scss/memes.scss */
+/* line 113, ../scss/memes.scss */
 .error {
   color: #f91616;
   font-weight: bold;

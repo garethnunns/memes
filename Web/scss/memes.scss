@@ -16,9 +16,13 @@ $red: #f91616;
 
 a {
 	color: $dblue;
+	text-decoration: none;
+	border-bottom: 1px solid $dblue;
+	@include single-transition(all, 0.15s, ease-out, 0s);
 
 	&:hover {
 		color: $lblue;
+		border-bottom-color: $lblue;
 	}
 }
 
@@ -56,16 +60,17 @@ header {
 
 	h1 {
 		a {
-			text-decoration: none;
 			font-weight: 400;
 		}
 	}
 
 	a {
 		color: $white;
+		border-bottom-color: $lblue;
 
 		&:hover {
 			color: $white;
+			border-bottom-color: $white;
 		}
 	}
 
