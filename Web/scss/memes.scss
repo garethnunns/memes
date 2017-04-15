@@ -14,6 +14,14 @@ $red: #f91616;
 
 // generics
 
+a {
+	color: $dblue;
+
+	&:hover {
+		color: $lblue;
+	}
+}
+
 table {
 	width: 100%;
 
@@ -47,11 +55,29 @@ header {
 	background-color: $lblue;
 
 	h1 {
-		font-weight: 400;
+		a {
+			text-decoration: none;
+			font-weight: 400;
+		}
+	}
+
+	a {
+		color: $white;
+
+		&:hover {
+			color: $white;
+		}
+	}
+
+	.buttons {
+		position: absolute;
+		right: 0;
+		top: 0;
 	}
 }
 
 .wrapper {
+	position: relative;
 	margin: 0 auto;
 	width: 98%;
 	max-width: 1000px;

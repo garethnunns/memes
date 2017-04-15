@@ -1,6 +1,9 @@
 <?php
 	require_once '../site/functions.php';
 
+	if(isset($_SESSION['user'])) // user already logged in
+		header("Location: /");
+
 	if(isset($_POST['signup'])) { // adding a user
 
 		// initalise an empty errors array that could crop up
@@ -48,20 +51,26 @@
 			} while ($notUnique);
 
 			// we've got everything we need so we'll add them to the database
-			$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname) 
-				VALUES (?, ?, ?, ?, ?, ?)");
+			try {
+				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname) 
+					VALUES (?, ?, ?, ?, ?, ?)");
 
-			$sth->execute(array(
-				$key,
-				$_POST['username'],
-				password_hash($_POST['password1'],PASSWORD_DEFAULT),
-				$_POST['email'],
-				$_POST['firstName'],
-				$_POST['surname']
-			));
+				$sth->execute(array(
+					$key,
+					$_POST['username'],
+					password_hash($_POST['password1'],PASSWORD_DEFAULT),
+					$_POST['email'],
+					$_POST['firstName'],
+					$_POST['surname']
+				));
 
-			// yay, all done so send them off to the home page - could set some session variables here so they're logged in
-			header("Location: /?created");
+				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
+				$_SESSION['user'] = $dbh->lastInsertId();
+				header("Location: /?created");
+			}
+			catch (PDOException $e) {
+				echo $e->getMessage();
+			}
 		}
 	}
 
@@ -74,11 +83,7 @@
 	</head>
 
 	<body>
-		<header>
-			<div class="wrapper">
-				<h1>Meme Me</h1>
-			</div>
-		</header>
+		<?php include '../site/header.php'; ?>
 
 		<div class="wrapper">
 			<form id="signup" method="POST">

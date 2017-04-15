@@ -9,11 +9,7 @@
 	</head>
 
 	<body>
-		<header>
-			<div class="wrapper">
-				<h1>Meme Me</h1>
-			</div>
-		</header>
+		<?php include 'site/header.php'; ?>
 		<div class="wrapper">
 <?php
 	if(!$_SESSION['user']) { // not logged in
@@ -71,5 +67,7 @@
 <?php
 	}
 ?>
+
+		<p><a href="//garethnunns.com">this is a link</a></p>
 	</body>
 </html>
