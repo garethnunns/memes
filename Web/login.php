@@ -10,7 +10,8 @@
 	$sth->execute(array($_POST['username'])); // sanitise user input
 
 	if($sth->rowCount()==0) { // username not found
-		header("Location: /?loginerror");
+		if(isset($_POST['goingto'])) header("Location: /?loginerror&goingto=".filter_var($_POST['goingto'], FILTER_SANITIZE_URL));
+		else header("Location: /?loginerror");
 		die("Login failed");
 	}
 	else {
@@ -18,10 +19,12 @@
 
 		if(password_verify($_POST['password'],$user->password)) { // password correct
 			$_SESSION['user'] = $user->iduser;
-			header("Location: /");
+			if(isset($_POST['goingto'])) header("Location: ".filter_var($_POST['goingto'], FILTER_SANITIZE_URL));
+			else header("Location: /");
 		}
 		else {
-			header("Location: /?loginerror");
+			if(isset($_POST['goingto'])) header("Location: /?loginerror&goingto=".filter_var($_POST['goingto'], FILTER_SANITIZE_URL));
+			else header("Location: /?loginerror");
 			die("Login failed");
 		}
 	}

@@ -1,16 +1,18 @@
 @charset 'utf-8';
 
 @import 'compass/css3';
-@import "compass/utilities/general/clearfix";
+@import 'compass/utilities/general/clearfix';
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700,700i');
 
 $white: white;
 $black: #444;
-$grey: lighten($black, 10%);
+$grey: lighten($black, 15%);
 $lblue: #78B5E4;
 $dblue: darken($lblue, 15%);
 $red: #f91616;
+
+@import 'dropzone';
 
 // generics
 
@@ -44,6 +46,7 @@ body {
 	margin: 0;
 	padding: 0;
 
+	background-color: $white;
 	font-family: 'Open Sans', sans-serif;
 	color: $black;
 }
@@ -55,8 +58,9 @@ header {
 	right: 0;
 	height: auto;
 
-	color: $white;
+	z-index: 10;
 	background-color: $lblue;
+	color: $white;
 
 	h1 {
 		a {
@@ -90,8 +94,26 @@ header {
 
 header + .wrapper {
 	margin-top: 100px;
+	margin-bottom: 100px;
 }
 
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 20px 0;
+	border-top: 1px solid grey;
+	background-color: $white;
+	text-align: center;
+
+	a {
+		margin: 0 15px;
+	}
+}
+
+
+// forms
 #login, #signup {
 	td:not([colspan="2"]) {
 		width: 50%;
@@ -110,6 +132,14 @@ header + .wrapper {
 	}
 }
 
+#memeUpload {
+	textarea {
+		width: 50%;
+		height: 40px;
+	}
+}
+
+// text
 .error {
 	color: $red;
 	font-weight: bold;

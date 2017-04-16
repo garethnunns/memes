@@ -1,12 +1,31 @@
 <?php
 	session_start();
 	
-	require_once dirname(__FILE__).'/secure.php';
+
+	// globals
+	require_once dirname(__FILE__).'/secure.php'; // database connection
 
 	$res = "http://memes-store.garethnunns.com/"; // resource server
 
+	// can be added to later, but for now just JPGs and PNGs
+	$types = array("image/jpg","image/jpeg","image/png");
+	$exts = array("jpg","jpeg","png");
+
+	// uploads location
+	$ds = DIRECTORY_SEPARATOR;
+	$target = dirname( __FILE__ ) . $ds . ".." . $ds . "uploads" . $ds;
+
+	function check() {
+		if(!isset($_SESSION['user'])) { // user not logged in
+			header("Location: /?goingto=".filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL));
+			die('pls login');
+		}
+	}
+
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
+		// for any $text it will check that $field in the database can take length string
+		// or check it's not too few characters
 
 		global $dbh;
 
@@ -147,5 +166,162 @@
 		}
 
 		return true;
+	}
+
+	function validImage($file) {
+		// check's that the $file is an image and the right size
+		// expects an array in the standard PHP file style
+		// returns TRUE or an array of errors if not
+
+		global $types, $exts;
+
+		$errors = array();
+
+		if(!isset($file['name'])) array_push($errors, "A file wasn't uploaded");
+		else { // a file was uploaded
+			if($file['error'] !== UPLOAD_ERR_OK) array_push($errors, "Upload failed with error code " . $file['error']);
+			else { // there were no errors uploading the file
+				if(!in_array(strtolower(pathinfo($file["name"],PATHINFO_EXTENSION)), $exts)) { // check the extension
+					$error = "That file extension isn't allowed, the accepted types are ";
+					foreach ($exts as $key => $ext)
+						$error .= ($key < count($exts)-1) ? (($key != count($exts)-2) ? ".$ext, " : ".$ext ")   : "& .$ext";
+					array_push($errors, $error);
+				}
+				else { // image at least has the right file extension
+					$info = getimagesize($file["tmp_name"]);
+					if($info === FALSE) array_push($errors, "Unable to determine the type of image that was uploaded");
+					else { // probably is an image
+
+						if(!in_array($info["mime"], $types)) { // not one of the allowed mime types
+							$error = "That type of image is allowed, the accepted types are ";
+							foreach ($types as $key => $type) {
+								$type = substr($type, 6);
+								$error .= ($key < count($exts)-1) ? (($key != count($exts)-2) ? "$type, " : "$type ")   : "& $type";
+							}
+							array_push($errors, $error);
+						}
+						else {
+							// we now know we have a JPG or PNG - yay
+							// we don't let them past this point if it's not a JPG or PNG, from now on we might give them a few more errors
+
+							// check the file size
+							if($file['size'] > 10 * 1000 * 1000) array_push($errors, "The maximum file size is 10MiB");
+
+							// this section is to do with the dimensions
+							list($w,$h) = $info;
+
+							// first check is to make sure it's high enough resolution
+							// for now I think anything less that 300x300 is too small
+							if(($w < 400) || ($h < 400)) array_push($errors, "The image is too low resolution (minimum of 400x400)");
+
+							// next check if it's too big
+							// this will save the server having to resize massive images
+							if($w * $h > 12000000) array_push($errors, "The image is too large (maximum resolution of 12MP)");
+
+							// now we'll check the aspect ratio
+							$ratio = $w/$h;
+
+							// portrait images
+							if($ratio < (4/5)) array_push($errors, "The image is too tall (mimimum ratio of 4:5)");
+
+							// landscape images
+							if($ratio > (16/9)) array_push($errors, "The image is too wide (mimimum ratio of 16:9)");
+						}
+					}
+				}
+			}
+		}
+
+		return empty($errors) ? true : $errors;
+	}
+
+	function resizeImage($file, &$created) {
+		// validates & resizes & crops the $file and stores the locations of these in the $created array
+		// expects an array in the standard PHP file style
+		// returns TRUE or an array of errors if not
+
+		// make sure it is a valid image
+		if(($errors = validImage($file)) !== true) // there were errors validating the image
+			return $errors;
+
+		global $target;
+
+		// resize to 2000, 1000, 400, 150
+		$fulls = [1000,2000];
+		$squares = [150,400];
+
+		ini_set('memory_limit', '-1');
+
+		$errors = array();
+
+		$info = getimagesize($file["tmp_name"]);
+
+		if($info["mime"] == "image/jpg" || $info["mime"] == "image/jpeg") $type = "jpg";
+		elseif ($info["mime"] == "image/png") $type = "png";
+		else array_push($errors, "Unrecognised image type");
+
+		// load the image
+		$error = "Couldn't load the image";
+		if($type == "jpg") if(!$src = imagecreatefromjpeg($file["tmp_name"])) array_push($errors, $error);
+		if($type == "png") if(!$src = imagecreatefrompng($file["tmp_name"])) array_push($errors, $error);
+
+		// get the current width and height
+		list($w,$h) = $info;
+
+		$ratio = $w/$h;
+
+		$created = array();
+
+		foreach ($fulls as $size) { // these will all be resized, with a width of $size
+			$newH = $size/$ratio;
+			$resized = imagecreatetruecolor($size, $newH);
+			imagecopyresampled($resized, $src, 0, 0, 0, 0, $size, $newH, $w, $h);
+			
+			$fileName = tempnam($target, $size); // get a unique name
+			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
+			$fileName .= $type == "jpg" ? '.jpg' : $type == "png" ? '.png' : '';
+			
+			$error = "There was an error saving the ".$size."px version of the image";
+
+			if($type == "jpg") if(!imagejpeg($resized,$fileName)) array_push($errors, $error);
+			if($type == "png") if(!imagepng($resized,$fileName)) array_push($errors, $error);
+			
+			$created['full'][$size] = $fileName;
+		}
+
+		foreach ($squares as $size) { // these will all be resized & cropped, with a width & height of $size
+			// defaults for a square image
+			$width = $w;
+			$height = $h;
+			$x = 0;
+			$y = 0;
+
+			if($width > $height) { // landscape
+				$x = floor(($width/2) - ($height/2)); // middle - half of the square
+				$width = $height;
+			}
+			elseif($height > $width) { // portrait
+				$y = floor(($height/2) - ($width/2)); // middle - half of the square
+				$height = $width;
+			}
+
+			$resized = imagecreatetruecolor($size, $size);
+			imagecopyresampled($resized, $src, 0, 0, $x, $y, $size, $size, $width, $height);
+			
+			$fileName = tempnam($target, $size); // get a unique name
+			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
+			$fileName .= $type == "jpg" ? '.jpg' : $type == "png" ? '.png' : '';
+			
+			$error = "There was an error saving the ".$size."px version of the image";
+
+			if($type == "jpg") if(!imagejpeg($resized,$fileName)) array_push($errors, $error);
+			if($type == "png") if(!imagepng($resized,$fileName)) array_push($errors, $error);
+			
+			$created['thumb'][$size] = $fileName;
+		}
+
+		imagedestroy($src);
+
+		return empty($errors) ? true : $errors;
 	}
 ?>

@@ -79,7 +79,7 @@
 	<head>
 		<title>Memes · Sign up</title>
 
-		<link rel="stylesheet" type="text/css" href="/site/memes.css">
+		<?php include '../site/head.php'; ?>
 	</head>
 
 	<body>
