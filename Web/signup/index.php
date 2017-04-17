@@ -96,28 +96,28 @@
 					<tr>
 						<td>First Name</td>
 						<td>
-							<input type="text" name="firstName" placeholder="First name" maxlength="60" value="<?php echo $_POST['firstName'] ?>">
+							<input type="text" name="firstName" placeholder="First name" maxlength="60" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName'] ?>">
 							<?php if(isset($errors['user.firstName'])) echo "<p class='error'>{$errors['user.firstName']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Surname</td>
 						<td>
-							<input type="text" name="surname" placeholder="Surname" maxlength="60" value="<?php echo $_POST['surname'] ?>">
+							<input type="text" name="surname" placeholder="Surname" maxlength="60" value="<?php if(isset($_POST['surname'])) echo $_POST['surname'] ?>">
 							<?php if(isset($errors['user.surname'])) echo "<p class='error'>{$errors['user.surname']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Email</td>
 						<td>
-							<input type="email" name="email" placeholder="Email address" maxlength="100" value="<?php echo $_POST['email'] ?>">
+							<input type="email" name="email" placeholder="Email address" maxlength="100" value="<?php if(isset($_POST['email'])) echo $_POST['email'] ?>">
 							<?php if(isset($errors['user.email'])) echo "<p class='error'>{$errors['user.email']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Username</td>
 						<td>
-							<input type="text" name="username" placeholder="Pick a username" minlength="3" maxlength="20" value="<?php echo $_POST['username'] ?>">
+							<input type="text" name="username" placeholder="Pick a username" minlength="3" maxlength="20" value="<?php if(isset($_POST['username'])) echo $_POST['username'] ?>">
 							<?php if(isset($errors['user.username'])) echo "<p class='error'>{$errors['user.username']}</p>" ?>
 						</td>
 					</tr>
