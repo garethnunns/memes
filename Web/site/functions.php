@@ -376,7 +376,7 @@
 									array_push($sizes[$type], $size);
 								}
 
-							$sth = $dbh->prepare("INSERT INTO meme (iduser,sizes,caption, latitude, longitude) 
+							$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, caption, latitude, longitude) 
 								VALUES (?, ?, ?, ?, ?)");
 
 							$sth->execute(array(
