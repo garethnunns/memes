@@ -12,7 +12,7 @@
 		<?php include 'site/header.php'; ?>
 		<div class="wrapper">
 <?php
-	if(!isset($_SESSION['user'])) { // not logged in
+	if(!loggedIn()) { // not logged in
 ?>
 			<h1>Welcome to Meme Me, we're currently working on the site&hellip;</h1>
 
@@ -52,27 +52,25 @@
 <?php
 	}
 	else {
-		$sql = "SELECT user.username, user.firstName, user.surname  
-				FROM user
-				WHERE iduser = ?";
+		$user = userDetails($_SESSION['key']);
 
-		$sth = $dbh->prepare($sql);
+		if(isset($_GET['new'])) echo "<h1>Welcome {$user->firstName} {$user->surname}</h1>";
 
-		$sth->execute(array($_SESSION['user']));
+		//$sql = "SELECT meme.*, user.username, CONCAT(user.firstName, ";
 
-		if($sth->rowCount()!=1) die("<p>User not found</p>");
+		//$sth = $dbh->prepare($sql); //executing SQL
+		//$sth->execute(array($key));
 
-		$user = $sth->fetch(PDO::FETCH_OBJ);
+		//foreach ($sth->fetchAll() as $row) {
 
-		echo "<h1>Hello {$user->firstName} {$user->surname}</h1>";
+		//}
 ?>
-		<p><i>some memes...</i></p>
 <?php
 	} // end of being logged in
 ?>
 
 		</div>
 
-		<?php if(isset($_SESSION['user'])) include 'site/footer.php'; ?>
+		<?php if(loggedIn()) include 'site/footer.php'; ?>
 	</body>
 </html>

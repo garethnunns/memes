@@ -32,10 +32,23 @@
 	$bucket = 'memes-store';
 
 	function check() {
-		if(!isset($_SESSION['user'])) { // user not logged in
+		if(!loggedIn()) { // user not logged in
 			header("Location: /?goingto=".filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL));
 			die('pls login');
 		}
+	}
+
+	function loggedIn() {
+		// web function for checking if session variable is set and correct
+		// returns bool
+
+		if(!isset($_SESSION['user']) || !isset($_SESSION['key']))
+			return false;
+		if(($user = userDetails($_SESSION['key'])) === false) { // couldn't find user with that ket
+			session_destroy();
+			die('The account you are logged in on no longer exists');
+		}
+		return true;
 	}
 
 	function valid($field, $text) {
@@ -133,11 +146,11 @@
 
 		// check the username hasn't been taken by another user
 		try {
-			$sql = "SELECT COUNT(iduser) FROM user WHERE username = ?";
+			$sql = "SELECT iduser FROM user WHERE LOWER(username) = ?";
 
 			$sth = $dbh->prepare($sql);
 
-			$sth->execute(array($username));
+			$sth->execute(array(strtolower($username)));
 
 			if($sth->fetchColumn()>0) 
 				$ret .= " The username '".htmlspecialchars($username)."' has already been taken.";
