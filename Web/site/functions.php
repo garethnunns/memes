@@ -11,6 +11,10 @@
 	$types = array("image/jpg","image/jpeg","image/png");
 	$exts = array("jpg","jpeg","png");
 
+	// image sizes
+	$fulls = [1000,2000];
+	$squares = [150,400];
+
 	// uploads location
 	$ds = DIRECTORY_SEPARATOR;
 	$target = dirname( __FILE__ ) . $ds . ".." . $ds . "uploads" . $ds;
@@ -26,6 +30,7 @@
 		// verify the text is valid to be inserted
 		// for any $text it will check that $field in the database can take length string
 		// or check it's not too few characters
+		// returns true or an error string
 
 		global $dbh;
 
@@ -244,11 +249,7 @@
 		if(($errors = validImage($file)) !== true) // there were errors validating the image
 			return $errors;
 
-		global $target;
-
-		// resize to 2000, 1000, 400, 150
-		$fulls = [1000,2000];
-		$squares = [150,400];
+		global $target, $fulls, $squares;
 
 		ini_set('memory_limit', '-1');
 
