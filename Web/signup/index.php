@@ -66,6 +66,7 @@
 
 				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
 				$_SESSION['user'] = $dbh->lastInsertId();
+				$_SESSION['key'] = $key;
 				header("Location: /?created");
 			}
 			catch (PDOException $e) {

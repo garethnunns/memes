@@ -12,7 +12,7 @@
 		<?php include 'site/header.php'; ?>
 		<div class="wrapper">
 <?php
-	if(!$_SESSION['user']) { // not logged in
+	if(!isset($_SESSION['user'])) { // not logged in
 ?>
 			<h1>Welcome to Meme Me, we're currently working on the site&hellip;</h1>
 
@@ -73,6 +73,6 @@
 
 		</div>
 
-		<?php if($_SESSION['user']) include 'site/footer.php'; ?>
+		<?php if(isset($_SESSION['user'])) include 'site/footer.php'; ?>
 	</body>
 </html>
