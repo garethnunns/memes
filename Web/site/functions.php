@@ -1,11 +1,12 @@
 <?php
 	session_start();
-	
 
 	// globals
 	require_once dirname(__FILE__).'/secure.php'; // database connection
 
 	$res = "http://memes-store.garethnunns.com/"; // resource server
+	$web = "http://memes.garethnunns.com/"; // web server
+
 
 	// can be added to later, but for now just JPGs and PNGs
 	$types = array("image/jpg","image/jpeg","image/png");
@@ -18,6 +19,17 @@
 	// uploads location
 	$ds = DIRECTORY_SEPARATOR;
 	$target = dirname( __FILE__ ) . $ds . ".." . $ds . "uploads" . $ds;
+
+	// aws deets
+	$aws = array(
+		'region'  => 'eu-west-2',
+		'version' => '2006-03-01',
+		'credentials' => array( // these are stored in the secure file because the ini method failed
+			'key'    => AWS_KEY,
+			'secret' => AWS_SECRET,
+		)
+	);
+	$bucket = 'memes-store';
 
 	function check() {
 		if(!isset($_SESSION['user'])) { // user not logged in
@@ -280,7 +292,7 @@
 			
 			$fileName = tempnam($target, $size); // get a unique name
 			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
-			$fileName .= $type == "jpg" ? '.jpg' : $type == "png" ? '.png' : '';
+			$fileName .= $type == "jpg" ? '.jpg' : ($type == "png" ? '.png' : '');
 			
 			$error = "There was an error saving the ".$size."px version of the image";
 
@@ -311,7 +323,7 @@
 			
 			$fileName = tempnam($target, $size); // get a unique name
 			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
-			$fileName .= $type == "jpg" ? '.jpg' : $type == "png" ? '.png' : '';
+			$fileName .= $type == "jpg" ? '.jpg' : ($type == "png" ? '.png' : '');
 			
 			$error = "There was an error saving the ".$size."px version of the image";
 
@@ -324,5 +336,128 @@
 		imagedestroy($src);
 
 		return empty($errors) ? true : $errors;
+	}
+
+	function storeMeme($key, $images, $caption, $lat=null, $long=null, &$link=null) {
+		// store the meme in the database and transfer the images to Amazon S3
+		// expected variables
+		// $key 		the user's key in the database
+		// $images		an array of images in the style created by resizeImage
+		// caption		the caption to go with the image
+		// Will return TRUE on success, a string as an error if not
+
+		global $dbh; // database connection
+
+		global $aws, $bucket; // aws details
+
+		global $web; // get the web server location
+
+		// check the caption is valid - you may want to do this before resizing the images
+		if(($cerror = valid('meme.caption',$_POST['caption'])) !== true) 
+			$error = $cerror;
+		else {
+			// check the s3 connection first
+			$s3 = Aws\S3\S3Client::factory($aws);
+			if(!class_exists('Aws\S3\S3Client') || !class_exists('Aws\CommandPool'))
+				$error = 'There was an error forming a connection to the resource server';
+			else {
+				if(!$s3->doesBucketExist($bucket)) // check the bucket is there
+					$error = 'There was an error locating the resource server';
+				else {
+					try {
+						if(($user = userDetails($key)) === false) $error = "There was an error with the key";
+						else {
+							// store in db
+							$sizes = array();
+
+							foreach ($images as $type => $csizes)
+								foreach ($csizes as $size => $image) {
+									if(!isset($sizes[$type])) $sizes[$type] = array();
+									array_push($sizes[$type], $size);
+								}
+
+							$sth = $dbh->prepare("INSERT INTO meme (iduser,sizes,caption, latitude, longitude) 
+								VALUES (?, ?, ?, ?, ?)");
+
+							$sth->execute(array(
+								$user->iduser,
+								json_encode($sizes),
+								$caption,
+								$lat,
+								$long
+							));
+
+							$id = $dbh->lastInsertId();
+						}
+					}
+					catch (PDOException $e) {
+						$error = "There was an error adding the meme to the database $e";
+					}
+
+					if(!isset($error)) {
+						// copy the images over to aws
+						$commands = array();
+
+						foreach ($images as $type => $csizes) {
+							foreach ($csizes as $size => $image) {
+								$commands[] = $s3->getCommand('PutObject', array(
+									'Bucket'     => $bucket,
+									'Key'        => $type.'/'.$size.'/'.$id.'.'.strtolower(pathinfo($image,PATHINFO_EXTENSION)),
+									'SourceFile' => $image,
+									'Metadata'   => array(
+										'User' => $user->iduser
+									)
+								));
+							}
+						}
+
+						$pool = new Aws\CommandPool($s3, $commands);
+
+						// Initiate the pool transfers
+						$promise = $pool->promise();
+
+						try { // Force the pool to complete synchronously
+							$result = $promise->wait();
+						}
+						catch (AwsException $e) {
+							$error = "There was an error transferring the images to the resource server";
+						}
+
+						if($link!==null) $link = $web . '/'. $user->username . '/' . $id;
+					}
+				}
+			}
+		}
+
+		// delete all of the images off the server (this happens even if errors were thrown)
+		foreach ($images as $type => $csizes)
+			foreach ($csizes as $size => $image)
+				unlink($image);
+
+		return isset($error) ? $error : true;
+	}
+
+	function userDetails($key) {
+		// returns an object containing all of the details
+		// expects the user's key as an input
+
+		global $dbh; // database connection
+
+		try {
+			$sql = "SELECT user.*
+					FROM user
+					WHERE ukey = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($key)); // sanitise user input
+
+			if($sth->rowCount()==0) return false;
+
+			return $sth->fetch(PDO::FETCH_OBJ);;
+		}
+		catch (PDOException $e) {
+			return false;
+		}
 	}
 ?>

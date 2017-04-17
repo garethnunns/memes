@@ -42,13 +42,18 @@
 					});
 
 					this.on("success",function(f, res) {
-						var r = JSON.parse(res);
+						try {
+							var r = JSON.parse(res);
 
-						if(r.success) {
-							alert("returned: " + res); 
+							if(r.success) {
+								alert("returned: " + res); 
+							}
+							else {
+								document.getElementById("error").innerHTML = (typeof r.error !== 'undefined') ? r.error : "There was an error";
+							}
 						}
-						else {
-							document.getElementById("error").innerHTML = (typeof r.error !== 'undefined') ? r.error : "There was an error";
+						catch(e) { // this means there was probably a PHP error
+							document.getElementById("error").innerHTML = "There was an internal error";
 						}
 					});
 				}
@@ -67,7 +72,6 @@
 				<p id="error" class="error"></p>
 				<div class="fallback">
 					<input name="file" type="file" />
-					<p><input type="submit" value="Post"></p>
 				</div>
 				<h3>Add a caption&hellip;</h3>
 				<textarea name="caption" id="caption" placeholder="It's optional"></textarea>
