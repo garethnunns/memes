@@ -72,7 +72,7 @@
 					</a>
 				</h4>
 				<p>".($meme['original'] ? "Original by {$meme['original']['username']}" : "Posted by {$meme['poster']['name']}")."</p>
-				<p><i>".date('r',$meme['time']['epoch'])."</i></p>
+				<p><i>{$meme['time']['ago']}</i></p>
 				<img src='{$meme['images']['full']}'>
 				<p>{$meme['caption']}</p>";
 			}

@@ -483,7 +483,6 @@
 
 		/* TODO
 			* comments & likes
-			* number of mins/hours/days ago
 		*/
 
 		global $dbh; // database connection
@@ -571,7 +570,8 @@ LIMIT 20 OFFSET :start";
 					),
 					'time' => array(
 						'str' => $row['posted'],
-						'epoch' => strtotime($row['posted'])
+						'ago' => ago(strtotime($row['posted'])),
+						'epoch' => strtotime($row['posted']),
 					),
 					'caption' => $row['caption'],
 					'lat' => $row['latitude'],
@@ -598,5 +598,34 @@ LIMIT 20 OFFSET :start";
 		error:
 
 		return $memes;
+	}
+
+	function ago($date) {
+		// a function for simply putting how long ago something happened
+		// $date should be an epoch integer
+		// return a string, like "5d"
+
+		$minute = 60;
+		$hour = 60*$minute;
+		$day = 24*$hour;
+		$week = 7*$day;
+		$year = 52*$week; // simplicities sake
+
+		if(!($date = intval($date)))
+			return false;
+		if(($diff = time() - $date) <= $minute)
+			return $diff.'s';
+		if($diff < $hour)
+			return floor($diff/$minute).'m';
+		if($diff < $day)
+			return floor($diff/$hour).'h';
+		if($diff < $week)
+			return floor($diff/$day).'d';
+		if($diff < $year)
+			return floor($diff/$week).'w';
+		else
+			return floor($diff/$year).'y';
+
+		return false; // if it for some reason didn't get caught by the if statement
 	}
 ?>
