@@ -479,12 +479,11 @@
 	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
 		// the user's meme feed
 		// expected the user's $key
-		// returns an array with their feed
+		// returns an array with the first 20 memes in their feed, starting at $start
 
 		/* TODO
 			* comments & likes
 			* number of mins/hours/days ago
-			* limit it to just that user's followers and themself
 		*/
 
 		global $dbh; // database connection
@@ -513,10 +512,23 @@ LEFT JOIN user AS o ON o.iduser = (
 
 WHERE m.iduser = p.iduser
 AND m.posted < CURRENT_TIMESTAMP
-ORDER BY m.posted DESC";
+AND (
+	-- show your own posts in the feed
+	m.iduser = :id
+	-- or ones you've followed
+	OR m.iduser IN (
+		SELECT followee
+		FROM follow
+		WHERE follower = :id
+	)
+)
+ORDER BY m.posted DESC
+LIMIT 20 OFFSET :start";
 
 			$sth = $dbh->prepare($sql); //executing SQL
-			$sth->execute(array($key));
+			$sth->bindParam(':id',$user->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
 
 			foreach ($sth->fetchAll() as $row) {
 				$sizes = json_decode($row['sizes'],true);
@@ -580,7 +592,7 @@ ORDER BY m.posted DESC";
 			}
 		}
 		catch (PDOException $e) {
-			$memes['error'] = "There was an error retreiving memes from the database";
+			$memes['error'] = "There was an error retreiving memes from the database $e";
 		}
 
 		error:

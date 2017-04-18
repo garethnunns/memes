@@ -61,6 +61,8 @@
 
 		if(isset($memes['error'])) // something went wrong
 			echo "<p class='error'>{$memes['error']}</p>";
+		elseif(!count($memes))
+			echo "<p><i>There are no memes to show at the moment, see the best posts in the <a href='/hot'>hot feed</a></i></p>";
 		else {
 			foreach ($memes as $meme) {
 				echo "
