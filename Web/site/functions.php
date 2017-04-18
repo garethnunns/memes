@@ -387,14 +387,16 @@
 								foreach ($csizes as $size => $image) {
 									if(!isset($sizes[$type])) $sizes[$type] = array();
 									array_push($sizes[$type], $size);
+									$ext = strtolower(pathinfo($image,PATHINFO_EXTENSION));
 								}
 
-							$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, caption, latitude, longitude) 
-								VALUES (?, ?, ?, ?, ?)");
+							$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, ext, caption, latitude, longitude) 
+								VALUES (?, ?, ?, ?, ?, ?)");
 
 							$sth->execute(array(
 								$user->iduser,
 								json_encode($sizes),
+								$ext,
 								$caption,
 								$lat,
 								$long
@@ -404,7 +406,7 @@
 						}
 					}
 					catch (PDOException $e) {
-						$error = "There was an error adding the meme to the database $e";
+						$error = "There was an error adding the meme to the database";
 					}
 
 					if(!isset($error)) {
@@ -415,7 +417,7 @@
 							foreach ($csizes as $size => $image) {
 								$commands[] = $s3->getCommand('PutObject', array(
 									'Bucket'     => $bucket,
-									'Key'        => $type.'/'.$size.'/'.$id.'.'.strtolower(pathinfo($image,PATHINFO_EXTENSION)),
+									'Key'        => $type.'/'.$size.'/'.$id.'.'.$ext,
 									'SourceFile' => $image,
 									'Metadata'   => array(
 										'User' => $user->iduser
@@ -472,5 +474,117 @@
 		catch (PDOException $e) {
 			return false;
 		}
+	}
+
+	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
+		// the user's meme feed
+		// expected the user's $key
+		// returns an array with their feed
+
+		/* TODO
+			* comments & likes
+			* number of mins/hours/days ago
+			* limit it to just that user's followers and themself
+		*/
+
+		global $dbh; // database connection
+
+		global $res; // resource server
+
+		$memes = array();
+
+		if(($user = userDetails($key)) === false){
+			$memes['error'] = "Invalid user key";
+			goto error;
+		}
+
+
+		try {
+			$sql = "
+SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName,
+o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName
+FROM meme AS m, user AS p
+
+LEFT JOIN user AS o ON o.iduser = (
+    SELECT om.iduser
+    FROM meme AS om
+    WHERE om.idmeme = m.share
+)
+
+WHERE m.iduser = p.iduser
+AND m.posted < CURRENT_TIMESTAMP
+ORDER BY m.posted DESC";
+
+			$sth = $dbh->prepare($sql); //executing SQL
+			$sth->execute(array($key));
+
+			foreach ($sth->fetchAll() as $row) {
+				$sizes = json_decode($row['sizes'],true);
+
+				if($sizes == null) {
+					$memes['error'] = "There was an error interpretting the meme size for {$row['idmeme']}";
+					goto error; // just return the error and don't do any more
+				}
+
+				$pref = array( // what was asked for
+					'thumb' => $thumb,
+					'full' => $full
+				);
+
+				$chosen = array(); // what they'll get
+
+				foreach ($sizes as $kind => $ksizes) {
+					asort($ksizes); // ascending order
+					foreach ($ksizes as $size) { // keep going till we find the first one bigger than what they asked for
+						$chosen[$kind] = $size;
+						if($size >= $pref[$kind]) break;
+					}
+				}
+
+				$images = array();
+
+				foreach ($chosen as $kind => $size) {
+					$images[$kind] = $res . $kind . '/' . $size . '/' . (empty($row['share']) ? $row['idmeme'] : $row['share']) . '.' . $row['ext'];
+				}
+
+				$meme = array(
+					'idmeme' => $row['idmeme'],
+					'images' => $images,
+					'sizes' => $chosen,
+					'ext' => $row['ext'],
+					'poster' => array (
+						'iduser' => $row['iduser'],
+						'username' => $row['pUsername'],
+						'name' => $row['pName']
+					),
+					'time' => array(
+						'str' => $row['posted'],
+						'epoch' => strtotime($row['posted'])
+					),
+					'caption' => $row['caption'],
+					'lat' => $row['latitude'],
+					'long' => $row['longitude'],
+				);
+
+				if(empty($row['share'])) // an original post
+					$meme['original'] = false;
+				else
+					$meme['original'] = array(
+						'idmeme' => $row['share'],
+						'username' => $row['oUsername'],
+						'name' => $row['oName']
+					);
+
+
+				array_push($memes, $meme);
+			}
+		}
+		catch (PDOException $e) {
+			$memes['error'] = "There was an error retreiving memes from the database";
+		}
+
+		error:
+
+		return $memes;
 	}
 ?>

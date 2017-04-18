@@ -52,18 +52,31 @@
 <?php
 	}
 	else {
-		$user = userDetails($_SESSION['key']);
+		if(isset($_GET['new'])) {
+			$user = userDetails($_SESSION['key']);
+			echo "<h1>Welcome {$user->firstName} {$user->surname}</h1>";
+		}
 
-		if(isset($_GET['new'])) echo "<h1>Welcome {$user->firstName} {$user->surname}</h1>";
+		$memes = memeFeed($_SESSION['key']);
 
-		//$sql = "SELECT meme.*, user.username, CONCAT(user.firstName, ";
+		if(isset($memes['error'])) // something went wrong
+			echo "<p class='error'>{$memes['error']}</p>";
+		else {
+			foreach ($memes as $meme) {
+				echo "
+				<h4>".(($meme['original']) ? 'Reposted by' : '')."
+					<a href='{$web}{$meme['poster']['username']}' title='{$meme['poster']['name']}'>
+						{$meme['poster']['username']}
+					</a>
+				</h4>
+				<p>".($meme['original'] ? "Original by {$meme['original']['username']}" : "Posted by {$meme['poster']['name']}")."</p>
+				<p><i>".date('r',$meme['time']['epoch'])."</i></p>
+				<img src='{$meme['images']['full']}'>
+				<p>{$meme['caption']}</p>";
+			}
+		}
 
-		//$sth = $dbh->prepare($sql); //executing SQL
-		//$sth->execute(array($key));
-
-		//foreach ($sth->fetchAll() as $row) {
-
-		//}
+		print_r($memes);
 ?>
 <?php
 	} // end of being logged in
