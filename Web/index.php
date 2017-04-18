@@ -1,5 +1,5 @@
 <?php
-	require_once 'site/functions.php';
+	require_once 'site/web.php';
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -86,6 +86,6 @@
 
 		</div>
 
-		<?php if(loggedIn()) include 'site/footer.php'; ?>
+		<?php include 'site/footer.php'; ?>
 	</body>
 </html>

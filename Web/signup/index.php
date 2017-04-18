@@ -1,7 +1,7 @@
 <?php
-	require_once '../site/functions.php';
+	require_once '../site/web.php';
 
-	if(isset($_SESSION['user'])) // user already logged in
+	if(loggedIn()) // user already logged in
 		header("Location: /");
 
 	if(isset($_POST['signup'])) { // adding a user

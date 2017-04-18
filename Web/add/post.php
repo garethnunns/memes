@@ -1,5 +1,5 @@
 <?php
-	require_once '../site/functions.php';
+	require_once '../site/web.php';
 	check();
 
 	require_once dirname(__FILE__).'/../site/aws/aws-autoloader.php';

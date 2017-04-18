@@ -1,10 +1,10 @@
-<?php require_once dirname(__FILE__).'/functions.php'; ?>
+<?php require_once dirname(__FILE__).'/web.php'; ?>
 <header>
 	<div class="wrapper">
 		<h1><a href="/">Meme Me</a></h1>
 
 <?php
-	if(isset($_SESSION['user'])) {
+	if(loggedIn()) {
 		// when the user is logged in these buttons will display
 ?>
 		<div class="buttons">

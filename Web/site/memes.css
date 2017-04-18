@@ -165,35 +165,35 @@ footer {
   background-color: white;
   text-align: center;
 }
-/* line 110, ../scss/memes.scss */
-footer a {
+/* line 111, ../scss/memes.scss */
+footer .links a {
   margin: 0 15px;
 }
 
-/* line 118, ../scss/memes.scss */
+/* line 120, ../scss/memes.scss */
 #login td:not([colspan="2"]), #signup td:not([colspan="2"]) {
   width: 50%;
 }
-/* line 122, ../scss/memes.scss */
+/* line 124, ../scss/memes.scss */
 #login td:nth-child(1), #signup td:nth-child(1) {
   text-align: right;
 }
-/* line 126, ../scss/memes.scss */
+/* line 128, ../scss/memes.scss */
 #login td:nth-child(2), #signup td:nth-child(2) {
   text-align: left;
 }
-/* line 130, ../scss/memes.scss */
+/* line 132, ../scss/memes.scss */
 #login [colspan="2"], #signup [colspan="2"] {
   text-align: center !important;
 }
 
-/* line 136, ../scss/memes.scss */
+/* line 138, ../scss/memes.scss */
 #memeUpload textarea {
   width: 50%;
   height: 40px;
 }
 
-/* line 143, ../scss/memes.scss */
+/* line 145, ../scss/memes.scss */
 .error {
   color: #f91616;
   font-weight: bold;

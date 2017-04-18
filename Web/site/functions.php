@@ -31,26 +31,6 @@
 	);
 	$bucket = 'memes-store';
 
-	function check() {
-		if(!loggedIn()) { // user not logged in
-			header("Location: /?goingto=".filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL));
-			die('pls login');
-		}
-	}
-
-	function loggedIn() {
-		// web function for checking if session variable is set and correct
-		// returns bool
-
-		if(!isset($_SESSION['user']) || !isset($_SESSION['key']))
-			return false;
-		if(($user = userDetails($_SESSION['key'])) === false) { // couldn't find user with that ket
-			session_destroy();
-			die('The account you are logged in on no longer exists');
-		}
-		return true;
-	}
-
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
 		// for any $text it will check that $field in the database can take length string

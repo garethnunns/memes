@@ -1,5 +1,5 @@
 <?php
-	require_once 'site/functions.php';
+	require_once 'site/web.php';
 
 	try {
 		$sql = "SELECT user.password, user.iduser, user.ukey

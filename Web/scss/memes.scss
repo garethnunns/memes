@@ -107,8 +107,10 @@ footer {
 	background-color: $white;
 	text-align: center;
 
-	a {
-		margin: 0 15px;
+	.links {
+		a {
+			margin: 0 15px;
+		}
 	}
 }
 
