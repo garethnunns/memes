@@ -64,18 +64,8 @@
 		elseif(!count($memes))
 			echo "<p><i>There are no memes to show at the moment, see the best posts in the <a href='/hot'>hot feed</a></i></p>";
 		else {
-			foreach ($memes as $meme) {
-				echo "
-				<h4>".(($meme['original']) ? 'Reposted by' : '')."
-					<a href='{$web}{$meme['poster']['username']}' title='{$meme['poster']['name']}'>
-						{$meme['poster']['username']}
-					</a>
-				</h4>
-				<p>".($meme['original'] ? "Original by {$meme['original']['username']}" : "Posted by {$meme['poster']['name']}")."</p>
-				<p><i>{$meme['time']['ago']}</i></p>
-				<img src='{$meme['images']['full']}'>
-				<p>{$meme['caption']}</p>";
-			}
+			foreach ($memes as $meme) 
+				displayMeme($meme);
 		}
 
 		print_r($memes);

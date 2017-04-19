@@ -31,11 +31,19 @@
 	);
 	$bucket = 'memes-store';
 
+	$defaultPics = array( // for now these are hard coded - could list the objects in the bucket
+		'profile/default/pepe.png',
+		'profile/default/doge.png',
+		'profile/default/lol.png'
+	);
+
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
 		// for any $text it will check that $field in the database can take length string
 		// or check it's not too few characters
 		// returns true or an error string
+
+		// TODO validate name so that it can old have letters and spaces in - \p{L} internationalisation...
 
 		global $dbh;
 
@@ -462,7 +470,9 @@
 		// returns an array with the first 20 memes in their feed, starting at $start
 
 		/* TODO
-			* comments & likes
+			* repostable
+			* liked already
+			* remove $e in errors when out of dev
 		*/
 
 		global $dbh; // database connection
@@ -479,18 +489,36 @@
 
 		try {
 			$sql = "
-SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName,
-o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName
-FROM meme AS m, user AS p
+SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri,
+o.iduser AS oIduser, o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName, o.picUri as oPicUri,
+(
+	SELECT COUNT(s.idmeme)
+	FROM meme AS s 
+	WHERE s.share = m.idmeme
+	OR s.share = m.share
+) AS reposts,
+1 AS repostable,
+COUNT(reply.idreply) AS comments,
+COUNT(star.iduser) AS stars
+FROM meme AS m
 
+-- user who did this post
+LEFT JOIN user as p ON m.iduser = p.iduser
+
+-- get the details of the original poster
 LEFT JOIN user AS o ON o.iduser = (
     SELECT om.iduser
     FROM meme AS om
     WHERE om.idmeme = m.share
 )
 
-WHERE m.iduser = p.iduser
-AND m.posted < CURRENT_TIMESTAMP
+-- replies, stars & shares
+LEFT JOIN reply ON reply.idmeme = m.idmeme
+LEFT JOIN star ON star.idmeme = m.idmeme
+-- LEFT JOIN meme AS s ON s.share = m.idmeme
+
+-- future proof against scheduled posts
+WHERE m.posted < CURRENT_TIMESTAMP
 AND (
 	-- show your own posts in the feed
 	m.iduser = :id
@@ -501,13 +529,16 @@ AND (
 		WHERE follower = :id
 	)
 )
+GROUP BY m.idmeme
 ORDER BY m.posted DESC
 LIMIT 20 OFFSET :start";
 
-			$sth = $dbh->prepare($sql); //executing SQL
+			$sth = $dbh->prepare($sql);
 			$sth->bindParam(':id',$user->iduser);
 			$sth->bindParam(':start',$start, PDO::PARAM_INT);
 			$sth->execute();
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
 
 			foreach ($sth->fetchAll() as $row) {
 				$sizes = json_decode($row['sizes'],true);
@@ -546,12 +577,13 @@ LIMIT 20 OFFSET :start";
 					'poster' => array (
 						'iduser' => $row['iduser'],
 						'username' => $row['pUsername'],
-						'name' => $row['pName']
+						'name' => $row['pName'],
+						'pic' => $res.$row['pPicUri']
 					),
 					'time' => array(
-						'str' => $row['posted'],
-						'ago' => ago(strtotime($row['posted'])),
 						'epoch' => strtotime($row['posted']),
+						'str' => $row['posted'],
+						'ago' => ago(strtotime($row['posted']))
 					),
 					'caption' => $row['caption'],
 					'lat' => $row['latitude'],
@@ -563,10 +595,53 @@ LIMIT 20 OFFSET :start";
 				else
 					$meme['original'] = array(
 						'idmeme' => $row['share'],
+						'iduser' => $row['oIduser'],
 						'username' => $row['oUsername'],
-						'name' => $row['oName']
+						'name' => $row['oName'],
+						'pic' => $res.$row['oPicUri']
 					);
 
+				$meme['reposts-num'] = $row['reposts'];
+				$meme['repostable'] = $row['repostable'];
+				$meme['stars-num'] = $row['stars'];
+				$meme['comments-num'] = $row['comments'];
+				if($row['comments']) {
+					$meme['comments'] = array();
+					
+					$sql = "
+					SELECT reply.*, user.username, CONCAT(user.firstName,' ',user.surname) as name, user.picUri
+					FROM reply, user
+					WHERE reply.idmeme = {$row['idmeme']}
+					AND reply.iduser = user.iduser
+					ORDER BY reply.replyed DESC";
+					if($limitComments) $sql .= " LIMIT 5";
+
+					$csth = $dbh->prepare($sql);
+					$csth->execute();
+
+					foreach ($csth->fetchAll() as $crow) {
+						$comment = array(
+							'idcomment' => $crow['idreply'],
+							'comment' => $crow['reply'],
+							'commenter' => array (
+								'iduser' => $crow['iduser'],
+								'username' => $crow['username'],
+								'name' => $crow['name'],
+								'pic' => $res.$crow['picUri']
+							),
+							'time' => array(
+								'epoch' => strtotime($crow['replyed']),
+								'str' => $crow['replyed'],
+								'ago' => ago(strtotime($crow['replyed']))
+							),
+						);
+
+						array_push($meme['comments'],$comment);
+					}
+
+					// so when it's limited to the last five they come up in the right order
+					$meme['comments'] = array_reverse($meme['comments']); 
+				}
 
 				array_push($memes, $meme);
 			}
