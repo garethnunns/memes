@@ -5,10 +5,14 @@
 
 <?php
 	if(loggedIn()) {
+		$user = userDetails($_SESSION['key']);
 		// when the user is logged in these buttons will display
 ?>
 		<div class="buttons">
-			<a href="/logout">Logout</a>
+			<?php echo '<a href="/'.$user->username.'" class="pp"><img src="'.$res.$user->picUri.'" alt="'.$user->username.' profile picture" /></a>'; ?>
+			<a href="/starred" class="icon-star-full" title="Starred"></a>
+			<a href="/settings" class="icon-settings" title="Settings"></a>
+			<a href="/logout" class="icon-exit" title="Logout"></a>
 		</div>
 <?php
 	}

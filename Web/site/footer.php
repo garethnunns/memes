@@ -2,16 +2,21 @@
 <?php
 	require_once dirname(__FILE__).'/web.php';
 	if(loggedIn()) { 
+		$user = userDetails($_SESSION['key']);
 ?>
 	<div class="wrapper links">
-		<a href="/">Feed</a><a href="/hot">Hot</a><a href="/add">Add</a><a href="/notifications">Notifications</a><a href="/profile">Profile</a>
+		<a href="/" class="icon-feed"></a>
+		<a href="/hot" class="icon-fire"></a>
+		<a href="/add" class="icon-add"></a>
+		<a href="/notifications" class="icon-notifications"></a>
+		<?php echo '<a href="/'.$user->username.'" class="pp"><img src="'.$res.$user->picUri.'" alt="'.$user->username.' profile picture" /></a>'; ?>
 	</div>
 <?php
 	}
 	else {
 ?>
 	<div class="wrapper signup">
-		<p>Why not <a href="/signup">signup for an account</a>, it's pretty cool&hellip;</p>
+		<p>Why not <a href="/signup">signup for an account</a>,<wbr> they're pretty cool&hellip;</p>
 	</div>
 <?php } ?>
 </footer>

@@ -1,0 +1,77 @@
+$icomoon-font-path: "fonts" !default;
+
+$icon-notifications: "\e951";
+$icon-settings: "\e994";
+$icon-fire: "\e9a9";
+$icon-feed: "\e9bd";
+$icon-star-empty: "\e9d7";
+$icon-star-full: "\e9d9";
+$icon-add: "\ea0a";
+$icon-exit: "\ea14";
+
+@font-face {
+  font-family: 'memes';
+  src:  url('#{$icomoon-font-path}/memes.eot?baeozy');
+  src:  url('#{$icomoon-font-path}/memes.eot?baeozy#iefix') format('embedded-opentype'),
+    url('#{$icomoon-font-path}/memes.ttf?baeozy') format('truetype'),
+    url('#{$icomoon-font-path}/memes.woff?baeozy') format('woff'),
+    url('#{$icomoon-font-path}/memes.svg?baeozy#memes') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'memes' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-notifications {
+  &:before {
+    content: $icon-notifications;
+  }
+}
+.icon-settings {
+  &:before {
+    content: $icon-settings;
+  }
+}
+.icon-fire {
+  &:before {
+    content: $icon-fire;
+  }
+}
+.icon-feed {
+  &:before {
+    content: $icon-feed;
+  }
+}
+.icon-star-empty {
+  &:before {
+    content: $icon-star-empty;
+  }
+}
+.icon-star-full {
+  &:before {
+    content: $icon-star-full;
+  }
+}
+.icon-add {
+  &:before {
+    content: $icon-add;
+  }
+}
+.icon-exit {
+  &:before {
+    content: $icon-exit;
+  }
+}

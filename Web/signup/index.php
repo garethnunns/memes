@@ -52,7 +52,7 @@
 
 			// we've got everything we need so we'll add them to the database
 			try {
-				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname) 
+				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname,picUri) 
 					VALUES (?, ?, ?, ?, ?, ?)");
 
 				$sth->execute(array(
@@ -61,7 +61,8 @@
 					password_hash($_POST['password1'],PASSWORD_DEFAULT),
 					$_POST['email'],
 					$_POST['firstName'],
-					$_POST['surname']
+					$_POST['surname'],
+					$defaultPics[mt_rand(0, count($$defaultPicture) - 1)]
 				));
 
 				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
