@@ -3,7 +3,7 @@
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title>Memes</title>
+		<title><?php echo $sitename; ?></title>
 
 		<?php include 'site/head.php'; ?>
 	</head>

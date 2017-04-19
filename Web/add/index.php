@@ -4,7 +4,7 @@
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title>Memes · Add Meme</title>
+		<title><?php echo $sitename; ?> · Add Meme</title>
 
 		<?php include '../site/head.php'; ?>
 

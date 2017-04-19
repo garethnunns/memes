@@ -79,7 +79,7 @@
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title>Memes · Sign up</title>
+		<title><?php echo $sitename; ?> · Sign up</title>
 
 		<?php include '../site/head.php'; ?>
 	</head>
