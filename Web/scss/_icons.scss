@@ -1,21 +1,23 @@
 $icomoon-font-path: "fonts" !default;
 
 $icon-notifications: "\e951";
+$icon-comment: "\e96b";
 $icon-settings: "\e994";
-$icon-fire: "\e9a9";
+$icon-hot: "\e9a9";
 $icon-feed: "\e9bd";
 $icon-star-empty: "\e9d7";
 $icon-star-full: "\e9d9";
 $icon-add: "\ea0a";
-$icon-exit: "\ea14";
+$icon-logout: "\ea14";
+$icon-repost: "\ea2d";
 
 @font-face {
   font-family: 'memes';
-  src:  url('#{$icomoon-font-path}/memes.eot?baeozy');
-  src:  url('#{$icomoon-font-path}/memes.eot?baeozy#iefix') format('embedded-opentype'),
-    url('#{$icomoon-font-path}/memes.ttf?baeozy') format('truetype'),
-    url('#{$icomoon-font-path}/memes.woff?baeozy') format('woff'),
-    url('#{$icomoon-font-path}/memes.svg?baeozy#memes') format('svg');
+  src:  url('#{$icomoon-font-path}/memes.eot?tw67j0');
+  src:  url('#{$icomoon-font-path}/memes.eot?tw67j0#iefix') format('embedded-opentype'),
+    url('#{$icomoon-font-path}/memes.ttf?tw67j0') format('truetype'),
+    url('#{$icomoon-font-path}/memes.woff?tw67j0') format('woff'),
+    url('#{$icomoon-font-path}/memes.svg?tw67j0#memes') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -40,14 +42,19 @@ $icon-exit: "\ea14";
     content: $icon-notifications;
   }
 }
+.icon-comment {
+  &:before {
+    content: $icon-comment;
+  }
+}
 .icon-settings {
   &:before {
     content: $icon-settings;
   }
 }
-.icon-fire {
+.icon-hot {
   &:before {
-    content: $icon-fire;
+    content: $icon-hot;
   }
 }
 .icon-feed {
@@ -70,8 +77,14 @@ $icon-exit: "\ea14";
     content: $icon-add;
   }
 }
-.icon-exit {
+.icon-logout {
   &:before {
-    content: $icon-exit;
+    content: $icon-logout;
   }
 }
+.icon-repost {
+  &:before {
+    content: $icon-repost;
+  }
+}
+

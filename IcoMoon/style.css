@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'memes';
-  src:  url('fonts/memes.eot?baeozy');
-  src:  url('fonts/memes.eot?baeozy#iefix') format('embedded-opentype'),
-    url('fonts/memes.ttf?baeozy') format('truetype'),
-    url('fonts/memes.woff?baeozy') format('woff'),
-    url('fonts/memes.svg?baeozy#memes') format('svg');
+  src:  url('fonts/memes.eot?tw67j0');
+  src:  url('fonts/memes.eot?tw67j0#iefix') format('embedded-opentype'),
+    url('fonts/memes.ttf?tw67j0') format('truetype'),
+    url('fonts/memes.woff?tw67j0') format('woff'),
+    url('fonts/memes.svg?tw67j0#memes') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -27,10 +27,13 @@
 .icon-notifications:before {
   content: "\e951";
 }
+.icon-comment:before {
+  content: "\e96b";
+}
 .icon-settings:before {
   content: "\e994";
 }
-.icon-fire:before {
+.icon-hot:before {
   content: "\e9a9";
 }
 .icon-feed:before {
@@ -45,7 +48,10 @@
 .icon-add:before {
   content: "\ea0a";
 }
-.icon-exit:before {
+.icon-logout:before {
   content: "\ea14";
+}
+.icon-repost:before {
+  content: "\ea2d";
 }
 

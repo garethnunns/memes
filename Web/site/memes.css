@@ -416,14 +416,19 @@ table td {
   text-align: center;
 }
 
+/* line 60, ../scss/memes.scss */
+img {
+  max-width: 100%;
+}
+
 @font-face {
   font-family: 'memes';
-  src: url("fonts/memes.eot?baeozy");
-  src: url("fonts/memes.eot?baeozy#iefix") format("embedded-opentype"), url("fonts/memes.ttf?baeozy") format("truetype"), url("fonts/memes.woff?baeozy") format("woff"), url("fonts/memes.svg?baeozy#memes") format("svg");
+  src: url("fonts/memes.eot?tw67j0");
+  src: url("fonts/memes.eot?tw67j0#iefix") format("embedded-opentype"), url("fonts/memes.ttf?tw67j0") format("truetype"), url("fonts/memes.woff?tw67j0") format("woff"), url("fonts/memes.svg?tw67j0#memes") format("svg");
   font-weight: normal;
   font-style: normal;
 }
-/* line 23, ../scss/_icons.scss */
+/* line 25, ../scss/_icons.scss */
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'memes' !important;
@@ -438,44 +443,54 @@ table td {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* line 39, ../scss/_icons.scss */
+/* line 41, ../scss/_icons.scss */
 .icon-notifications:before {
   content: "";
 }
 
-/* line 44, ../scss/_icons.scss */
+/* line 46, ../scss/_icons.scss */
+.icon-comment:before {
+  content: "";
+}
+
+/* line 51, ../scss/_icons.scss */
 .icon-settings:before {
   content: "";
 }
 
-/* line 49, ../scss/_icons.scss */
-.icon-fire:before {
+/* line 56, ../scss/_icons.scss */
+.icon-hot:before {
   content: "";
 }
 
-/* line 54, ../scss/_icons.scss */
+/* line 61, ../scss/_icons.scss */
 .icon-feed:before {
   content: "";
 }
 
-/* line 59, ../scss/_icons.scss */
+/* line 66, ../scss/_icons.scss */
 .icon-star-empty:before {
   content: "";
 }
 
-/* line 64, ../scss/_icons.scss */
+/* line 71, ../scss/_icons.scss */
 .icon-star-full:before {
   content: "";
 }
 
-/* line 69, ../scss/_icons.scss */
+/* line 76, ../scss/_icons.scss */
 .icon-add:before {
   content: "";
 }
 
-/* line 74, ../scss/_icons.scss */
-.icon-exit:before {
+/* line 81, ../scss/_icons.scss */
+.icon-logout:before {
   content: "";
+}
+
+/* line 86, ../scss/_icons.scss */
+.icon-repost:before {
+  content: "";
 }
 
 /*
@@ -548,7 +563,7 @@ table td {
   margin-left: -27px;
 }
 
-/* line 65, ../scss/memes.scss */
+/* line 68, ../scss/memes.scss */
 body {
   margin: 0;
   padding: 0;
@@ -557,7 +572,7 @@ body {
   color: #444;
 }
 
-/* line 74, ../scss/memes.scss */
+/* line 77, ../scss/memes.scss */
 .wrapper {
   position: relative;
   margin: 0 auto;
@@ -565,7 +580,7 @@ body {
   max-width: 1000px;
 }
 
-/* line 82, ../scss/memes.scss */
+/* line 85, ../scss/memes.scss */
 header + .wrapper {
   margin-top: 100px;
   margin-bottom: 100px;
@@ -649,30 +664,104 @@ footer .links a.pp img {
   height: 32px;
 }
 
-/* line 92, ../scss/memes.scss */
+/* line 5, ../scss/_meme.scss */
+.memeContainer {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 9, ../scss/_meme.scss */
+.memeContainer .meme-ago {
+  float: right;
+  font-style: italic;
+  font-weight: 400;
+}
+/* line 15, ../scss/_meme.scss */
+.memeContainer .meme-comment {
+  overflow: hidden;
+  *zoom: 1;
+  font-weight: bold;
+}
+/* line 20, ../scss/_meme.scss */
+.memeContainer .meme-comment img.pp {
+  float: left;
+  height: 30px;
+  margin-right: 10px;
+}
+/* line 27, ../scss/_meme.scss */
+.memeContainer .meme-header {
+  position: relative;
+}
+/* line 30, ../scss/_meme.scss */
+.memeContainer .meme-header img.pp {
+  float: left;
+  height: 65px;
+  margin-right: 10px;
+}
+/* line 36, ../scss/_meme.scss */
+.memeContainer .meme-header .ago {
+  margin-top: 23px;
+  font-size: 20px;
+}
+/* line 42, ../scss/_meme.scss */
+.memeContainer img.meme {
+  padding: 10px 0;
+}
+/* line 46, ../scss/_meme.scss */
+.memeContainer > .meme-comment {
+  font-size: 20px;
+}
+/* line 50, ../scss/_meme.scss */
+.memeContainer .meme-actions {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 53, ../scss/_meme.scss */
+.memeContainer .meme-actions div {
+  float: left;
+  margin-left: 3.2%;
+  padding: 1%;
+  width: 29.2%;
+  font-size: 20px;
+  text-align: center;
+}
+/* line 64, ../scss/_meme.scss */
+.memeContainer .meme-actions div:nth-of-type(3n+1) {
+  margin-left: 0;
+}
+/* line 72, ../scss/_meme.scss */
+.memeContainer .meme-comments .meme-comment .meme-comment-name {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 76, ../scss/_meme.scss */
+.memeContainer .meme-comments .meme-comment p {
+  margin-left: 40px;
+}
+
+/* line 95, ../scss/memes.scss */
 #login td:not([colspan="2"]), #signup td:not([colspan="2"]) {
   width: 50%;
 }
-/* line 96, ../scss/memes.scss */
+/* line 99, ../scss/memes.scss */
 #login td:nth-child(1), #signup td:nth-child(1) {
   text-align: right;
 }
-/* line 100, ../scss/memes.scss */
+/* line 103, ../scss/memes.scss */
 #login td:nth-child(2), #signup td:nth-child(2) {
   text-align: left;
 }
-/* line 104, ../scss/memes.scss */
+/* line 107, ../scss/memes.scss */
 #login [colspan="2"], #signup [colspan="2"] {
   text-align: center !important;
 }
 
-/* line 110, ../scss/memes.scss */
+/* line 113, ../scss/memes.scss */
 #memeUpload textarea {
   width: 50%;
   height: 40px;
 }
 
-/* line 117, ../scss/memes.scss */
+/* line 120, ../scss/memes.scss */
 .error {
   color: #f91616;
   font-weight: bold;

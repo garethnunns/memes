@@ -1,3 +1,81 @@
-.meme {
-	
+$mHeaderHeight: 65px;
+$cImageSize: 1.5*$font-size-large; 
+$cImageMargin: ceil($font-size-large/2);
+
+.memeContainer {
+	@include clearfix;
+
+	// generics
+	.meme-ago {
+		float: right;
+		font-style: italic;
+		font-weight: 400;
+	}
+
+	.meme-comment {
+		@include clearfix;
+
+		font-weight: bold;
+
+		img.pp {
+			float: left;
+			height: $cImageSize;
+			margin-right: $cImageMargin;
+		}
+	}
+
+	.meme-header {
+		position: relative;
+
+		img.pp {
+			float: left;
+			height: $mHeaderHeight;
+			margin-right: 10px;
+		}
+
+		.ago {
+			margin-top: ceil(($mHeaderHeight - $font-size-large)/2);
+			font-size: $font-size-large;
+		}
+	}
+
+	img.meme {
+		padding: 10px 0;
+	}
+
+	& > .meme-comment {
+		font-size: $font-size-large;
+	}
+
+	.meme-actions {
+		@include clearfix;
+
+		div {
+			// http://codepen.io/gjn/full/LuKcg
+
+			float: left;
+			margin-left: 3.2%;
+			padding: 1%;
+			width: 29.2%;
+			
+			font-size: $font-size-large;
+			text-align: center;
+
+			&:nth-of-type(3n+1) {
+				margin-left: 0;
+			}
+		}
+	}
+
+	.meme-comments {
+		.meme-comment {
+			.meme-comment-name {
+				@include clearfix;
+			}
+
+			p {
+				margin-left: $cImageSize + $cImageMargin;
+			}
+		}
+	}
 }

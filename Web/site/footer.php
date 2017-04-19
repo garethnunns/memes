@@ -6,7 +6,7 @@
 ?>
 	<div class="wrapper links">
 		<a href="/" class="icon-feed"></a>
-		<a href="/hot" class="icon-fire"></a>
+		<a href="/hot" class="icon-hot"></a>
 		<a href="/add" class="icon-add"></a>
 		<a href="/notifications" class="icon-notifications"></a>
 		<?php echo '<a href="/'.$user->username.'" class="pp"><img src="'.$res.$user->picUri.'" alt="'.$user->username.' profile picture" /></a>'; ?>

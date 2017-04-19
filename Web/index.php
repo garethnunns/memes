@@ -68,7 +68,10 @@
 				displayMeme($meme);
 		}
 
+		// TODO remove when out of dev
+		echo "<!--";
 		print_r($memes);
+		echo "-->";
 ?>
 <?php
 	} // end of being logged in

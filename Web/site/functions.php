@@ -479,7 +479,7 @@
 
 		global $dbh; // database connection
 
-		global $res; // resource server
+		global $web, $res; // servers
 
 		$memes = array();
 
@@ -573,11 +573,13 @@ LIMIT 20 OFFSET :start";
 
 				$meme = array(
 					'idmeme' => $row['idmeme'],
+					'link' => $web.$row['pUsername'].'/'.$row['idmeme'],
 					'images' => $images,
 					'sizes' => $chosen,
 					'ext' => $row['ext'],
 					'poster' => array (
 						'iduser' => $row['iduser'],
+						'link' => $web.$row['pUsername'],
 						'username' => $row['pUsername'],
 						'name' => $row['pName'],
 						'pic' => $res.$row['pPicUri']
@@ -597,10 +599,14 @@ LIMIT 20 OFFSET :start";
 				else
 					$meme['original'] = array(
 						'idmeme' => $row['share'],
-						'iduser' => $row['oIduser'],
-						'username' => $row['oUsername'],
-						'name' => $row['oName'],
-						'pic' => $res.$row['oPicUri']
+						'link' => $web.$row['oUsername'].'/'.$row['share'],
+						'poster' => array (
+							'iduser' => $row['oIduser'],
+							'link' => $web.$row['oUsername'],
+							'username' => $row['oUsername'],
+							'name' => $row['oName'],
+							'pic' => $res.$row['oPicUri']
+						)
 					);
 
 				$meme['reposts-num'] = $row['reposts'];
@@ -628,6 +634,7 @@ LIMIT 20 OFFSET :start";
 							'commenter' => array (
 								'iduser' => $crow['iduser'],
 								'username' => $crow['username'],
+								'link' => $web.$crow['username'],
 								'name' => $crow['name'],
 								'pic' => $res.$crow['picUri']
 							),
