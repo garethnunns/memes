@@ -53,8 +53,8 @@
 			".htmlspecialchars($meme['caption'])."</p>
 			<div class='meme-actions'>
 				<div><span class='icon-comment'></span><br>{$meme['comments-num']} comments</div>
-				<div><span class='icon-star-empty'></span><br>{$meme['stars-num']} stars</div>
-				<div><span class='icon-repost'></span><br>{$meme['reposts-num']} reposts</div>
+				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'></span><br>{$meme['stars-num']} stars</div>
+				<div><span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span><br>{$meme['reposts-num']} reposts</div>
 			</div>";
 		if($meme['comments-num'] > 5)
 			echo "<a href='{$meme['link']}' title='Go to post'>View all comments&hellip;</a>";

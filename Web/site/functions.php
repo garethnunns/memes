@@ -39,6 +39,30 @@
 		'profile/default/lol.png'
 	);
 
+	function userDetails($key) {
+		// returns an object containing all of the details
+		// expects the user's key as an input
+
+		global $dbh; // database connection
+
+		try {
+			$sql = "SELECT user.*
+					FROM user
+					WHERE ukey = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($key)); // sanitise user input
+
+			if($sth->rowCount()==0) return false;
+
+			return $sth->fetch(PDO::FETCH_OBJ);;
+		}
+		catch (PDOException $e) {
+			return false;
+		}
+	}
+
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
 		// for any $text it will check that $field in the database can take length string
@@ -442,38 +466,12 @@
 		return isset($error) ? $error : true;
 	}
 
-	function userDetails($key) {
-		// returns an object containing all of the details
-		// expects the user's key as an input
-
-		global $dbh; // database connection
-
-		try {
-			$sql = "SELECT user.*
-					FROM user
-					WHERE ukey = ?";
-
-			$sth = $dbh->prepare($sql);
-
-			$sth->execute(array($key)); // sanitise user input
-
-			if($sth->rowCount()==0) return false;
-
-			return $sth->fetch(PDO::FETCH_OBJ);;
-		}
-		catch (PDOException $e) {
-			return false;
-		}
-	}
-
 	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
 		// the user's meme feed
 		// expected the user's $key
 		// returns an array with the first 20 memes in their feed, starting at $start
 
 		/* TODO
-			* repostable
-			* liked already
 			* remove $e in errors when out of dev
 		*/
 
@@ -493,15 +491,34 @@
 			$sql = "
 SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri,
 o.iduser AS oIduser, o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName, o.picUri as oPicUri,
-(
+( -- number of reposts of the original
 	SELECT COUNT(s.idmeme)
 	FROM meme AS s 
 	WHERE s.share = m.idmeme
 	OR s.share = m.share
 ) AS reposts,
-1 AS repostable,
-COUNT(reply.idreply) AS comments,
-COUNT(star.iduser) AS stars
+( -- whether this user :id has reposted it
+	SELECT COUNT(rptd.idmeme)
+	FROM meme AS rptd 
+	WHERE rptd.share = m.share
+	AND rptd.iduser = :id
+) AS reposted,
+( -- number of comments on this post
+	SELECT COUNT(reply.idreply)
+	FROM reply
+	WHERE reply.idmeme = m.idmeme
+) AS comments,
+( -- whether this user :id has starred it
+	SELECT COUNT(strd.idmeme)
+	FROM star AS strd 
+	WHERE strd.idmeme = m.idmeme
+	AND strd.iduser = :id
+) AS starred,
+(
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.idmeme = m.idmeme
+) AS stars
 FROM meme AS m
 
 -- user who did this post
@@ -513,11 +530,6 @@ LEFT JOIN user AS o ON o.iduser = (
     FROM meme AS om
     WHERE om.idmeme = m.share
 )
-
--- replies, stars & shares
-LEFT JOIN reply ON reply.idmeme = m.idmeme
-LEFT JOIN star ON star.idmeme = m.idmeme
--- LEFT JOIN meme AS s ON s.share = m.idmeme
 
 -- future proof against scheduled posts
 WHERE m.posted < CURRENT_TIMESTAMP
@@ -610,8 +622,13 @@ LIMIT 20 OFFSET :start";
 					);
 
 				$meme['reposts-num'] = $row['reposts'];
-				$meme['repostable'] = $row['repostable'];
+				$meme['reposted'] = $row['reposted'];
+				// you can't repost if:
+				// you posted the image
+				// you have already reposted the image
+				$meme['repostable'] = (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1;
 				$meme['stars-num'] = $row['stars'];
+				$meme['starred'] = $row['starred'];
 				$meme['comments-num'] = $row['comments'];
 				if($row['comments']) {
 					$meme['comments'] = array();

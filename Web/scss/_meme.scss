@@ -33,7 +33,7 @@ $cImageMargin: ceil($font-size-large/2);
 			margin-right: 10px;
 		}
 
-		.ago {
+		.meme-ago {
 			margin-top: ceil(($mHeaderHeight - $font-size-large)/2);
 			font-size: $font-size-large;
 		}
@@ -63,6 +63,23 @@ $cImageMargin: ceil($font-size-large/2);
 
 			&:nth-of-type(3n+1) {
 				margin-left: 0;
+			}
+
+			span { // icons
+				font-size: $font-size-h1;
+			}
+
+			span.icon-star-full {
+				color: $lblue;
+			}
+
+			span.icon-repost.reposted {
+				color: $lblue;
+			}
+
+			span.icon-repost.unrepostable {
+				color: $greyed-out;
+				cursor:not-allowed;
 			}
 		}
 	}
