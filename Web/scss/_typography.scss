@@ -1,0 +1,52 @@
+p {
+  margin: 0;
+  margin-bottom: $md-pad;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+h1 {
+  font-size: $font-size-h1;
+  font-weight: 400;
+  margin: $lg-pad 0 $md-pad;
+}
+
+h2 {
+  font-size: $font-size-h2;
+  font-weight: 400;
+  margin: $lg-pad 0 $md-pad;
+}
+
+h3 {
+  font-size: $font-size-h3;
+  font-weight: 400;
+  margin: $md-pad 0 $xs-pad;
+}
+
+h4 {
+  font-size: $font-size-h4;
+  font-weight: 700;
+  margin: $md-pad 0 $xs-pad;
+}
+
+h5 {
+  font-size: $font-size-h5;
+  font-weight: 700;
+  margin: $md-pad 0 $xs-pad;
+}
+
+a {
+	color: $dblue;
+	text-decoration: none;
+	border-bottom: 1px solid $dblue;
+	@include single-transition(all, 0.15s, ease-out, 0s);
+
+	&:hover {
+		color: $lblue;
+		border-bottom-color: $lblue;
+	}
+}

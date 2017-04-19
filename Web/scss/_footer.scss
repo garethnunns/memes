@@ -1,0 +1,30 @@
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 20px 0;
+	border-top: 1px solid grey;
+	background-color: $white;
+	text-align: center;
+
+	.links {
+		a {
+			border-bottom: none;
+			margin: 0 25px;
+			font-size: 32px;
+
+			&:hover, .current {
+				border-bottom: none;
+			}
+
+			&.pp {
+				//float: right;
+
+				img {
+					height: 32px;
+				}
+			}
+		}
+	}
+}
