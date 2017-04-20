@@ -43,7 +43,7 @@
 					<a href='{$meme['link']}' title='Go to meme'>{$meme['time']['ago']}</a>
 				</div>
 				<h3>".(($meme['original']) ? '<span class="icon-repost"></span> Reposted by' : '')."
-					<a href='{$web}{$meme['poster']['username']}' title='{$meme['poster']['name']}'>
+					<a href='{$meme['poster']['link']}' title='{$meme['poster']['name']}'>
 						{$meme['poster']['username']}
 					</a>
 				</h3>

@@ -633,7 +633,15 @@ header .buttons a:hover {
   border-bottom: none;
   color: #444;
 }
-/* line 51, ../scss/_header.scss */
+/* line 46, ../scss/_header.scss */
+header .buttons a.pp {
+  opacity: 0.8;
+}
+/* line 50, ../scss/_header.scss */
+header .buttons a.pp:hover {
+  opacity: 1;
+}
+/* line 54, ../scss/_header.scss */
 header .buttons a.pp img {
   height: 32px;
 }
@@ -653,15 +661,26 @@ footer {
 footer .links a {
   border-bottom: none;
   margin: 0 25px;
-  font-size: 32px;
+  font-size: 30px;
+  color: #444;
 }
-/* line 17, ../scss/_footer.scss */
-footer .links a:hover, footer .links a .current {
+/* line 18, ../scss/_footer.scss */
+footer .links a:hover, footer .links a.current {
   border-bottom: none;
+  color: #78B5E4;
 }
-/* line 24, ../scss/_footer.scss */
+/* line 23, ../scss/_footer.scss */
+footer .links a.pp {
+  opacity: 0.8;
+}
+/* line 26, ../scss/_footer.scss */
+footer .links a.pp:hover {
+  opacity: 1;
+}
+/* line 30, ../scss/_footer.scss */
 footer .links a.pp img {
   height: 32px;
+  vertical-align: text-top;
 }
 
 /* line 5, ../scss/_meme.scss */

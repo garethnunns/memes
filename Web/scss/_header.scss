@@ -45,8 +45,11 @@ header {
 
 			&.pp {
 				// TODO fix the pp being out of alignment
+				opacity: 0.8;
 
-				//float: left;
+				&:hover {
+					opacity: 1;
+				}
 
 				img {
 					height: 32px;

@@ -12,17 +12,24 @@ footer {
 		a {
 			border-bottom: none;
 			margin: 0 25px;
-			font-size: 32px;
+			font-size: $font-size-h2;
+			color: $black;
 
-			&:hover, .current {
+			&:hover, &.current {
 				border-bottom: none;
+				color: $lblue;
 			}
 
 			&.pp {
-				//float: right;
+				opacity: 0.8;
+
+				&:hover {
+					opacity: 1;
+				}
 
 				img {
 					height: 32px;
+					vertical-align: text-top;
 				}
 			}
 		}
