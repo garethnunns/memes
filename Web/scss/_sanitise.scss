@@ -139,6 +139,10 @@ textarea {
 	font-family: inherit;
 	font-style: inherit;
 	font-weight: inherit;
+
+	&:focus {
+		outline: none;
+	}
 }
 
 

@@ -91,54 +91,63 @@
 
 		<div class="wrapper">
 			<form id="signup" method="POST">
-				<h2>Welcome to Meme Me</h2>
-
-				<p>We only collect the essential information here</p>
-
-				<?php if(!empty($dbError)) echo '<p class="error">There was an error adding you to the database :( have another go</p>'; ?>
-
 				<table>
+					<tr>
+						<td colspan="2">
+							<h2>Welcome to Meme Me</h2>
+
+							<p>We only collect the essential information here</p>
+
+							<?php if(!empty($dbError)) echo '<p class="error">There was an error adding you to the database :( have another go</p>'; ?>
+						</td>
+					</tr>
 					<tr>
 						<td>First Name</td>
 						<td>
-							<input type="text" name="firstName" placeholder="First name" maxlength="60" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName'] ?>">
+							<input type="text" name="firstName" placeholder="First name" minlength="1" maxlength="60" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName'] ?>" title="The first name can only contain letters, spaces, hyphens and full stops." required>
 							<?php if(isset($errors['user.firstName'])) echo "<p class='error'>{$errors['user.firstName']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Surname</td>
 						<td>
-							<input type="text" name="surname" placeholder="Surname" maxlength="60" value="<?php if(isset($_POST['surname'])) echo $_POST['surname'] ?>">
+							<input type="text" name="surname" placeholder="Surname" minlength="1" maxlength="60" value="<?php if(isset($_POST['surname'])) echo $_POST['surname'] ?>" title="The surname can only contain letters, spaces, hyphens and full stops." required>
 							<?php if(isset($errors['user.surname'])) echo "<p class='error'>{$errors['user.surname']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Email</td>
 						<td>
-							<input type="email" name="email" placeholder="Email address" maxlength="100" value="<?php if(isset($_POST['email'])) echo $_POST['email'] ?>">
+							<input type="email" name="email" placeholder="Email address" maxlength="100" value="<?php if(isset($_POST['email'])) echo $_POST['email'] ?>" required>
 							<?php if(isset($errors['user.email'])) echo "<p class='error'>{$errors['user.email']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Username</td>
 						<td>
-							<input type="text" name="username" placeholder="Pick a username" minlength="3" maxlength="20" value="<?php if(isset($_POST['username'])) echo $_POST['username'] ?>">
+							<input type="text" name="username" placeholder="Pick a username" minlength="3" maxlength="20" value="<?php if(isset($_POST['username'])) echo $_POST['username'] ?>" pattern="^([_|-]?[a-zA-Z0-9][_|-]?){0,20}" title="The username can only contain alphanumeric characters (letters and numbers), as well as underscores and dashes (_ or -). You can't have two underscores or dashes next to each other." required>
 							<?php if(isset($errors['user.username'])) echo "<p class='error'>{$errors['user.username']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Password</td>
 						<td>
-							<input type="password" name="password1" placeholder="Password">
+							<input type="password" name="password1" placeholder="Password" minlength="8" maxlength="50" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,50}$" title="The password must contain a lowercase letter, an uppercase letter and a number" required>
 							<?php if(isset($errors['user.password'])) echo "<p class='error'>{$errors['user.password']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Confirm Password</td>
-						<td><input type="password" name="password2" placeholder="Confirm password"></td>
+						<td>
+							<input type="password" name="password2" placeholder="Confirm password" minlength="8" maxlength="50" required>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input type="submit" value="Sign up" name="signup">
+						</td>
 					</tr>
 				</table>
-				<input type="submit" value="Sign up" name="signup">
 			</form>
 		</div>
 	</body>

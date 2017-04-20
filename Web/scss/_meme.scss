@@ -65,6 +65,14 @@ $cImageMargin: ceil($font-size-large/2);
 				margin-left: 0;
 			}
 
+			@include breakpoint(phone) {
+				font-size: $font-size-base;
+			}
+
+			@include breakpoint(small-phone) {
+				font-size: $font-size-small;
+			}
+
 			span { // icons
 				font-size: $font-size-h1;
 			}

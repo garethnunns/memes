@@ -16,7 +16,7 @@
 	else {
 ?>
 	<div class="wrapper signup">
-		<p>Why not <a href="/signup">signup for an account</a>,<wbr> they're pretty cool&hellip;</p>
+		<p>Why not <a href="/signup">signup for an account</a><span class="cool">, they're pretty cool&hellip;</span></p>
 	</div>
 <?php } ?>
 </footer>

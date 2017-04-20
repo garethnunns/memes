@@ -14,12 +14,12 @@
 <?php
 	if(!loggedIn()) { // not logged in
 ?>
-			<h1>Welcome to Meme Me, we're currently working on the site&hellip;</h1>
-
 			<form id="login" method="POST" action="login.php">
 				<table>
 					<tr>
 						<td colspan="2">
+							<h1>Welcome to Meme Me</h1>
+							<h3>{ we're currently working on the site&hellip; }</h3>
 							<h2>Please login</h2>
 
 <?php
@@ -32,7 +32,7 @@
 					<tr>
 						<td>Username</td>
 						<td>
-							<input type="text" name="username" placeholder="Username" minlength="3" maxlength="20">
+							<input type="text" name="username" placeholder="Username">
 						</td>
 					</tr>
 					<tr>
@@ -43,8 +43,8 @@
 					</tr>
 					<tr>
 						<td colspan="2">
-							<input type="submit" name="login" value="Login">
-							<p><a href="signup">Or signup</a></p>
+							<p><input type="submit" name="login" value="Login"></p>
+							<p><a href="signup">or signup now&hellip;</a></p>
 						</td>
 					</tr>
 				</table>

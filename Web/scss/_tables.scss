@@ -1,0 +1,33 @@
+table {
+	margin-bottom: $md-pad;
+	width: 100%;
+}
+
+caption {
+	padding: $sm-pad 0;
+}
+
+th {
+	border: none;
+	text-align: left;
+}
+
+tr {
+	margin-bottom: $sm-pad;
+}
+
+th, td {
+	padding: $sm-pad;
+	vertical-align: inherit;
+}
+
+tfoot tr {
+	text-align: left;
+}
+
+tfoot td {
+	color: $grey;
+	font-size: $sm-pad;
+	font-style: italic;
+	padding: $md-pad $xs-pad;
+}

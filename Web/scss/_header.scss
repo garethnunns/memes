@@ -10,6 +10,12 @@ header {
 	background-color: $lblue;
 	color: $white;
 
+	@include breakpoint(phone) {
+		position: static;
+		padding: 10px 0;
+		text-align: center;
+	}
+
 	h1 {
 		margin: 0;
 
@@ -33,6 +39,10 @@ header {
 		position: absolute;
 		right: 0;
 		top: 0;
+
+		@include breakpoint(phone) {
+			position: static;
+		}
 
 		a {
 			border-bottom: none;

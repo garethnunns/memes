@@ -8,12 +8,23 @@ footer {
 	background-color: $white;
 	text-align: center;
 
+	@include breakpoint(phone) {
+		padding: 10px 0;
+	}
+
 	.links {
 		a {
 			border-bottom: none;
 			margin: 0 25px;
 			font-size: $font-size-h2;
 			color: $black;
+
+			@include breakpoint(tablet) {
+				margin: 0 20px;
+			}
+			@include breakpoint(phone) {
+				margin: 0 10px;
+			}
 
 			&:hover, &.current {
 				border-bottom: none;
@@ -30,6 +41,18 @@ footer {
 				img {
 					height: 32px;
 					vertical-align: text-top;
+				}
+			}
+		}
+	}
+
+	.signup {
+		p {
+			margin-bottom: 0;
+
+			@include breakpoint(phone) {
+				.cool {
+					display: none;
 				}
 			}
 		}
