@@ -10,6 +10,10 @@ DirectoryIndex index.php index.html
 	# forbid apps
 	RewriteRule \.exe - [F]
 
+	# individual meme
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^([a-zA-Z0-9-_]+)/([0-9]+)$ meme.php?username=$1&meme=$2 [L,QSA]
 </IfModule>
 
 #Error Documents

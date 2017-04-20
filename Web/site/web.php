@@ -6,7 +6,7 @@
 	$pageError = "
 	<div class='pageError'>
 		<h1>4<span class='icon-star-empty'></span>4</h1>
-		<h3>Unfortunately we couldn't that page &ndash; it might have been removed or just broken</h3>
+		<h3>Unfortunately we couldn't find that page &ndash; it might have been removed or just broken</h3>
 		<p>If you think there's a error let us know, but you can always <a href='".$web."'>return to safety for now</a></p>
 	</div>";
 
@@ -81,5 +81,28 @@
 			echo "</div>";
 		}
 		echo "</div>";
+	}
+
+	function userDetailsFromUsername($username) {
+		// like user details, only it expects a string $username
+
+		global $dbh; // database connection
+
+		try {
+			$sql = "SELECT user.*
+					FROM user
+					WHERE username = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($username)); // sanitise user input
+
+			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
+
+			return $sth->fetch(PDO::FETCH_OBJ);
+		}
+		catch (PDOException $e) {
+			return false;
+		}
 	}
 ?>

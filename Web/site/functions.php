@@ -493,6 +493,140 @@
 		return isset($error) ? $error : true;
 	}
 
+	function dbArrayify($iduser, $row,$thumb=400,$full=1000,$limitComments=true) {
+		// convert a returned row, like one returned from the SQL in memeFeed
+		// this is very specific with the field names
+		// returns an array with all of the details in
+
+		global $dbh; // db connection needed for looking up comments
+
+		global $web, $res; // servers
+
+		// to start off we need to work out the sizes of image that have been stored for this row
+		// in Apr 17 we stored 150 & 400 square versions, and 1000 & 2000 full versions
+		// this may change in the future so it made sense not to hard code this
+		// but instead store the sizes the image was resized to in a JSON object in the db 
+		$sizes = json_decode($row['sizes'],true);
+
+		if($sizes == null) // unable to interpret the $sizes
+			return false;
+
+		$pref = array( // what was asked for
+			'thumb' => $thumb,
+			'full' => $full
+		);
+
+		$chosen = array(); // what they'll get
+
+		// now find the best match for the requested sizes
+		foreach ($sizes as $kind => $ksizes) {
+			asort($ksizes); // ascending order
+			foreach ($ksizes as $size) { // keep going till we find the first one bigger than what they asked for
+				$chosen[$kind] = $size;
+				if($size >= $pref[$kind]) break;
+			}
+		}
+
+		$images = array();
+
+		// provide absolute paths to the resource server
+		foreach ($chosen as $kind => $size)
+			$images[$kind] = $res . $kind . '/' . $size . '/' . (empty($row['share']) ? $row['idmeme'] : $row['share']) . '.' . $row['ext'];
+
+		$meme = array(
+			'idmeme' => $row['idmeme'],
+			'link' => $web.$row['pUsername'].'/'.$row['idmeme'],
+			'images' => $images,
+			'sizes' => $chosen,
+			'ext' => $row['ext'],
+			'poster' => array (
+				'iduser' => $row['iduser'],
+				'link' => $web.$row['pUsername'],
+				'username' => $row['pUsername'],
+				'name' => $row['pName'],
+				'pic' => $res.$row['pPicUri']
+			),
+			'time' => array(
+				'epoch' => strtotime($row['posted']),
+				'str' => $row['posted'],
+				'ago' => ago(strtotime($row['posted']))
+			),
+			'caption' => $row['caption'],
+			'lat' => $row['latitude'],
+			'long' => $row['longitude'],
+		);
+
+		if(empty($row['share'])) // an original post
+			$meme['original'] = false;
+		else
+			$meme['original'] = array(
+				'idmeme' => $row['share'],
+				'link' => $web.$row['oUsername'].'/'.$row['share'],
+				'poster' => array (
+					'iduser' => $row['oIduser'],
+					'link' => $web.$row['oUsername'],
+					'username' => $row['oUsername'],
+					'name' => $row['oName'],
+					'pic' => $res.$row['oPicUri']
+				)
+			);
+
+		$meme['reposts-num'] = $row['reposts'];
+		$meme['reposted'] = $row['reposted']; // has been reposted by the user
+		// you can't repost if:
+		// you posted the image
+		// you have already reposted the image
+		$meme['repostable'] = (($iduser == $row['iduser']) || ($iduser == $row['oIduser'])) ? 0 : 1;
+		$meme['stars-num'] = $row['stars'];
+		$meme['starred'] = $row['starred'];
+		$meme['comments-num'] = $row['comments'];
+		if($row['comments']) {
+			$meme['comments'] = array();
+			
+			try {
+				$sql = "
+				SELECT reply.*, user.username, CONCAT(user.firstName,' ',user.surname) as name, user.picUri
+				FROM reply, user
+				WHERE reply.idmeme = {$row['idmeme']}
+				AND reply.iduser = user.iduser
+				ORDER BY reply.replyed DESC";
+				if($limitComments) $sql .= " LIMIT 5";
+
+				$csth = $dbh->prepare($sql);
+				$csth->execute();
+
+				foreach ($csth->fetchAll() as $crow) {
+					$comment = array(
+						'idcomment' => $crow['idreply'],
+						'comment' => $crow['reply'],
+						'commenter' => array (
+							'iduser' => $crow['iduser'],
+							'username' => $crow['username'],
+							'link' => $web.$crow['username'],
+							'name' => $crow['name'],
+							'pic' => $res.$crow['picUri']
+						),
+						'time' => array(
+							'epoch' => strtotime($crow['replyed']),
+							'str' => $crow['replyed'],
+							'ago' => ago(strtotime($crow['replyed']))
+						),
+					);
+
+					array_push($meme['comments'],$comment);
+				}
+			}
+			catch (PDOException $e) {
+				return false;
+			}
+
+			// so when it's limited to the last five they come up in the right order
+			$meme['comments'] = array_reverse($meme['comments']);
+		}
+
+		return $meme;
+	}
+
 	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
 		// the user's meme feed
 		// expected the user's $key
@@ -503,8 +637,6 @@
 		*/
 
 		global $dbh; // database connection
-
-		global $web, $res; // servers
 
 		$memes = array();
 
@@ -582,120 +714,10 @@ LIMIT 20 OFFSET :start";
 			$limitComments = true; // as this is a list we don't want to send hundreds of comments
 
 			foreach ($sth->fetchAll() as $row) {
-				$sizes = json_decode($row['sizes'],true);
-
-				if($sizes == null) {
-					$memes['error'] = "There was an error interpretting the meme size for {$row['idmeme']}";
-					goto error; // just return the error and don't do any more
+				if(($meme = dbArrayify($user->iduser,$row,$thumb,$full,$limitComments)) === false) {
+					$memes['error'] = "There was an error retreiving meme #{$row['idmeme']}";
+					goto error;
 				}
-
-				$pref = array( // what was asked for
-					'thumb' => $thumb,
-					'full' => $full
-				);
-
-				$chosen = array(); // what they'll get
-
-				foreach ($sizes as $kind => $ksizes) {
-					asort($ksizes); // ascending order
-					foreach ($ksizes as $size) { // keep going till we find the first one bigger than what they asked for
-						$chosen[$kind] = $size;
-						if($size >= $pref[$kind]) break;
-					}
-				}
-
-				$images = array();
-
-				foreach ($chosen as $kind => $size) {
-					$images[$kind] = $res . $kind . '/' . $size . '/' . (empty($row['share']) ? $row['idmeme'] : $row['share']) . '.' . $row['ext'];
-				}
-
-				$meme = array(
-					'idmeme' => $row['idmeme'],
-					'link' => $web.$row['pUsername'].'/'.$row['idmeme'],
-					'images' => $images,
-					'sizes' => $chosen,
-					'ext' => $row['ext'],
-					'poster' => array (
-						'iduser' => $row['iduser'],
-						'link' => $web.$row['pUsername'],
-						'username' => $row['pUsername'],
-						'name' => $row['pName'],
-						'pic' => $res.$row['pPicUri']
-					),
-					'time' => array(
-						'epoch' => strtotime($row['posted']),
-						'str' => $row['posted'],
-						'ago' => ago(strtotime($row['posted']))
-					),
-					'caption' => $row['caption'],
-					'lat' => $row['latitude'],
-					'long' => $row['longitude'],
-				);
-
-				if(empty($row['share'])) // an original post
-					$meme['original'] = false;
-				else
-					$meme['original'] = array(
-						'idmeme' => $row['share'],
-						'link' => $web.$row['oUsername'].'/'.$row['share'],
-						'poster' => array (
-							'iduser' => $row['oIduser'],
-							'link' => $web.$row['oUsername'],
-							'username' => $row['oUsername'],
-							'name' => $row['oName'],
-							'pic' => $res.$row['oPicUri']
-						)
-					);
-
-				$meme['reposts-num'] = $row['reposts'];
-				$meme['reposted'] = $row['reposted'];
-				// you can't repost if:
-				// you posted the image
-				// you have already reposted the image
-				$meme['repostable'] = (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1;
-				$meme['stars-num'] = $row['stars'];
-				$meme['starred'] = $row['starred'];
-				$meme['comments-num'] = $row['comments'];
-				if($row['comments']) {
-					$meme['comments'] = array();
-					
-					$sql = "
-					SELECT reply.*, user.username, CONCAT(user.firstName,' ',user.surname) as name, user.picUri
-					FROM reply, user
-					WHERE reply.idmeme = {$row['idmeme']}
-					AND reply.iduser = user.iduser
-					ORDER BY reply.replyed DESC";
-					if($limitComments) $sql .= " LIMIT 5";
-
-					$csth = $dbh->prepare($sql);
-					$csth->execute();
-
-					foreach ($csth->fetchAll() as $crow) {
-						$comment = array(
-							'idcomment' => $crow['idreply'],
-							'comment' => $crow['reply'],
-							'commenter' => array (
-								'iduser' => $crow['iduser'],
-								'username' => $crow['username'],
-								'link' => $web.$crow['username'],
-								'name' => $crow['name'],
-								'pic' => $res.$crow['picUri']
-							),
-							'time' => array(
-								'epoch' => strtotime($crow['replyed']),
-								'str' => $crow['replyed'],
-								'ago' => ago(strtotime($crow['replyed']))
-							),
-						);
-
-						array_push($meme['comments'],$comment);
-					}
-
-					// so when it's limited to the last five they come up in the right order
-					$meme['comments'] = array_reverse($meme['comments']); 
-				}
-
 				array_push($memes, $meme);
 			}
 		}
@@ -706,6 +728,79 @@ LIMIT 20 OFFSET :start";
 		error:
 
 		return $memes;
+	}
+
+	function memeFromId($key,$id,$thumb=400,$full=1000) {
+		// returns a meme 
+
+		global $dbh;
+
+		if(($user = userDetails($key)) === false)
+			return false;
+
+		try {
+			$sql = "
+SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri,
+o.iduser AS oIduser, o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName, o.picUri as oPicUri,
+( -- number of reposts of the original
+	SELECT COUNT(s.idmeme)
+	FROM meme AS s 
+	WHERE s.share = m.idmeme
+	OR s.share = m.share
+) AS reposts,
+( -- whether this user :id has reposted it
+	SELECT COUNT(rptd.idmeme)
+	FROM meme AS rptd 
+	WHERE rptd.share = m.share
+	AND rptd.iduser = :iduser
+) AS reposted,
+( -- number of comments on this post
+	SELECT COUNT(reply.idreply)
+	FROM reply
+	WHERE reply.idmeme = m.idmeme
+) AS comments,
+( -- whether this user :id has starred it
+	SELECT COUNT(strd.idmeme)
+	FROM star AS strd 
+	WHERE strd.idmeme = m.idmeme
+	AND strd.iduser = :iduser
+) AS starred,
+(
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.idmeme = m.idmeme
+) AS stars
+FROM meme AS m
+
+-- user who did this post
+LEFT JOIN user as p ON m.iduser = p.iduser
+
+-- get the details of the original poster
+LEFT JOIN user AS o ON o.iduser = (
+    SELECT om.iduser
+    FROM meme AS om
+    WHERE om.idmeme = m.share
+)
+
+-- future proof against scheduled posts
+WHERE m.posted < CURRENT_TIMESTAMP
+AND m.idmeme = :idmeme
+GROUP BY m.idmeme
+ORDER BY m.posted DESC";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':iduser',$user->iduser);
+			$sth->bindParam(':idmeme',$id);
+			$sth->execute();
+
+			$row = $sth->fetch(PDO::FETCH_ASSOC);
+
+			return dbArrayify($user->iduser,$row,$thumb,$full,false);
+
+		}
+		catch(PDOException $e) {
+			return false;
+		}
 	}
 
 	function follow($key,$id) {
