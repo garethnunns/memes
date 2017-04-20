@@ -46,7 +46,8 @@
 							var r = JSON.parse(res);
 
 							if(r.success) {
-								alert("returned: " + res); 
+								if (typeof r.link !== 'undefined')
+									window.location.href = r.link;
 							}
 							else {
 								document.getElementById("error").innerHTML = (typeof r.error !== 'undefined') ? r.error : "There was an error";

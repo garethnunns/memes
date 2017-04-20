@@ -774,6 +774,80 @@ footer .links a.pp img {
   margin-left: 40px;
 }
 
+/* line 1, ../scss/_memeGrid.scss */
+.memeGrid {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 4, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer {
+  position: relative;
+  margin-left: 3.2%;
+  float: left;
+  width: 31.20%;
+  word-wrap: break-word;
+}
+/* line 11, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer:nth-of-type(3n+1) {
+  margin-left: 0;
+}
+/* line 15, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink {
+  display: block;
+  border-bottom: none;
+  z-index: 10;
+}
+/* line 20, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink:hover {
+  border-bottom: none;
+}
+/* line 23, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink:hover > img {
+  opacity: 0.25;
+}
+/* line 27, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink:hover .memeDetails {
+  opacity: 1;
+}
+/* line 32, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink .memeDetails {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  -moz-transition: all 0.25s ease-out 0s;
+  -o-transition: all 0.25s ease-out 0s;
+  -webkit-transition: all 0.25s ease-out;
+  -webkit-transition-delay: 0s;
+  transition: all 0.25s ease-out 0s;
+  font-size: 20px;
+  color: #444;
+}
+/* line 44, ../scss/_memeGrid.scss */
+.memeGrid .memeGridContainer .memeLink img.meme {
+  -moz-transition: all 0.25s ease-out 0s;
+  -o-transition: all 0.25s ease-out 0s;
+  -webkit-transition: all 0.25s ease-out;
+  -webkit-transition-delay: 0s;
+  transition: all 0.25s ease-out 0s;
+}
+
+/* line 1, ../scss/_profile.scss */
+.profile {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  overflow: hidden;
+  *zoom: 1;
+  text-align: center;
+}
+/* line 7, ../scss/_profile.scss */
+.profile img.pp {
+  margin-right: 20px;
+  width: 200px;
+}
+
 /* line 93, ../scss/memes.scss */
 .pageError {
   text-align: center;

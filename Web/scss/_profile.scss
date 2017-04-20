@@ -1,0 +1,12 @@
+.profile {
+	margin-bottom: $lg-pad;
+	border-bottom: 1px solid $black;
+	@include clearfix;
+	text-align: center;
+
+	img.pp {
+		//float: left;
+		margin-right: $lg-pad;
+		width: 200px;
+	}
+}

@@ -1,0 +1,49 @@
+.memeGrid {
+	@include clearfix;
+	
+	.memeGridContainer {
+		position: relative;
+		margin-left: 3.2%;
+		float: left;
+		width: 31.20%;
+		word-wrap: break-word;
+
+		&:nth-of-type(3n+1) {
+			margin-left: 0;
+		}
+
+		.memeLink {
+			display: block;
+			border-bottom: none;
+			z-index: 10;
+
+			&:hover {
+				border-bottom: none;
+
+				& > img {
+					opacity: 0.25;
+				}
+
+				.memeDetails {
+					opacity: 1;
+				}
+			}
+
+			.memeDetails {
+				position: absolute;
+				top: 50%;
+				transform: translate(0, -50%);
+				width: 100%;
+				text-align: center;
+				opacity: 0;
+				@include single-transition(all, 0.25s, ease-out, 0s);
+				font-size: $font-size-large;
+				color: $black;
+			}
+
+			img.meme {
+				@include single-transition(all, 0.25s, ease-out, 0s);
+			}
+		}
+	}
+}

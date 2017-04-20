@@ -32,6 +32,29 @@
 		return true;
 	}
 
+	function userDetailsFromUsername($username) {
+		// like user details, only it expects a string $username
+
+		global $dbh; // database connection
+
+		try {
+			$sql = "SELECT user.*
+					FROM user
+					WHERE username = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($username)); // sanitise user input
+
+			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
+
+			return $sth->fetch(PDO::FETCH_OBJ);
+		}
+		catch (PDOException $e) {
+			return false;
+		}
+	}
+
 	function displayMeme($meme) {
 		// expects a $meme like those in the $memes array produced by a function like memeFeed()
 
@@ -83,26 +106,19 @@
 		echo "</div>";
 	}
 
-	function userDetailsFromUsername($username) {
-		// like user details, only it expects a string $username
+	function displayMemeGrid($meme) {
+		// expects a $meme like those in the $memes array produced by a function like profile()
 
-		global $dbh; // database connection
-
-		try {
-			$sql = "SELECT user.*
-					FROM user
-					WHERE username = ?";
-
-			$sth = $dbh->prepare($sql);
-
-			$sth->execute(array($username)); // sanitise user input
-
-			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
-
-			return $sth->fetch(PDO::FETCH_OBJ);
-		}
-		catch (PDOException $e) {
-			return false;
-		}
+		echo "
+		<div class='memeGridContainer'>
+			<a href='{$meme['link']}' class='memeLink' title='Go to meme'>
+				<div class='memeDetails'>
+					<p><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'></span> {$meme['stars-num']}</p>
+					<p><span class='icon-comment'></span> {$meme['comments-num']}</p>
+					<p><span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span> {$meme['reposts-num']}</p>
+				</div>
+				<img src='{$meme['images']['thumb']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>
+			</a>
+		</div>";
 	}
 ?>

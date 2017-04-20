@@ -479,7 +479,7 @@
 							$error = "There was an error transferring the images to the resource server";
 						}
 
-						if($link!==null) $link = $web . '/'. $user->username . '/' . $id;
+						if($link!==null) $link = $web . $user->username . '/' . $id;
 					}
 				}
 			}
@@ -702,7 +702,6 @@ AND (
 		WHERE follower = :id
 	)
 )
-GROUP BY m.idmeme
 ORDER BY m.posted DESC
 LIMIT 20 OFFSET :start";
 
@@ -785,8 +784,7 @@ LEFT JOIN user AS o ON o.iduser = (
 -- future proof against scheduled posts
 WHERE m.posted < CURRENT_TIMESTAMP
 AND m.idmeme = :idmeme
-GROUP BY m.idmeme
-ORDER BY m.posted DESC";
+LIMIT 1";
 
 			$sth = $dbh->prepare($sql);
 			$sth->bindParam(':iduser',$user->iduser);
@@ -801,6 +799,115 @@ ORDER BY m.posted DESC";
 		catch(PDOException $e) {
 			return false;
 		}
+	}
+
+	function profile($key,$id,$start=0,$thumb=400,$full=1000) {
+		global $dbh; // database connection
+
+		global $res, $web; // servers
+
+		$profile = array('success' => false);
+
+		if($key == 'public') $user = (object) array('iduser' => 0);
+		elseif(($user = userDetails($key)) === false) {
+			$profile['error'] = "Invalid user key";
+			goto error;
+		}
+
+		if(($userProfile = userDetailsFromId($id)) === false){
+			$profile['error'] = "Invalid profile id";
+			goto error;
+		}
+
+		$memes = array();
+
+		try {
+			$sql = "
+SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri,
+o.iduser AS oIduser, o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName, o.picUri as oPicUri,
+( -- number of reposts of the original
+	SELECT COUNT(s.idmeme)
+	FROM meme AS s 
+	WHERE s.share = m.idmeme
+	OR s.share = m.share
+) AS reposts,
+( -- whether this :user has reposted it
+	SELECT COUNT(rptd.idmeme)
+	FROM meme AS rptd 
+	WHERE rptd.share = m.share
+	AND rptd.iduser = :user
+) AS reposted,
+( -- number of comments on this post
+	SELECT COUNT(reply.idreply)
+	FROM reply
+	WHERE reply.idmeme = m.idmeme
+) AS comments,
+( -- whether this :user has starred it
+	SELECT COUNT(strd.idmeme)
+	FROM star AS strd 
+	WHERE strd.idmeme = m.idmeme
+	AND strd.iduser = :user
+) AS starred,
+(
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.idmeme = m.idmeme
+) AS stars
+FROM meme AS m
+
+-- user who did this post
+LEFT JOIN user as p ON m.iduser = p.iduser
+
+-- get the details of the original poster
+LEFT JOIN user AS o ON o.iduser = (
+    SELECT om.iduser
+    FROM meme AS om
+    WHERE om.idmeme = m.share
+)
+
+-- future proof against scheduled posts
+WHERE m.posted < CURRENT_TIMESTAMP
+AND m.iduser = :profile
+ORDER BY m.posted DESC
+LIMIT 20 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':user',$user->iduser);
+			$sth->bindParam(':profile',$userProfile->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
+
+			foreach ($sth->fetchAll() as $row) {
+				if(($meme = dbArrayify($user->iduser,$row,$thumb,$full,true)) === false) {
+					$profile['error'] = "There was an error retreiving meme #{$row['idmeme']}";
+					goto error;
+				}
+				array_push($memes, $meme);
+			}
+		}
+		catch (PDOException $e) {
+			$profile['error'] = "There was an error getting the memes from the database";
+			goto error;
+		}
+		
+		$profile = array(
+			'user' => array (
+				'iduser' => $userProfile->iduser,
+				'link' => $web.$userProfile->username,
+				'username' => $userProfile->username,
+				'name' => $userProfile->firstName . ' '. $userProfile->surname,
+				'pic' => $res.$userProfile->picUri
+			),
+			'memes' => $memes
+		);
+
+		$profile['success'] = true;
+
+		error:
+
+		return $profile;
 	}
 
 	function follow($key,$id) {
