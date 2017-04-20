@@ -90,6 +90,14 @@ header + .wrapper {
 
 @import 'header','footer','meme';
 
+.pageError {
+	text-align: center;
+	h1 {
+		font-size: 200px;
+		color: $grey;
+	}
+}
+
 
 // forms
 #login, #signup {

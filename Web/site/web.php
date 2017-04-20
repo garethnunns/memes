@@ -3,6 +3,13 @@
 	// they build upon the core functions:
 	require_once dirname(__FILE__).'/functions.php';
 
+	$pageError = "
+	<div class='pageError'>
+		<h1>4<span class='icon-star-empty'></span>4</h1>
+		<h3>Unfortunately we couldn't that page &ndash; it might have been removed or just broken</h3>
+		<p>If you think there's a error let us know, but you can always <a href='".$web."'>return to safety for now</a></p>
+	</div>";
+
 	function check() {
 		// checks the user is logged in
 		// redirects them to the home page if not

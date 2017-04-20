@@ -755,30 +755,40 @@ footer .links a.pp img {
   margin-left: 40px;
 }
 
-/* line 96, ../scss/memes.scss */
+/* line 93, ../scss/memes.scss */
+.pageError {
+  text-align: center;
+}
+/* line 95, ../scss/memes.scss */
+.pageError h1 {
+  font-size: 200px;
+  color: #6a6a6a;
+}
+
+/* line 104, ../scss/memes.scss */
 #login td:not([colspan="2"]), #signup td:not([colspan="2"]) {
   width: 50%;
 }
-/* line 100, ../scss/memes.scss */
+/* line 108, ../scss/memes.scss */
 #login td:nth-child(1), #signup td:nth-child(1) {
   text-align: right;
 }
-/* line 104, ../scss/memes.scss */
+/* line 112, ../scss/memes.scss */
 #login td:nth-child(2), #signup td:nth-child(2) {
   text-align: left;
 }
-/* line 108, ../scss/memes.scss */
+/* line 116, ../scss/memes.scss */
 #login [colspan="2"], #signup [colspan="2"] {
   text-align: center !important;
 }
 
-/* line 114, ../scss/memes.scss */
+/* line 122, ../scss/memes.scss */
 #memeUpload textarea {
   width: 50%;
   height: 40px;
 }
 
-/* line 121, ../scss/memes.scss */
+/* line 129, ../scss/memes.scss */
 .error {
   color: #f91616;
   font-weight: bold;
