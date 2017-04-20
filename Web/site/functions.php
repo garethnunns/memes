@@ -54,9 +54,33 @@
 
 			$sth->execute(array($key)); // sanitise user input
 
-			if($sth->rowCount()==0) return false;
+			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
 
-			return $sth->fetch(PDO::FETCH_OBJ);;
+			return $sth->fetch(PDO::FETCH_OBJ);
+		}
+		catch (PDOException $e) {
+			return false;
+		}
+	}
+
+	function userDetailsFromId($id) {
+		// returns an object containing all of the details
+		// expects the user's id as an input
+
+		global $dbh; // database connection
+
+		try {
+			$sql = "SELECT user.*
+					FROM user
+					WHERE iduser = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($id)); // sanitise user input
+
+			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
+
+			return $sth->fetch(PDO::FETCH_OBJ);
 		}
 		catch (PDOException $e) {
 			return false;
@@ -68,8 +92,6 @@
 		// for any $text it will check that $field in the database can take length string
 		// or check it's not too few characters
 		// returns true or an error string
-
-		// TODO validate name so that it can old have letters and spaces in - \p{L} internationalisation...
 
 		global $dbh;
 
@@ -118,6 +140,11 @@
 
 			if(strlen($text) < $min) // check it is at least the minimum length
 				return "The $friendly must be more than $min characters.";
+
+			if(($field == 'user.firstName') || ($field == 'user.surname')) {
+				if(!preg_match('/^[\p{L}\s\'.-]+$/', $text))
+					return "The $friendly can only contain letters, spaces, hyphens and full stops.";
+			}
 
 			if(($field == 'user.username') && ($uError = validUsername($text))!==true) // check the username
 				return $uError;
@@ -679,6 +706,32 @@ LIMIT 20 OFFSET :start";
 		error:
 
 		return $memes;
+	}
+
+	function follow($key,$id) {
+		// follows a user, expecting:
+		// $key		follower's key
+		// $id		followee's id
+
+		global $dbh; // database connection
+
+		try {
+			if(($follower = userDetails($key)) === false) // check the requesting user exists
+				return false;
+
+			if(($followee = userDetailsFromId($id)) === false) // check followee exists
+				return false;
+			
+			$sth = $dbh->prepare("INSERT INTO follow (follower, followee) 
+								VALUES (?, ?)");
+
+			$sth->execute(array($follower->iduser, $followee->iduser));
+
+			return true;
+		}
+		catch (PDOException $e) {
+			return false;
+		}
 	}
 
 	function ago($date) {

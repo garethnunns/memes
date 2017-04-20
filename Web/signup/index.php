@@ -46,14 +46,14 @@
 						$notUnique = false;
 				}
 				catch (PDOException $e) {
-					echo $e->getMessage();
+					$dbError = $e;
 				}
 			} while ($notUnique);
 
 			// we've got everything we need so we'll add them to the database
 			try {
-				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname,picUri) 
-					VALUES (?, ?, ?, ?, ?, ?)");
+				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname, picUri) 
+					VALUES (?, ?, ?, ?, ?, ?, ?)");
 
 				$sth->execute(array(
 					$key,
@@ -65,13 +65,15 @@
 					$defaultPics[mt_rand(0, count($$defaultPicture) - 1)]
 				));
 
+				follow($key,1); // follow the first account made on the server so that their feed isn't empty
+
 				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
 				$_SESSION['user'] = $dbh->lastInsertId();
 				$_SESSION['key'] = $key;
 				header("Location: /?new");
 			}
 			catch (PDOException $e) {
-				echo $e->getMessage();
+				$dbError = $e;
 			}
 		}
 	}
@@ -92,6 +94,8 @@
 				<h2>Welcome to Meme Me</h2>
 
 				<p>We only collect the essential information here</p>
+
+				<?php if(!empty($dbError)) echo '<p class="error">There was an error adding you to the database :( have another go</p>'; ?>
 
 				<table>
 					<tr>
