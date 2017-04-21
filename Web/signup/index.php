@@ -62,7 +62,7 @@
 					$_POST['email'],
 					$_POST['firstName'],
 					$_POST['surname'],
-					$defaultPics[mt_rand(0, count($$defaultPicture) - 1)]
+					$defaultPics[mt_rand(0, count($defaultPics) - 1)]
 				));
 
 				// yay, all done so send them off to the home page - could set some session variables here so they're logged in

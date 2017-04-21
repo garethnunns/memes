@@ -1026,7 +1026,7 @@ SELECT @follower:= ?, @followee:= ?, @isFollowing:=(
     WHERE follower = @follower
     AND followee = @followee
     LIMIT 1
-);
+) AS wasFollowing;
 
 INSERT IGNORE INTO follow (follower, followee)
 VALUES (@follower, @followee);
@@ -1042,10 +1042,12 @@ SELECT @isFollowing AS wasFollowing";
 
 			$sth->execute(array($follower->iduser, $followee->iduser));
 
-			$ret['isFollowing'] = !$sth->fetch(PDO::FETCH_OBJ);
+			$follow = $sth->fetch(PDO::FETCH_ASSOC);
+
+			$ret['isFollowing'] = !$follow['wasFollowing'];
 		}
 		catch (PDOException $e) {
-			$ret['error'] = "There was an error updating the database"
+			$ret['error'] = "There was an error updating the database";
 		}
 
 		$ret['success'] = true;

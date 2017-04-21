@@ -3,10 +3,9 @@ function follow(button, id) {
 	// expects button to be the html button that triggered this event
 	// expects $id to be the user's id
 
-	console.log('hello');
-
 	$.post('/ajax/follow.php', {id: id}, function (data) {
-		console.log(data.success);
-		console.log(data.isFollowing);
+		if(data.success && (typeof data.isFollowing !== 'undefined'))
+			$(button).html(data.isFollowing ? 'Unfollow' : 'Follow');
+		else console.log(data);
 	}, 'json');
 }
