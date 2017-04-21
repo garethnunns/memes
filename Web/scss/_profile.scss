@@ -5,8 +5,30 @@
 	text-align: center;
 
 	img.pp {
-		margin-top: $md-pad;
-		margin-right: $lg-pad;
+		margin: $md-pad 0;
 		width: 150px;
+	}
+
+	h1 {
+		margin: 0;
+	}
+
+	.stats {
+		@include clearfix;
+		margin: $md-pad 0;
+
+		& > div {
+			float: left;
+			margin-left: 3.2%;
+			width: 22.6%;
+
+			&:nth-of-type(4n+1) {
+				margin-left: 0;
+			}
+
+			.number {
+				font-size: $font-size-h2;
+			}
+		}
 	}
 }

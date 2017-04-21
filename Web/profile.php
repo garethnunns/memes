@@ -30,7 +30,24 @@
 			<img src='{$profile['user']['pic']}' class='pp' alt='{$meme['poster']['username']} profile picture'>
 			<h1>{$profile['user']['username']}</h1>
 			<p>{$profile['user']['name']}</p>
-			
+			<div class='stats'>
+				<div>
+					<div class='number'>{$profile['stats']['posts']}</div>
+					{$profile['stats']['posts-str']}
+				</div>
+				<div>
+					<div class='number'>{$profile['stats']['followers']}</div>
+					{$profile['stats']['followers-str']}
+				</div>
+				<div>
+					<div class='number'>{$profile['stats']['following']}</div>
+					{$profile['stats']['following-str']}
+				</div>
+				<div>
+					<div class='number'>{$profile['stats']['stars']}</div>
+					{$profile['stats']['stars-str']}
+				</div>
+			</div>
 		</div>";
 
 		if(!count($profile['memes']))

@@ -1,6 +1,7 @@
 .memeGrid {
+	margin: $md-pad;
 	@include clearfix;
-	
+
 	.memeGridContainer {
 		position: relative;
 		margin-left: 3.2%;
@@ -39,6 +40,12 @@
 				@include single-transition(all, 0.25s, ease-out, 0s);
 				font-size: $font-size-large;
 				color: $black;
+
+				@include breakpoint(phone) {
+					p {
+						margin-bottom: 0;
+					}
+				}
 			}
 
 			img.meme {

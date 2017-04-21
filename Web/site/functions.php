@@ -819,6 +819,7 @@ LIMIT 1";
 			goto error;
 		}
 
+		// fetch the memes for that user
 		$memes = array();
 
 		try {
@@ -891,6 +892,62 @@ LIMIT 20 OFFSET :start";
 			$profile['error'] = "There was an error getting the memes from the database";
 			goto error;
 		}
+
+		try {
+			$statssql = "
+SELECT
+(
+    SELECT COUNT(posts.idmeme)
+    FROM meme AS posts
+    WHERE posts.iduser = :profile
+) AS posts,
+(
+    SELECT COUNT(followers.follower)
+    FROM follow AS followers
+    WHERE followers.followee = :profile
+) AS followers,
+(
+    SELECT COUNT(following.follower)
+    FROM follow AS following
+    WHERE following.follower = :profile
+) AS following,
+(
+    SELECT COUNT(stars.idmeme)
+    FROM star AS stars
+    -- memes that this user has posted
+    WHERE stars.idmeme IN (
+        SELECT memeStars.idmeme
+        FROM meme AS memeStars
+        WHERE memeStars.iduser = :profile
+    )
+    -- memes that got reposted
+    OR stars.idmeme IN (
+        SELECT repost.idmeme
+        FROM meme AS repost, meme AS original
+        WHERE repost.share = original.idmeme
+        AND original.iduser = :profile
+    )
+) AS stars";
+			$statssth = $dbh->prepare($statssql);
+			$statssth->bindParam(':profile',$userProfile->iduser);
+			$statssth->execute();
+
+			if($statssth->rowCount()==0 || $statssth->rowCount()>1) {
+				$profile['error'] = "There was an error getting the stats from the database";
+				goto error;
+			}
+
+			$stats = $statssth->fetch(PDO::FETCH_ASSOC);
+		}
+		catch (PDOException $e) {
+			$profile['error'] = "There was an error getting the stats from the database $e";
+			goto error;
+		}
+
+		$stats['posts-str'] = plural('post',$stats['posts']);
+		$stats['followers-str'] = plural('follower',$stats['followers']);
+		$stats['following-str'] = 'following';
+		$stats['stars-str'] = plural('star',$stats['stars']);
 		
 		$profile = array(
 			'user' => array (
@@ -900,7 +957,8 @@ LIMIT 20 OFFSET :start";
 				'name' => $userProfile->firstName . ' '. $userProfile->surname,
 				'pic' => $res.$userProfile->picUri
 			),
-			'memes' => $memes
+			'memes' => $memes,
+			'stats' => $stats
 		);
 
 		$profile['success'] = true;
@@ -963,5 +1021,11 @@ LIMIT 20 OFFSET :start";
 			return floor($diff/$year).'y';
 
 		return false; // if it for some reason didn't get caught by the if statement
+	}
+
+	function plural($word, $number) {
+		// returns the plural of the $word depending on the number of the $word
+
+		return $number == 1 ? $word : (substr($word, -1) == 's' ? $word . 'es' : $word . 's');
 	}
 ?>

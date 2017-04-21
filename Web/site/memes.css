@@ -1134,10 +1134,11 @@ footer .signup p {
 
 /* line 1, ../scss/_memeGrid.scss */
 .memeGrid {
+  margin: 16px;
   overflow: hidden;
   *zoom: 1;
 }
-/* line 4, ../scss/_memeGrid.scss */
+/* line 5, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer {
   position: relative;
   margin-left: 3.2%;
@@ -1145,29 +1146,29 @@ footer .signup p {
   width: 31.20%;
   word-wrap: break-word;
 }
-/* line 11, ../scss/_memeGrid.scss */
+/* line 12, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer:nth-of-type(3n+1) {
   margin-left: 0;
 }
-/* line 15, ../scss/_memeGrid.scss */
+/* line 16, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink {
   display: block;
   border-bottom: none;
   z-index: 10;
 }
-/* line 20, ../scss/_memeGrid.scss */
+/* line 21, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink:hover {
   border-bottom: none;
 }
-/* line 23, ../scss/_memeGrid.scss */
+/* line 24, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink:hover > img {
   opacity: 0.25;
 }
-/* line 27, ../scss/_memeGrid.scss */
+/* line 28, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink:hover .memeDetails {
   opacity: 1;
 }
-/* line 32, ../scss/_memeGrid.scss */
+/* line 33, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink .memeDetails {
   position: absolute;
   top: 50%;
@@ -1183,7 +1184,13 @@ footer .signup p {
   font-size: 20px;
   color: #444;
 }
-/* line 44, ../scss/_memeGrid.scss */
+@media only screen and (max-width: 480px) {
+  /* line 45, ../scss/_memeGrid.scss */
+  .memeGrid .memeGridContainer .memeLink .memeDetails p {
+    margin-bottom: 0;
+  }
+}
+/* line 51, ../scss/_memeGrid.scss */
 .memeGrid .memeGridContainer .memeLink img.meme {
   -moz-transition: all 0.25s ease-out 0s;
   -o-transition: all 0.25s ease-out 0s;
@@ -1202,9 +1209,32 @@ footer .signup p {
 }
 /* line 7, ../scss/_profile.scss */
 .profile img.pp {
-  margin-top: 16px;
-  margin-right: 20px;
+  margin: 16px 0;
   width: 150px;
+}
+/* line 12, ../scss/_profile.scss */
+.profile h1 {
+  margin: 0;
+}
+/* line 16, ../scss/_profile.scss */
+.profile .stats {
+  overflow: hidden;
+  *zoom: 1;
+  margin: 16px 0;
+}
+/* line 20, ../scss/_profile.scss */
+.profile .stats > div {
+  float: left;
+  margin-left: 3.2%;
+  width: 22.6%;
+}
+/* line 25, ../scss/_profile.scss */
+.profile .stats > div:nth-of-type(4n+1) {
+  margin-left: 0;
+}
+/* line 29, ../scss/_profile.scss */
+.profile .stats > div .number {
+  font-size: 30px;
 }
 
 /* line 120, ../scss/memes.scss */
