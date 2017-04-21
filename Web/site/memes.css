@@ -1278,3 +1278,8 @@ footer .signup p {
   color: #f91616;
   font-weight: bold;
 }
+
+/* line 162, ../scss/memes.scss */
+.center {
+  text-align: center;
+}

@@ -65,11 +65,12 @@
 					$defaultPics[mt_rand(0, count($$defaultPicture) - 1)]
 				));
 
-				follow($key,1); // follow the first account made on the server so that their feed isn't empty
-
 				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
 				$_SESSION['user'] = $dbh->lastInsertId();
 				$_SESSION['key'] = $key;
+
+				follow($key,1); // follow the first account made on the server so that their feed isn't empty
+				
 				header("Location: /?new");
 			}
 			catch (PDOException $e) {
@@ -81,7 +82,7 @@
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo $sitename; ?> · Sign up</title>
+		<title>Signup · <?php echo $sitename; ?></title>
 
 		<?php include '../site/head.php'; ?>
 	</head>
@@ -94,7 +95,7 @@
 				<table>
 					<tr>
 						<td colspan="2">
-							<h2>Welcome to Meme Me</h2>
+							<h1>Welcome to <?php echo $sitename; ?></h1>
 
 							<p>We only collect the essential information here</p>
 

@@ -5,7 +5,7 @@
 
 	if(($username = userDetailsFromUsername($_GET['username']))===false) $found = false;
 
-	$profile = profile($_SESSION['key'],$username->iduser,0,400);
+	if($found) $profile = profile($_SESSION['key'],$username->iduser,0,400);
 
 	$found = $profile['success'];
 
@@ -29,7 +29,10 @@
 		<div class='profile'>
 			<img src='{$profile['user']['pic']}' class='pp' alt='{$meme['poster']['username']} profile picture'>
 			<h1>{$profile['user']['username']}</h1>
-			<p>{$profile['user']['name']}</p>
+			<p>{$profile['user']['name']}".($profile['user']['you'] ? ' (you)' : '')."</p>
+			".($profile['user']['you'] ? '<a href="/settings">Edit your profile</a>' : 
+				("<button onClick='follow(this,{$profile['user']['iduser']})'>". 
+				(($profile['user']['isFollowing']) ? 'Unfollow' : 'Follow') . "</button>"))."
 			<div class='stats'>
 				<div>
 					<div class='number'>{$profile['stats']['posts']}</div>
@@ -51,7 +54,7 @@
 		</div>";
 
 		if(!count($profile['memes']))
-			echo "<p><i>There are no memes to show at the moment, see the best posts in the <a href='/hot'>hot feed</a></i></p>";
+			echo "<p class='center'><i>This user hasn't posted any memes at the moment&hellip;</p>";
 		else {
 			echo "<div class='memeGrid'>";
 			foreach ($profile['memes'] as $meme) 

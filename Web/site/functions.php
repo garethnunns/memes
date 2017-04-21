@@ -648,7 +648,7 @@
 
 		try {
 			$sql = "
-SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri,
+SELECT m.*, p.username AS pUsername, CONCAT(p.firstName, ' ', p.surname) as pName, p.picUri as pPicUri, 
 o.iduser AS oIduser, o.username AS oUsername, CONCAT(o.firstName, ' ', o.surname) as oName, o.picUri as oPicUri,
 ( -- number of reposts of the original
 	SELECT COUNT(s.idmeme)
@@ -685,9 +685,9 @@ LEFT JOIN user as p ON m.iduser = p.iduser
 
 -- get the details of the original poster
 LEFT JOIN user AS o ON o.iduser = (
-    SELECT om.iduser
-    FROM meme AS om
-    WHERE om.idmeme = m.share
+	SELECT om.iduser
+	FROM meme AS om
+	WHERE om.idmeme = m.share
 )
 
 -- future proof against scheduled posts
@@ -776,9 +776,9 @@ LEFT JOIN user as p ON m.iduser = p.iduser
 
 -- get the details of the original poster
 LEFT JOIN user AS o ON o.iduser = (
-    SELECT om.iduser
-    FROM meme AS om
-    WHERE om.idmeme = m.share
+	SELECT om.iduser
+	FROM meme AS om
+	WHERE om.idmeme = m.share
 )
 
 -- future proof against scheduled posts
@@ -814,7 +814,32 @@ LIMIT 1";
 			goto error;
 		}
 
-		if(($userProfile = userDetailsFromId($id)) === false){
+		// that user profile
+		try {
+			$psql = "
+SELECT user.*, 
+(
+	SELECT COUNT(isFollowing.follower)
+	FROM follow AS isFollowing
+	WHERE isFollowing.follower = :user
+	AND isFollowing.followee = :profile
+) AS isFollowing
+FROM user
+WHERE iduser = :profile";
+
+			$psth = $dbh->prepare($psql);
+			$psth->bindParam(':user',$user->iduser);
+			$psth->bindParam(':profile',$id);
+			$psth->execute();
+
+			if($psth->rowCount()==0 || $psth->rowCount()>1) {
+				$profile['error'] = "Invalid profile id";
+				goto error;
+			}
+
+			$userProfile = $psth->fetch(PDO::FETCH_OBJ);
+		}
+		catch (PDOException $e) {
 			$profile['error'] = "Invalid profile id";
 			goto error;
 		}
@@ -861,9 +886,9 @@ LEFT JOIN user as p ON m.iduser = p.iduser
 
 -- get the details of the original poster
 LEFT JOIN user AS o ON o.iduser = (
-    SELECT om.iduser
-    FROM meme AS om
-    WHERE om.idmeme = m.share
+	SELECT om.iduser
+	FROM meme AS om
+	WHERE om.idmeme = m.share
 )
 
 -- future proof against scheduled posts
@@ -897,38 +922,39 @@ LIMIT 20 OFFSET :start";
 			$statssql = "
 SELECT
 (
-    SELECT COUNT(posts.idmeme)
-    FROM meme AS posts
-    WHERE posts.iduser = :profile
+	SELECT COUNT(posts.idmeme)
+	FROM meme AS posts
+	WHERE posts.iduser = :profile
 ) AS posts,
 (
-    SELECT COUNT(followers.follower)
-    FROM follow AS followers
-    WHERE followers.followee = :profile
+	SELECT COUNT(followers.follower)
+	FROM follow AS followers
+	WHERE followers.followee = :profile
 ) AS followers,
 (
-    SELECT COUNT(following.follower)
-    FROM follow AS following
-    WHERE following.follower = :profile
+	SELECT COUNT(following.follower)
+	FROM follow AS following
+	WHERE following.follower = :profile
 ) AS following,
 (
-    SELECT COUNT(stars.idmeme)
-    FROM star AS stars
-    -- memes that this user has posted
-    WHERE stars.idmeme IN (
-        SELECT memeStars.idmeme
-        FROM meme AS memeStars
-        WHERE memeStars.iduser = :profile
-    )
-    -- memes that got reposted
-    OR stars.idmeme IN (
-        SELECT repost.idmeme
-        FROM meme AS repost, meme AS original
-        WHERE repost.share = original.idmeme
-        AND original.iduser = :profile
-    )
+	SELECT COUNT(stars.idmeme)
+	FROM star AS stars
+	-- memes that this user has posted
+	WHERE stars.idmeme IN (
+		SELECT memeStars.idmeme
+		FROM meme AS memeStars
+		WHERE memeStars.iduser = :profile
+	)
+	-- memes that got reposted
+	OR stars.idmeme IN (
+		SELECT repost.idmeme
+		FROM meme AS repost, meme AS original
+		WHERE repost.share = original.idmeme
+		AND original.iduser = :profile
+	)
 ) AS stars";
 			$statssth = $dbh->prepare($statssql);
+			$statssth->bindParam(':user',$user->iduser);
 			$statssth->bindParam(':profile',$userProfile->iduser);
 			$statssth->execute();
 
@@ -948,6 +974,7 @@ SELECT
 		$stats['followers-str'] = plural('follower',$stats['followers']);
 		$stats['following-str'] = 'following';
 		$stats['stars-str'] = plural('star',$stats['stars']);
+		$stats['you'] = $userProfile->iduser == $user->iduser;
 		
 		$profile = array(
 			'user' => array (
@@ -955,7 +982,9 @@ SELECT
 				'link' => $web.$userProfile->username,
 				'username' => $userProfile->username,
 				'name' => $userProfile->firstName . ' '. $userProfile->surname,
-				'pic' => $res.$userProfile->picUri
+				'pic' => $res.$userProfile->picUri,
+				'you' => $userProfile->iduser == $user->iduser,
+				'isFollowing' => $userProfile->isFollowing
 			),
 			'memes' => $memes,
 			'stats' => $stats
@@ -975,23 +1004,55 @@ SELECT
 
 		global $dbh; // database connection
 
-		try {
-			if(($follower = userDetails($key)) === false) // check the requesting user exists
-				return false;
+		$ret = array();
 
-			if(($followee = userDetailsFromId($id)) === false) // check followee exists
-				return false;
+		$ret['success'] = false;
+
+		try {
+			if(($follower = userDetails($key)) === false) {// check the requesting user exists
+				$ret['error'] = "Invalid user key";
+				goto error;
+			}
+
+			if(($followee = userDetailsFromId($id)) === false) { // check followee exists
+				$ret['error'] = "Invalid user id";
+				goto error;
+			}
+
+			$sql = "
+SELECT @follower:= ?, @followee:= ?, @isFollowing:=(
+    SELECT COUNT(follow.follower)
+    FROM follow
+    WHERE follower = @follower
+    AND followee = @followee
+    LIMIT 1
+);
+
+INSERT IGNORE INTO follow (follower, followee)
+VALUES (@follower, @followee);
+
+DELETE FROM follow
+WHERE @isFollowing = 1
+AND follower = @follower
+AND followee = @followee;
+
+SELECT @isFollowing AS wasFollowing";
 			
-			$sth = $dbh->prepare("INSERT INTO follow (follower, followee) 
-								VALUES (?, ?)");
+			$sth = $dbh->prepare($sql);
 
 			$sth->execute(array($follower->iduser, $followee->iduser));
 
-			return true;
+			$ret['isFollowing'] = !$sth->fetch(PDO::FETCH_OBJ);
 		}
 		catch (PDOException $e) {
-			return false;
+			$ret['error'] = "There was an error updating the database"
 		}
+
+		$ret['success'] = true;
+
+		error:
+
+		return $ret;
 	}
 
 	function ago($date) {
