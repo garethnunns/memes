@@ -972,7 +972,12 @@ SELECT @follower:= ?, @followee:= ?, @isFollowing:=(
     WHERE follower = @follower
     AND followee = @followee
     LIMIT 1
-) AS wasFollowing;
+) AS wasFollowing,
+(
+	SELECT COUNT(followers.follower)
+	FROM follow AS followers
+	WHERE followers.followee = @followee
+) AS oldFollowers;
 
 INSERT IGNORE INTO follow (follower, followee)
 VALUES (@follower, @followee);
@@ -980,9 +985,7 @@ VALUES (@follower, @followee);
 DELETE FROM follow
 WHERE @isFollowing = 1
 AND follower = @follower
-AND followee = @followee;
-
-SELECT @isFollowing AS wasFollowing";
+AND followee = @followee;";
 			
 			$sth = $dbh->prepare($sql);
 
@@ -991,6 +994,9 @@ SELECT @isFollowing AS wasFollowing";
 			$follow = $sth->fetch(PDO::FETCH_ASSOC);
 
 			$ret['isFollowing'] = !$follow['wasFollowing'];
+
+			$ret['followers'] = intval($follow['wasFollowing'] ? --$row['oldFollowers'] : ++$row['oldFollowers']);
+			$ret['followers-str'] = plural('follower',$ret['followers']);
 		}
 		catch (PDOException $e) {
 			$ret['error'] = "There was an error updating the database";

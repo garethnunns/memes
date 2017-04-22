@@ -31,7 +31,7 @@
 			<h1>{$profile['user']['username']}</h1>
 			<p>{$profile['user']['name']}".($profile['user']['you'] ? ' (you)' : '')."</p>
 			".($profile['user']['you'] ? '<a href="/settings">Edit your profile</a>' : 
-				("<button onClick='follow(this,{$profile['user']['iduser']})'>". 
+				("<button onClick='follow(this,{$profile['user']['iduser']},\"#num-followers\",\"#num-followers-str\")'>". 
 				(($profile['user']['isFollowing']) ? 'Unfollow' : 'Follow') . "</button>"))."
 			<div class='stats'>
 				<div>
@@ -39,8 +39,8 @@
 					{$profile['stats']['posts-str']}
 				</div>
 				<div>
-					<div class='number'>{$profile['stats']['followers']}</div>
-					{$profile['stats']['followers-str']}
+					<div class='number' id='num-followers'>{$profile['stats']['followers']}</div>
+					<span id='num-followers-str'>{$profile['stats']['followers-str']}</span>
 				</div>
 				<div>
 					<div class='number'>{$profile['stats']['following']}</div>

@@ -6,4 +6,4 @@
 	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	crossorigin="anonymous"></script>
 
-<script src="/site/memes.js"></script>
+<script src="/site/memes.js?version=<?php echo time(); // remove when out of dev ?>"></script>
