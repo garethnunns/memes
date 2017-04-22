@@ -1059,28 +1059,38 @@ footer .signup p {
 /* line 30, ../scss/_meme.scss */
 .memeContainer .meme-header img.pp {
   float: left;
-  height: 65px;
+  height: 75px;
   margin-right: 10px;
 }
 /* line 36, ../scss/_meme.scss */
 .memeContainer .meme-header .meme-ago {
-  margin-top: 23px;
+  margin-top: 28px;
   font-size: 20px;
 }
-/* line 42, ../scss/_meme.scss */
+@media only screen and (max-width: 480px) {
+  /* line 41, ../scss/_meme.scss */
+  .memeContainer .meme-header .repost-text {
+    display: none;
+  }
+}
+/* line 47, ../scss/_meme.scss */
+.memeContainer .meme-header button {
+  font-size: 16px;
+}
+/* line 52, ../scss/_meme.scss */
 .memeContainer img.meme {
   padding: 10px 0;
 }
-/* line 46, ../scss/_meme.scss */
+/* line 56, ../scss/_meme.scss */
 .memeContainer > .meme-comment {
   font-size: 20px;
 }
-/* line 50, ../scss/_meme.scss */
+/* line 60, ../scss/_meme.scss */
 .memeContainer .meme-actions {
   overflow: hidden;
   *zoom: 1;
 }
-/* line 53, ../scss/_meme.scss */
+/* line 63, ../scss/_meme.scss */
 .memeContainer .meme-actions div {
   float: left;
   margin-left: 3.2%;
@@ -1089,45 +1099,45 @@ footer .signup p {
   font-size: 20px;
   text-align: center;
 }
-/* line 64, ../scss/_meme.scss */
+/* line 74, ../scss/_meme.scss */
 .memeContainer .meme-actions div:nth-of-type(3n+1) {
   margin-left: 0;
 }
 @media only screen and (max-width: 480px) {
-  /* line 53, ../scss/_meme.scss */
+  /* line 63, ../scss/_meme.scss */
   .memeContainer .meme-actions div {
     font-size: 16px;
   }
 }
 @media only screen and (max-width: 320px) {
-  /* line 53, ../scss/_meme.scss */
+  /* line 63, ../scss/_meme.scss */
   .memeContainer .meme-actions div {
     font-size: 14px;
   }
 }
-/* line 76, ../scss/_meme.scss */
+/* line 86, ../scss/_meme.scss */
 .memeContainer .meme-actions div span {
   font-size: 36px;
 }
-/* line 80, ../scss/_meme.scss */
+/* line 90, ../scss/_meme.scss */
 .memeContainer .meme-actions div span.icon-star-full {
   color: #78B5E4;
 }
-/* line 84, ../scss/_meme.scss */
+/* line 94, ../scss/_meme.scss */
 .memeContainer .meme-actions div span.icon-repost.reposted {
   color: #78B5E4;
 }
-/* line 88, ../scss/_meme.scss */
+/* line 98, ../scss/_meme.scss */
 .memeContainer .meme-actions div span.icon-repost.unrepostable {
   color: #919191;
   cursor: not-allowed;
 }
-/* line 97, ../scss/_meme.scss */
+/* line 107, ../scss/_meme.scss */
 .memeContainer .meme-comments .meme-comment .meme-comment-name {
   overflow: hidden;
   *zoom: 1;
 }
-/* line 101, ../scss/_meme.scss */
+/* line 111, ../scss/_meme.scss */
 .memeContainer .meme-comments .meme-comment p {
   margin-left: 40px;
 }

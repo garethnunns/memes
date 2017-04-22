@@ -65,16 +65,21 @@
 				<div class='meme-ago'>
 					<a href='{$meme['link']}' title='Go to meme'>{$meme['time']['ago']}</a>
 				</div>
-				<h3>".(($meme['original']) ? '<span class="icon-repost"></span> Reposted by' : '')."
+				<h3>".(($meme['original']) ? '<span class="icon-repost"></span><span class="repost-text"> Repost by </span>' : '')."
 					<a href='{$meme['poster']['link']}' title='{$meme['poster']['name']}'>
-						{$meme['poster']['username']}
-					</a>
+						{$meme['poster']['username']}</a>
+					".($meme['poster']['you'] ? '(you)' : 
+					("<button onClick='follow(this,{$meme['poster']['iduser']})'>". 
+					(($meme['poster']['isFollowing']) ? 'Unfollow' : 'Follow') . "</button>"))."
 				</h3>
 				<p>".($meme['original'] ? // when there is an original of that post (it's a repost)
 					"<a href='{$meme['original']['link']}' title='Go to original post'>Originally posted</a> by 
 					<a href='{$meme['original']['poster']['link']}' title='{$meme['original']['poster']['name']}'>
-						{$meme['original']['poster']['username']}
-					</a>" : // when it's an original
+						{$meme['original']['poster']['username']}</a>
+					".($meme['original']['poster']['you'] ? '(you)' : 
+					("<button onClick='follow(this,{$meme['original']['poster']['iduser']})'>". 
+					(($meme['original']['poster']['isFollowing']) ? 'Unfollow' : 'Follow') . "</button>")) : 
+					// when it's an original
 					"Posted by {$meme['poster']['name']}")."</p>
 			</div>
 			<img src='{$meme['images']['full']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>

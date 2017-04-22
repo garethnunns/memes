@@ -1,4 +1,4 @@
-$mHeaderHeight: 65px;
+$mHeaderHeight: 75px;
 $cImageSize: 1.5*$font-size-large; 
 $cImageMargin: ceil($font-size-large/2);
 
@@ -36,6 +36,16 @@ $cImageMargin: ceil($font-size-large/2);
 		.meme-ago {
 			margin-top: ceil(($mHeaderHeight - $font-size-large)/2);
 			font-size: $font-size-large;
+		}
+
+		.repost-text {
+			@include breakpoint(phone) {
+				display: none;
+			}
+		}
+
+		button {
+			font-size: $font-size-base;
 		}
 	}
 

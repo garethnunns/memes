@@ -27,7 +27,7 @@
 	if($found) {
 		echo "
 		<div class='profile'>
-			<img src='{$profile['user']['pic']}' class='pp' alt='{$meme['poster']['username']} profile picture'>
+			<img src='{$profile['user']['pic']}' class='pp' alt='{$profile['user']['username']} profile picture'>
 			<h1>{$profile['user']['username']}</h1>
 			<p>{$profile['user']['name']}".($profile['user']['you'] ? ' (you)' : '')."</p>
 			".($profile['user']['you'] ? '<a href="/settings">Edit your profile</a>' : 

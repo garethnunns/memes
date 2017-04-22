@@ -23,9 +23,11 @@
 		}
 	}
 
-	if(($meme = memeFromID($_SESSION['key'],$_GET['meme'])) === false) $found = false;
+	$meme = meme($_SESSION['key'],$_GET['meme'],null,1000,false);
 
-	if($found) $title = "Post by {$meme['poster']['username']}";
+	$found = $meme['success'];
+
+	if($found) $title = "Post by {$meme['meme']['poster']['username']}";
 	else $title = "Post not found";
 ?><!DOCTYPE html>
 <html>
@@ -41,7 +43,7 @@
 		<div class="wrapper">
 <?php
 	if($found)
-		displayMeme($meme);
+		displayMeme($meme['meme']);
 	else
 		echo $pageError;
 ?>
