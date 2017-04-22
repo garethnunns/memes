@@ -146,17 +146,14 @@ header + .wrapper {
 	}
 }
 
-#memeUpload {
-	/*textarea {
-		width: 50%;
-		height: 40px;
-	}*/
+.grecaptcha-badge {
+	margin: 10px auto;
 }
 
 // text
 .error {
 	color: $red;
-	font-weight: bold;
+	//font-weight: bold;
 }
 
 .center {

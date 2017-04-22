@@ -5,9 +5,32 @@
 		header("Location: /");
 
 	if(isset($_POST['signup'])) { // adding a user
-
 		// initalise an empty errors array that could crop up
 		$errors = array();
+
+		// verify captcha
+		$post_data = http_build_query(
+			array(
+				'secret' => CAPTCHA_SECRET,
+				'response' => $_POST['g-recaptcha-response'],
+				'remoteip' => $_SERVER['REMOTE_ADDR']
+			)
+		);
+
+		$opts = array('http' =>
+			array(
+				'method'  => 'POST',
+				'header'  => 'Content-type: application/x-www-form-urlencoded',
+				'content' => $post_data
+			)
+		);
+
+		$context  = stream_context_create($opts);
+		$response = file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+		$result = json_decode($response);
+
+		if (!$result->success) 
+			$errors['recaptcha'] = "There was an error with the reCAPTCHA, have another go&hellip;";
 
 		$fields = array( // simple array of all of the inputs and what fields they are for
 			'user.firstName' => $_POST['firstName'],
@@ -84,7 +107,23 @@
 	<head>
 		<title>Signup · <?php echo $sitename; ?></title>
 
+		<script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit' async defer></script>
+
 		<?php include '../site/head.php'; ?>
+
+		<script type="text/javascript">
+			var onSubmit = function(token) {
+				$("#signup").submit();
+			};
+
+			var onloadCallback = function() {
+				grecaptcha.render('signupbtn', {
+				  'sitekey' : '<?php echo CAPTCHA_KEY; // defined in secure.php ?>',
+				  'badge' : 'inline',
+				  'callback' : onSubmit
+				});
+			};
+		</script>
 	</head>
 
 	<body>
@@ -145,7 +184,11 @@
 					</tr>
 					<tr>
 						<td colspan="2">
-							<input type="submit" value="Sign up" name="signup">
+							<input type="hidden" name="signup">
+							<?php
+								if(isset($errors['recaptcha'])) echo "<p class='error'>{$errors['recaptcha']}</p>";
+							?>
+							<p><button id="signupbtn">Join now</button></p>
 						</td>
 					</tr>
 				</table>

@@ -1276,20 +1276,16 @@ footer .signup p {
 }
 
 /* line 149, ../scss/memes.scss */
-#memeUpload {
-  /*textarea {
-  	width: 50%;
-  	height: 40px;
-  }*/
+.grecaptcha-badge {
+  margin: 10px auto;
 }
 
-/* line 157, ../scss/memes.scss */
+/* line 154, ../scss/memes.scss */
 .error {
   color: #f91616;
-  font-weight: bold;
 }
 
-/* line 162, ../scss/memes.scss */
+/* line 159, ../scss/memes.scss */
 .center {
   text-align: center;
 }
