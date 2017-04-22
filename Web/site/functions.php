@@ -956,12 +956,17 @@ SELECT
 
 		try {
 			if(($follower = userDetails($key)) === false) {// check the requesting user exists
-				$ret['error'] = "Invalid user key";
+				$ret['error'] = "Invalid follower key";
 				goto error;
 			}
 
 			if(($followee = userDetailsFromId($id)) === false) { // check followee exists
-				$ret['error'] = "Invalid user id";
+				$ret['error'] = "Invalid followee id";
+				goto error;
+			}
+
+			if($follower->iduser == $followee->iduser) {
+				$ret['error'] = "Can not follow yourself";
 				goto error;
 			}
 

@@ -56,7 +56,7 @@
 	}
 
 	function displayMeme($meme) {
-		// expects a $meme like those in the $memes array produced by a function like memeFeed()
+		// expects a $meme like those produced by the meme()['meme'] function
 
 		echo "
 		<div class='memeContainer'>
@@ -112,7 +112,7 @@
 	}
 
 	function displayMemeGrid($meme) {
-		// expects a $meme like those in the $memes array produced by a function like profile()
+		// expects a $meme like those produced by the meme()['meme'] function
 
 		echo "
 		<div class='memeGridContainer'>
