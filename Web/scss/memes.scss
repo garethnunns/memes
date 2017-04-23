@@ -122,6 +122,10 @@ header + .wrapper {
 	h1 {
 		font-size: 200px;
 		color: $grey;
+
+		@include breakpoint(phone) {
+			font-size: 100px;
+		}
 	}
 }
 
