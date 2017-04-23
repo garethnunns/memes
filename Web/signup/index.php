@@ -114,7 +114,7 @@
 
 			<p>Hey $name,</p>
 
-			<p>Thank you for signing up to $sitename. Your account is almost created, just one last thing&hellip;</p>
+			<p>Thank you for signing up to $sitename. Your account ({$_POST['username']}) is almost created, just one last thing&hellip;</p>
 
 			<p><b>Finish setting up your account by going to this link:<br>
 			<a href=\"{$link}\">{$link}</a></b></p>
@@ -134,7 +134,7 @@ Welcome to $sitename
 
 Hey $name,
 
-Thank you for signing up to $sitename. Your account is almost created, just one last thing...
+Thank you for signing up to $sitename. Your account ({$_POST['username']}) is almost created, just one last thing...
 
 Finish setting up your account by going to this link:
 {$link}
