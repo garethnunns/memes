@@ -587,7 +587,7 @@ SELECT m.idmeme
 FROM meme AS m
 
 -- future proof against scheduled posts
-WHERE m.posted < CURRENT_TIMESTAMP
+WHERE m.posted <= CURRENT_TIMESTAMP
 AND (
 	-- show your own posts in the feed
 	m.iduser = :id
@@ -694,7 +694,7 @@ LEFT JOIN user AS o ON o.iduser = (
 )
 
 -- future proof against scheduled posts
-WHERE m.posted < CURRENT_TIMESTAMP
+WHERE m.posted <= CURRENT_TIMESTAMP
 AND m.idmeme = :idmeme
 LIMIT 1";
 
@@ -864,7 +864,7 @@ SELECT m.idmeme
 FROM meme as m
 
 -- future proof against scheduled posts
-WHERE m.posted < CURRENT_TIMESTAMP
+WHERE m.posted <= CURRENT_TIMESTAMP
 AND m.iduser = :profile
 ORDER BY m.posted DESC
 LIMIT 20 OFFSET :start";
