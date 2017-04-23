@@ -7,8 +7,9 @@ DirectoryIndex index.php index.html
 	RewriteEngine on
 	RewriteBase /
 
-	# forbid apps
+	# forbidden things
 	RewriteRule \.exe - [F]
+	RewriteRule site/PHPMailer [F]
 
 	# profile page
 	RewriteCond %{REQUEST_FILENAME} !-f

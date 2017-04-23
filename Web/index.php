@@ -24,6 +24,7 @@
 
 <?php
 	if(isset($_GET['loginerror'])) echo "<p class='error'>The username or password was incorrect</p>";
+	if(isset($_GET['emailerror'])) echo "<p class='error'>We're waiting on you to confirm your email address - check your emails</p>";
 	if(isset($_GET['goingto'])) echo '<input type="hidden" name="goingto" value="'.htmlspecialchars($_GET['goingto']).'">';
 ?>
 
@@ -63,15 +64,9 @@
 			echo "<p class='error'>".(isset($memes['error']) ? $memes['error'] : "There was an error fetching the memes")."</p>";
 		elseif(!count($memes['memes']))
 			echo "<p><i>There are no memes to show at the moment, see the best posts in the <a href='/hot'>hot feed</a></i></p>";
-		else {
+		else
 			foreach ($memes['memes'] as $meme) 
 				displayMeme($meme);
-		}
-
-		// TODO remove when out of dev
-		echo "<!--";
-		print_r($memes);
-		echo "-->";
 ?>
 <?php
 	} // end of being logged in

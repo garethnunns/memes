@@ -39,6 +39,15 @@
 		'profile/default/lol.png'
 	);
 
+	// set the clock
+	date_default_timezone_set('Etc/UTC');
+	try {
+		$dbh->exec("SET time_zone='".date('P')."';");
+	}
+	catch(PDOException $e) {
+		die('There was an error setting the clock');
+	}
+
 	function userDetails($key) {
 		// returns an object containing all of the details
 		// expects the user's key as an input
@@ -48,7 +57,8 @@
 		try {
 			$sql = "SELECT user.*
 					FROM user
-					WHERE ukey = ?";
+					WHERE ukey = ?
+					AND emailcode IS NULL";
 
 			$sth = $dbh->prepare($sql);
 
@@ -72,7 +82,8 @@
 		try {
 			$sql = "SELECT user.*
 					FROM user
-					WHERE iduser = ?";
+					WHERE iduser = ?
+					AND emailcode IS NULL";
 
 			$sth = $dbh->prepare($sql);
 
@@ -117,7 +128,8 @@ CONCAT(:res,user.picUri) as pic,
 ) AS isFollowing,
 (:user = :profile) as you
 FROM user
-WHERE iduser = :profile";
+WHERE iduser = :profile
+AND emailcode IS NULL";
 
 			$psth = $dbh->prepare($psql);
 			$psth->bindParam(':web',$web);
@@ -244,7 +256,7 @@ WHERE iduser = :profile";
 
 		// check the username hasn't been taken by another user
 		try {
-			$sql = "SELECT iduser FROM user WHERE LOWER(username) = ?";
+			$sql = "SELECT iduser FROM user WHERE username = ?";
 
 			$sth = $dbh->prepare($sql);
 

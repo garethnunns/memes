@@ -1,5 +1,6 @@
 <?php
 	require_once '../site/web.php';
+	require_once '../site/PHPMailer/PHPMailerAutoload.php';
 
 	if(loggedIn()) // user already logged in
 		header("Location: /");
@@ -75,8 +76,10 @@
 
 			// we've got everything we need so we'll add them to the database
 			try {
-				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname, picUri) 
-					VALUES (?, ?, ?, ?, ?, ?, ?)");
+				$emailcode = bin2hex(openssl_random_pseudo_bytes(20));
+
+				$sth = $dbh->prepare("INSERT INTO user (ukey, username, password, email, firstName, surname, picUri, emailcode) 
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
 				$sth->execute(array(
 					$key,
@@ -85,19 +88,95 @@
 					$_POST['email'],
 					$_POST['firstName'],
 					$_POST['surname'],
-					$defaultPics[mt_rand(0, count($defaultPics) - 1)]
+					$defaultPics[mt_rand(0, count($defaultPics) - 1)],
+					$emailcode
 				));
 
-				// yay, all done so send them off to the home page - could set some session variables here so they're logged in
-				$_SESSION['user'] = $dbh->lastInsertId();
-				$_SESSION['key'] = $key;
+				// confirmation email
+				$name = $_POST['firstName'] . ' ' . $_POST['surname'];
+				$email = $_POST['email'];
+				$id = $dbh->lastInsertId();
+				$link = $web."confirm/?id={$id}&code={$emailcode}";
 
-				follow($key,1); // follow the first account made on the server so that their feed isn't empty
-				
-				header("Location: /?new");
+				$html = "
+<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
+<html>
+	<head>
+		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">
+		<title>Welcome to $sitename</title>
+	</head>
+	<body>
+		<div style=\"width: 640px; font-family: 'Open Sans', Avenir, Helvetica, sans-serif; font-size: 14px;\">
+			<div style=\"text-align: center\">
+				<h1>Welcome to $sitename</h1>
+				<img src=\"{$res}email/confirm.jpg\" height=\"360\" width=\"640\" alt=\"This is a pretty funny meme that you're missing out on\">
+			</div>
+
+			<p>Hey $name,</p>
+
+			<p>Thank you for signing up to $sitename. Your account is almost created, just one last thing&hellip;</p>
+
+			<p><b>Finish setting up your account by going to this link:<br>
+			<a href=\"{$link}\">{$link}</a></b></p>
+
+			<p>See you soon on {$sitename},<br>
+			The {$sitename} team</p>
+
+			<p><i>Didn't sign up for an account and not expecting this email? You might as well set up an account&hellip;
+			Or just ignore this message</i></p>
+		</div>
+	</body>
+</html>
+";
+
+$text = "
+Welcome to $sitename
+
+Hey $name,
+
+Thank you for signing up to $sitename. Your account is almost created, just one last thing...
+
+Finish setting up your account by going to this link:
+{$link}
+
+See you soon on {$sitename},
+The {$sitename} team
+
+Didn't sign up for an account and not expecting this email? You might as well set up an account...
+Or just ignore this message";
+
+				// send the user an email to verify their email address
+
+				$mail = new PHPMailer; // to do this we're using the PHPMailer lib
+				$mail->isSMTP(); // set it to SMTP
+				$mail->SMTPDebug = 0; // no debugging (change to 2 if needed)
+				$mail->Debugoutput = 'html'; // to make debugging easier
+				// there are login details for a free GMail account in secure.php
+				// this makes it easiest to avoid spam
+				// so we'll be using those details and sending it through the google server
+				$mail->Host = 'smtp.gmail.com'; // hostname of the mail server
+				$mail->Port = 587; // SMTP port number - 587 for authenticated TLS
+				$mail->SMTPSecure = 'tls'; // the encryption to be used
+				$mail->SMTPAuth = true; // whether to use SMTP authentication
+				$mail->Username = GOOGLE_EMAIL; // Username to use for SMTP authentication - full email address for gmail
+				$mail->Password = GOOGLE_PASSWORD; // Password to use for SMTP authentication
+				$mail->setFrom(GOOGLE_EMAIL, $sitename); // who the message is sent from
+				$mail->addAddress($email, $name); // Set who the message is to be sent to
+
+				// the email
+				$mail->Subject = "Welcome to $sitename";
+				$mail->msgHTML($html);
+				$mail->AltBody = $text;
+
+				if ($mail->send()) { // send the email
+					header("Location: /confirm?new");
+				}
+				else {
+					$errors['mail'] = "There was an error sending your confirmation email, this was probably because the email address you enterred was invalid, but it may have been an internal error - either way we've reserved your username - <a href='/contact'>contact us if you think there's a mistake</a>";
+				}
 			}
 			catch (PDOException $e) {
-				$dbError = $e;
+				$errors['dbError'] = "There was an problem adding you to the database, have another go&hellip;";
 			}
 		}
 	}
@@ -119,7 +198,7 @@
 			var onloadCallback = function() {
 				grecaptcha.render('signupbtn', {
 				  'sitekey' : '<?php echo CAPTCHA_KEY; // defined in secure.php ?>',
-				  'badge' : 'inline',
+				  'badge' : 'bottomleft',
 				  'callback' : onSubmit
 				});
 			};
@@ -138,7 +217,10 @@
 
 							<p>We only collect the essential information here</p>
 
-							<?php if(!empty($dbError)) echo '<p class="error">There was an error adding you to the database :( have another go</p>'; ?>
+							<?php 
+								if(!empty($errors['dbError'])) echo "<p class='error'>{$errors['dbError']}</p>";
+								if(!empty($errors['mail'])) echo "<p class='error'>{$errors['mail']}</p>";
+							?>
 						</td>
 					</tr>
 					<tr>
@@ -188,7 +270,9 @@
 							<?php
 								if(isset($errors['recaptcha'])) echo "<p class='error'>{$errors['recaptcha']}</p>";
 							?>
-							<p><button id="signupbtn">Join now</button></p>
+							<p><input type="submit" id="signupbtn" value="Join now"></p>
+
+							<p><a href="/">Already have an account?</a></p>
 						</td>
 					</tr>
 				</table>
