@@ -818,6 +818,7 @@ LIMIT 1";
 				// you have already reposted the image
 				'repostable' => (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1,
 				'stars-num' => $row['stars'],
+				'stars-str' => plural('star',$row['stars']),
 				'starred' => $row['starred'],
 				'comments-num' => $row['comments'],
 				'comments' => $comments
