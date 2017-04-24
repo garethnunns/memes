@@ -261,7 +261,7 @@ AND emailcode IS NULL";
 
 		// check the username hasn't been taken by another user
 		try {
-			$sql = "SELECT iduser FROM user WHERE username = ?";
+			$sql = "SELECT iduser FROM user WHERE BINARY username = ?";
 
 			$sth = $dbh->prepare($sql);
 

@@ -40,7 +40,8 @@
 		try {
 			$sql = "SELECT user.*
 					FROM user
-					WHERE username = ?";
+					WHERE  BINARY username = ?
+					AND emailcode IS NULL";
 
 			$sth = $dbh->prepare($sql);
 
