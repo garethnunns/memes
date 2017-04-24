@@ -960,6 +960,8 @@ SELECT
 		return $profile;
 	}
 
+	// actions
+
 	function follow($key,$id) {
 		// follows a user, expecting:
 		// $key		follower's key
@@ -989,11 +991,11 @@ SELECT
 
 			$sql = "
 SELECT @follower:= ?, @followee:= ?, @isFollowing:=(
-    SELECT COUNT(follow.follower)
-    FROM follow
-    WHERE follower = @follower
-    AND followee = @followee
-    LIMIT 1
+	SELECT COUNT(follow.follower)
+	FROM follow
+	WHERE follower = @follower
+	AND followee = @followee
+	LIMIT 1
 ) AS wasFollowing,
 (
 	SELECT COUNT(followers.follower)
@@ -1030,6 +1032,79 @@ AND followee = @followee;";
 
 		return $ret;
 	}
+
+	function star($key,$id) {
+		// follows a user, expecting:
+		// $key		liker's key
+		// $id		$id of the meme
+
+		global $dbh; // database connection
+
+		$ret = array();
+
+		$ret['success'] = false;
+
+		try {
+			if(($user = userDetails($key)) === false) {// check the requesting user exists
+				$ret['error'] = "Invalid user key";
+				goto error;
+			}
+
+			// check the meme exists
+			$mcheck = $dbh->prepare("SELECT idmeme FROM meme WHERE idmeme = ?");
+			$mcheck->execute(array($id));
+
+			if($mcheck->rowCount() != 1) {
+				$ret['error'] = "The meme didn't exist";
+				goto error;
+			}
+
+			$sql = "
+SELECT @liker:= ?, @meme:= ?, 
+@wasStarred:=(
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.iduser = @liker
+	AND star.idmeme = @meme
+	LIMIT 1
+) AS wasStarred,
+@starred:=IF(@wasStarred, 0, 1) AS starred,
+@oldStars:=(
+	SELECT COUNT(stars.iduser)
+	FROM star as stars
+	WHERE stars.idmeme = @meme
+) AS oldStars,
+IF(@starred,@oldStars + 1,@oldStars - 1) AS newStars;
+
+INSERT IGNORE INTO star (idmeme, iduser)
+VALUES (@meme, @liker);
+
+DELETE FROM star
+WHERE @wasStarred = 1
+AND star.iduser = @liker
+AND star.idmeme = @meme";
+			
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($user->iduser, $id));
+
+			$star = $sth->fetch(PDO::FETCH_ASSOC);
+
+			$ret['starred'] = $star['starred'];
+			$ret['stars-num'] = $star['newStars'];
+			$ret['stars-str'] = plural('star',$ret['stars-num']);
+		}
+		catch (PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+		}
+
+		$ret['success'] = true;
+
+		error:
+
+		return $ret;
+	}
+
 
 	function timeArray($str) {
 		$t = strtotime($str);

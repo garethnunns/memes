@@ -154,6 +154,10 @@ header + .wrapper {
 	margin: 10px auto;
 }
 
+[onClick] {
+	cursor: pointer;
+}
+
 // text
 .error {
 	color: $red;

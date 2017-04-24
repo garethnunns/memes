@@ -83,7 +83,7 @@ $cImageMargin: ceil($font-size-large/2);
 				font-size: $font-size-small;
 			}
 
-			span { // icons
+			span[class^="icon-"], span[class*=" icon-"] { // icons
 				font-size: $font-size-h1;
 			}
 

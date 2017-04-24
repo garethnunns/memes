@@ -89,7 +89,10 @@
 			".htmlspecialchars($meme['caption'])."</p>
 			<div class='meme-actions'>
 				<div><span class='icon-comment'></span><br>{$meme['comments-num']} comments</div>
-				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'></span><br>{$meme['stars-num']} stars</div>
+				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
+				onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>
+				<span id='num-stars-{$meme['idmeme']}'>{$meme['stars-num']}</span> 
+				<span id='num-stars-str-{$meme['idmeme']}'>stars</span></div>
 				<div><span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span><br>{$meme['reposts-num']} reposts</div>
 			</div>";
 		if($meme['comments-num'] > 5)
