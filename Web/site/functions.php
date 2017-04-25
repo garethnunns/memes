@@ -171,7 +171,8 @@ AND emailcode IS NULL";
 			'user.password' => array(null, 8, 50),
 			'user.email' => array(null, null, null),
 			'user.firstName' => array('first name', null, 20),
-			'user.surname' => array(null, null, 20)
+			'user.surname' => array(null, null, 20),
+			'reply.reply' => array('comment', null, null),
 		);
 
 		try {
@@ -874,6 +875,7 @@ LIMIT 1";
 				'stars-str' => plural('star',$row['stars']),
 				'starred' => $row['starred'],
 				'comments-num' => $row['comments'],
+				'comments-str' => plural('comment',$row['comments']),
 				'comments' => $comments
 			);
 		}
@@ -1078,6 +1080,7 @@ AND followee = @followee;";
 		}
 		catch (PDOException $e) {
 			$ret['error'] = "There was an error updating the database";
+			goto error;
 		}
 
 		$ret['success'] = true;
@@ -1088,7 +1091,7 @@ AND followee = @followee;";
 	}
 
 	function star($key,$id) {
-		// follows a user, expecting:
+		// stars a meme, expecting:
 		// $key		liker's key
 		// $id		$id of the meme
 
@@ -1150,6 +1153,72 @@ AND star.idmeme = @meme";
 		}
 		catch (PDOException $e) {
 			$ret['error'] = "There was an error updating the database";
+			goto error;
+		}
+
+		$ret['success'] = true;
+
+		error:
+
+		return $ret;
+	}
+
+	function comment($key,$id, $comment) {
+		// comments on a meme, expecting:
+		// $key		liker's key
+		// $id		$id of the meme
+
+		global $dbh; // database connection
+
+		$ret = array();
+
+		$ret['success'] = false;
+
+		try {
+			if(($cError = valid('reply.reply',$comment)) === false) {
+				$ret['error'] = $cError;
+				goto error;
+			}
+
+			// remove line breaks from comment
+			$comment = trim(preg_replace('/\s+/', ' ', $comment));
+
+			if(($user = userDetails($key)) === false) { // check the requesting user exists
+				$ret['error'] = "Invalid user key";
+				goto error;
+			}
+
+			// check the meme exists
+			$mcheck = $dbh->prepare("SELECT idmeme FROM meme WHERE idmeme = ?");
+			$mcheck->execute(array($id));
+
+			if($mcheck->rowCount() != 1) {
+				$ret['error'] = "The meme didn't exist";
+				goto error;
+			}
+			
+			$sth = $dbh->prepare("INSERT INTO reply (idmeme,iduser,reply) VALUES (?,?,?)");
+
+			$sth->execute(array($id,$user->iduser,$comment));
+
+			$sql = "SELECT COUNT(reply.idreply)
+					AS comments
+					FROM reply
+					WHERE reply.idmeme = ?";
+
+			$stath = $dbh->prepare($sql);
+			$stath->execute(array($id));
+			$stats = $stath->fetch(PDO::FETCH_ASSOC);
+
+			$commenter = userDetailsPersonal($key,$user->iduser);
+			$ret['commenter'] = $commenter['profile'];
+
+			$ret['comments-num'] = $stats['comments'];
+			$ret['comments-str'] = plural('comment',$ret['comments-num']);
+		}
+		catch (PDOException $e) {
+			$ret['error'] = "There was an error updating the database $e";
+			goto error;
 		}
 
 		$ret['success'] = true;

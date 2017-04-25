@@ -115,4 +115,20 @@ $cImageMargin: ceil($font-size-large/2);
 			}
 		}
 	}
+
+	.meme-add-comment {
+		margin-top: $sm-pad;
+
+		button {
+			float: right;
+		}
+
+		div {
+			margin-right: 130px;
+
+			input[type="text"] {
+				width: 100%;
+			}
+		}
+	}
 }

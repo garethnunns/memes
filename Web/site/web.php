@@ -88,30 +88,45 @@
 			<img src='{$meme['poster']['pic']}' alt='{$meme['poster']['username']} profile picture' class='pp'/>
 			".nl2br(htmlspecialchars($meme['caption']))."</p>";
 			echo "<div class='meme-actions'>
-				<div><span class='icon-comment'></span><br>{$meme['comments-num']} comments</div>
-				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
-				onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>
-				<span id='num-stars-{$meme['idmeme']}'>{$meme['stars-num']}</span> 
-				<span id='num-stars-str-{$meme['idmeme']}'>{$meme['stars-str']}</span></div>
-				<div><span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span><br>{$meme['reposts-num']} reposts</div>
+				<div>
+					<span class='icon-comment'></span><br>
+					<span id='num-comments-{$meme['idmeme']}'>{$meme['comments-num']}</span> 
+					<span id='num-comments-str-{$meme['idmeme']}'>{$meme['comments-str']}</span>
+				</div>
+				<div>
+					<span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
+						onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>
+					<span id='num-stars-{$meme['idmeme']}'>{$meme['stars-num']}</span> 
+					<span id='num-stars-str-{$meme['idmeme']}'>{$meme['stars-str']}</span>
+				</div>
+				<div>
+					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span><br>{$meme['reposts-num']} reposts
+				</div>
 			</div>";
-		if($meme['comments-num'] > 5)
+		if($meme['comments-num'] > count($meme['comments']))
 			echo "<a href='{$meme['link']}' title='Go to post'>View all comments&hellip;</a>";
-		if($meme['comments-num'] && $meme['comments']) {
-			echo "<div class='meme-comments'>";
+		echo "<div class='meme-comments' id='comments-{$meme['idmeme']}'>";
+		if($meme['comments-num'] && $meme['comments'])
 			foreach($meme['comments'] as $comment)
 				echo "
 				<div class='meme-comment'>
 					<h4 class='meme-comment-name'>
 						<div class='meme-ago'>{$comment['time']['ago']}</div>
 						<a href='{$comment['commenter']['link']}' title='{$comment['commenter']['name']}'>
-							<img src='{$comment['commenter']['pic']}' class='pp' alt='{$meme['poster']['username']} profile picture' /> {$comment['commenter']['username']}
+							<img src='{$comment['commenter']['pic']}' class='pp' alt='{$meme['commenter']['username']} profile picture' /> {$comment['commenter']['username']}
 						</a>
 					</h4>
 					<p>".htmlspecialchars($comment['comment'])."</p>
 				</div>";
-			echo "</div>";
-		}
+		echo "</div>";
+		echo "<div class='meme-add-comment'>
+			<button onClick=\"comment(this, '#comment-{$meme['idmeme']}', {$meme['idmeme']}, '#comments-{$meme['idmeme']}', '#num-comments-{$meme['idmeme']}','#num-comments-str-{$meme['idmeme']}')\">
+				Comment
+			</button>
+			<div>
+				<input type='text' id='comment-{$meme['idmeme']}' class='meme-add-comment' placeholder='Add a comment...'>
+			</div>
+		</div>";
 		echo "</div>";
 	}
 
