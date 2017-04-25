@@ -3,7 +3,7 @@
 @import 'compass/css3';
 @import 'compass/utilities/general/clearfix';
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700,700i');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,700');
 
 @mixin breakpoint($point) {
 	@if $point == small-phone {

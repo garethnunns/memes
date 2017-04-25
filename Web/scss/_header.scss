@@ -48,7 +48,7 @@ header {
 			border-bottom: none;
 			margin-left: 12px;
 
-			&:hover {
+			&:hover, &.current {
 				border-bottom: none;
 				color: $black;
 			}
@@ -57,7 +57,7 @@ header {
 				// TODO fix the pp being out of alignment
 				opacity: 0.8;
 
-				&:hover {
+				&:hover, &.current {
 					opacity: 1;
 				}
 

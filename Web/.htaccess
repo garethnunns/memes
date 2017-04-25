@@ -11,10 +11,15 @@ DirectoryIndex index.php index.html
 	RewriteRule \.exe - [F]
 	RewriteRule site/PHPMailer [F]
 
+	# forward onto profile page (profile page never has any trailing slashes)
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^([a-zA-Z0-9-_]+)[\/]+?$ $1 [R]
+
 	# profile page
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^([a-zA-Z0-9-_]+)[\/]?$ profile.php?username=$1 [L,QSA]
+	RewriteRule ^([a-zA-Z0-9-_]+)$ profile.php?username=$1 [L,QSA]
 
 	# individual meme
 	RewriteCond %{REQUEST_FILENAME} !-f

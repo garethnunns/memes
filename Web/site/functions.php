@@ -630,6 +630,59 @@ LIMIT 20 OFFSET :start";
 		return $memes;
 	}
 
+	function memeStarredFeed($key,$start=0,$thumb=400,$full=1000) {
+		// the user's starred meme feed
+		// expected the user's $key
+		// returns an array with the first 20 memes in their feed, starting at $start
+
+		global $dbh; // database connection
+
+		$memes = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$memes['error'] = "Invalid user key";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT m.idmeme
+FROM meme AS m, star
+WHERE m.posted <= CURRENT_TIMESTAMP
+AND star.idmeme = m.idmeme
+AND star.iduser = :id
+ORDER BY starred DESC
+LIMIT 20 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$user->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
+
+			$memes['memes'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$meme = meme($key,$row['idmeme'],$thumb,$full,$limitComments);
+				if(!$meme['success']) {
+					$memes['error'] = isset($meme['error']) ? $meme['error'] : "There was an error retreiving meme #{$row['idmeme']}";
+					goto error;
+				}
+				array_push($memes['memes'], $meme['meme']);
+			}
+		}
+		catch (PDOException $e) {
+			$memes['error'] = "There was an error retreiving memes from the database";
+		}
+
+		$memes['success'] = true;
+
+		error:
+
+		return $memes;
+	}
+
 	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
 		// returns an array with all the information about the meme, expecting:
 		// $key 			The user's $key that is requesting them
