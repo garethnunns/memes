@@ -53,10 +53,6 @@ $cImageMargin: ceil($font-size-large/2);
 		padding: 10px 0;
 	}
 
-	& > .meme-comment {
-		font-size: $font-size-large;
-	}
-
 	.meme-actions {
 		@include clearfix;
 
@@ -102,13 +98,19 @@ $cImageMargin: ceil($font-size-large/2);
 		}
 	}
 
+	& > .meme-comment {
+		font-size: $font-size-large;
+		max-height: $font-size-large * $line-height-base * 4; // limit it to 4 lines
+		overflow-y: scroll;
+	}
+
 	.meme-comments {
 		.meme-comment {
 			.meme-comment-name {
 				@include clearfix;
 			}
 
-			p {
+			p { // actual comment
 				margin-left: $cImageSize + $cImageMargin;
 			}
 		}

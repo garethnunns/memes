@@ -86,7 +86,7 @@
 			<img src='{$meme['images']['full']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>";
 			if(!empty($meme['caption'])) echo "<p class='meme-comment'>
 			<img src='{$meme['poster']['pic']}' alt='{$meme['poster']['username']} profile picture' class='pp'/>
-			".htmlspecialchars($meme['caption'])."</p>";
+			".nl2br(htmlspecialchars($meme['caption']))."</p>";
 			echo "<div class='meme-actions'>
 				<div><span class='icon-comment'></span><br>{$meme['comments-num']} comments</div>
 				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
