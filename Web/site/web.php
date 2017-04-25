@@ -83,11 +83,11 @@
 					// when it's an original
 					"Posted by {$meme['poster']['name']}")."</p>
 			</div>
-			<img src='{$meme['images']['full']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>
-			<p class='meme-comment'>
+			<img src='{$meme['images']['full']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>";
+			if(!empty($meme['caption'])) echo "<p class='meme-comment'>
 			<img src='{$meme['poster']['pic']}' alt='{$meme['poster']['username']} profile picture' class='pp'/>
-			".htmlspecialchars($meme['caption'])."</p>
-			<div class='meme-actions'>
+			".htmlspecialchars($meme['caption'])."</p>";
+			echo "<div class='meme-actions'>
 				<div><span class='icon-comment'></span><br>{$meme['comments-num']} comments</div>
 				<div><span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
 				onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>
