@@ -6,38 +6,41 @@
 
 	if(isset($_GET['id']) && isset($_GET['code'])) {
 		try {
-			$sql = "SELECT user.iduser, user.ukey
+			$sql = "SELECT user.iduser, user.ukey, user.emailcode
 					FROM user
-					WHERE iduser = ?
-					AND emailcode = ?";
+					WHERE iduser = ?";
 
 			$sth = $dbh->prepare($sql);
 
-			$sth->execute(array($_GET['id'],$_GET['code'])); // sanitise user input
+			$sth->execute(array($_GET['id'])); // sanitise user input
+
 
 			if($sth->rowCount()==1) {
 				$user = $sth->fetch(PDO::FETCH_OBJ);
 
-				$dbh->exec("UPDATE user SET emailcode = null WHERE iduser = {$user->iduser}");
+				if($user->emailcode == null) {
+					header("Location: /");
+					die("You've already confirmed your email - head over to the homepage to login");
+				}
+				elseif($user->emailcode == $_GET['code']) {
+					$dbh->exec("UPDATE user SET emailcode = null WHERE iduser = {$user->iduser}");
 
-				// log them in
-				$_SESSION['user'] = $user->iduser;
-				$_SESSION['key'] = $user->ukey;
+					// log them in
+					$_SESSION['user'] = $user->iduser;
+					$_SESSION['key'] = $user->ukey;
 
-				// follow the first account on the system so their feed isn't empty
-				follow($user->ukey,1);
+					// follow the first account on the system so their feed isn't empty
+					follow($user->ukey,1);
 
-				// send them to their feed
-				header("Location: /?new");
-				die("You're logged in, go to the home page");
+					// send them to their feed
+					header("Location: /?new");
+					die("You're logged in, go to the home page to login");
+				}
 			}
 		}
 		catch (PDOException $e) {
 			// it will just run into the page
 		}
-
-
-		$_SESSION['user'] = $dbh->lastInsertId();
 	}
 
 	$title = isset($_GET['new']) ? 'Thanks' : 'Confirm your account';
