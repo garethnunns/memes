@@ -35,11 +35,11 @@ function star(button, id, num=null, numStr=null) {
 	}, 'json');
 }
 
-function comment(button, comment, id, comments=null, num=null, numStr=null) {
+function comment(button, id, comment, comments=null, num=null, numStr=null) {
 	// stars the meme with $id, expects:
-	// comment	to be the input box 
 	// button 	to be the icon button that triggered this event
 	// id 		to be the meme's id
+	// comment	to be the input box 
 	//(comments)to be the comments section
 	// (num)	to be the html element storing the number of comments
 	// (numStr)	to be the html element storing the associated text
@@ -57,7 +57,23 @@ function comment(button, comment, id, comments=null, num=null, numStr=null) {
 	}, 'json');
 }
 
+function repost(id, caption) {
+	// stars the meme with $id, expects:
+	// id 		to be the meme's id
+	// caption	to be the caption input box
 
+	$.post('/ajax/repost.php', {id: id, caption: $(caption).val()}, function (data) {
+		if(data.success) window.location.href = data.link;
+		console.log('repost()',data);
+	}, 'json');
+}
+
+
+function expand(elem) {
+	// expand them [elem]ent
+
+	$(elem).slideDown();
+}
 
 function htmlEncode(s) { // http://stackoverflow.com/a/784698
 	var el = document.createElement("div");
@@ -65,16 +81,3 @@ function htmlEncode(s) { // http://stackoverflow.com/a/784698
 	s = el.innerHTML;
 	return s;
 }
-/*
-
-<div class='meme-comment'>
-					<h4 class='meme-comment-name'>
-						<div class='meme-ago'>{$comment['time']['ago']}</div>
-						<a href='{$comment['commenter']['link']}' title='{$comment['commenter']['name']}'>
-							<img src='{$comment['commenter']['pic']}' class='pp' alt='{$meme['poster']['username']} profile picture' /> {$comment['commenter']['username']}
-						</a>
-					</h4>
-					<p>".htmlspecialchars($comment['comment'])."</p>
-				</div>";
-
-*/

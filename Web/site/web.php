@@ -100,7 +100,17 @@
 					<span id='num-stars-str-{$meme['idmeme']}'>{$meme['stars-str']}</span>
 				</div>
 				<div>
-					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? '' : 'unrepostable'))."'></span><br>{$meme['reposts-num']} reposts
+					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? "' onClick=\"expand('#repost-containter-{$meme['idmeme']}')\"" : "unrepostable'"))."'></span><br>{$meme['reposts-num']} reposts
+				</div>
+			</div>";
+		if($meme['repostable'])
+			echo "<div class='meme-repost' id='repost-containter-{$meme['idmeme']}'>
+				<h4>Repost this meme</h4>
+				<button onClick=\"repost({$meme['idmeme']},'#repost-{$meme['idmeme']}')\">
+					Repost
+				</button>
+				<div>
+					<input type='text' id='repost-{$meme['idmeme']}' class='meme-repost-caption' placeholder='Add a caption... or just hit that repost button'>
 				</div>
 			</div>";
 		if($meme['comments-num'] > count($meme['comments']))
@@ -120,7 +130,7 @@
 				</div>";
 		echo "</div>";
 		echo "<div class='meme-add-comment'>
-			<button onClick=\"comment(this, '#comment-{$meme['idmeme']}', {$meme['idmeme']}, '#comments-{$meme['idmeme']}', '#num-comments-{$meme['idmeme']}','#num-comments-str-{$meme['idmeme']}')\">
+			<button onClick=\"comment(this, {$meme['idmeme']}, '#comment-{$meme['idmeme']}', '#comments-{$meme['idmeme']}', '#num-comments-{$meme['idmeme']}','#num-comments-str-{$meme['idmeme']}')\">
 				Comment
 			</button>
 			<div>

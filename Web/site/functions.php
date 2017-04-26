@@ -1165,8 +1165,9 @@ AND star.idmeme = @meme";
 
 	function comment($key,$id, $comment) {
 		// comments on a meme, expecting:
-		// $key		liker's key
+		// $key		commenter's key
 		// $id		$id of the meme
+		// $comment the comment string
 
 		global $dbh; // database connection
 
@@ -1217,7 +1218,7 @@ AND star.idmeme = @meme";
 			$ret['comments-str'] = plural('comment',$ret['comments-num']);
 		}
 		catch (PDOException $e) {
-			$ret['error'] = "There was an error updating the database $e";
+			$ret['error'] = "There was an error updating the database";
 			goto error;
 		}
 
@@ -1228,6 +1229,81 @@ AND star.idmeme = @meme";
 		return $ret;
 	}
 
+	function repost($key,$id, $caption, $lat=null, $long=null) {
+		// reposts a meme, expecting:
+		// $key		reposter's key
+		// $id		$id of the meme
+		// $lat 	latitude of the post
+		// $long 	longitude of the post
+
+		global $dbh; // database connection
+
+		global $web; // to return link
+
+		$ret = array();
+
+		$ret['success'] = false;
+
+		try {
+			if(($cError = valid('meme.caption',$comment)) === false) {
+				$ret['error'] = $cError;
+				goto error;
+			}
+
+			if(($user = userDetails($key)) === false) { // check the requesting user exists
+				$ret['error'] = "Invalid user key";
+				goto error;
+			}
+
+			// check the meme exists and can be reposted
+			$sql = "
+			SELECT meme.*
+			FROM meme
+			-- check it exists
+			WHERE meme.idmeme = ?
+			-- make sure it's not already a repost
+			AND meme.share IS NULL
+			-- not the user's own post
+			AND meme.iduser <> ?";
+			$mcheck = $dbh->prepare($sql);
+			$mcheck->execute(array($id,$user->iduser));
+
+			if($mcheck->rowCount() != 1) {
+				$ret['error'] = "That meme can't be reposted";
+				goto error;
+			}
+			$meme = $mcheck->fetch(PDO::FETCH_ASSOC);
+
+			
+			$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, ext, caption, latitude, longitude, share) 
+								VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+			$sth->execute(array(
+				$user->iduser,
+				$meme['sizes'],
+				$meme['ext'],
+				$caption,
+				$lat,
+				$long,
+				$id
+			));
+
+			$ret['idmeme'] = $dbh->lastInsertId();
+			$ret['link'] = $web.$user->username."/".$ret['idmeme'];
+		}
+		catch (PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+			goto error;
+		}
+
+		$ret['success'] = true;
+
+		error:
+
+		return $ret;
+	}
+
+	// time functions
 
 	function timeArray($str) {
 		$t = strtotime($str);

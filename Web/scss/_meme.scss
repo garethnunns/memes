@@ -89,6 +89,7 @@ $cImageMargin: ceil($font-size-large/2);
 
 			span.icon-repost.reposted {
 				color: $lblue;
+				cursor:not-allowed;
 			}
 
 			span.icon-repost.unrepostable {
@@ -116,9 +117,7 @@ $cImageMargin: ceil($font-size-large/2);
 		}
 	}
 
-	.meme-add-comment {
-		margin-top: $sm-pad;
-
+	.meme-add-comment, .meme-repost {
 		button {
 			float: right;
 		}
@@ -130,5 +129,14 @@ $cImageMargin: ceil($font-size-large/2);
 				width: 100%;
 			}
 		}
+	}
+
+	.meme-add-comment {
+		margin: $sm-pad 0;
+	}
+
+	.meme-repost {
+		display: none;
+		margin: $md-pad 0;
 	}
 }
