@@ -1,0 +1,39 @@
+$nHeight: 100px;
+
+.notifications-containter {
+	.notification {
+		position: relative;
+		margin: $md-pad 0;
+		padding: $md-pad;
+		@include clearfix;
+		font-size: $font-size-large;
+
+		&.unread {
+			background-color: $vlblue;
+			border-radius: $br;
+		}
+
+		a.pp {
+			border-bottom: none;
+
+			img.pp {
+				height: $nHeight;
+				margin-right: $md-pad;
+			}
+		}
+
+		a.meme {
+			float: right;
+			border-bottom: none;
+
+			img {
+				height: $nHeight;
+			}
+		}
+
+		div.follow {
+			float: right;
+			margin-top: ($nHeight - ($md-pad * 2) - $font-size-large)/2;
+		}
+	}
+}

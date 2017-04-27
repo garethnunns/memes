@@ -29,6 +29,7 @@ $black: #444;
 $grey: lighten($black, 15%);
 $greyed-out: lighten($black, 30%);
 $lblue: #78B5E4;
+$vlblue: lighten($lblue, 23%);
 $dblue: darken($lblue, 15%);
 $red: #f91616;
 $dividers: $grey;
@@ -115,7 +116,7 @@ header + .wrapper {
 	}
 }
 
-@import 'header','footer','meme','memeGrid','profile';
+@import 'header','footer','meme','memeGrid','profile','notifications';
 
 .pageError {
 	text-align: center;

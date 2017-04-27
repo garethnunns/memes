@@ -1016,6 +1016,125 @@ SELECT
 		return $profile;
 	}
 
+	function notifications($key, $start=0, $thumb=400) {
+		global $dbh; // database connection
+
+		global $res; // for providing absolute path to thumbnail of meme and profile pic
+
+		$nots = array('success' => false);
+
+		if(($user = userDetails($key)) === false) {
+			$nots['error'] = "Invalid user key";
+			goto error;
+		}
+
+		try {
+$sql = "
+SET @user = :id;
+
+SET @last = (
+	SELECT user.notifications
+    FROM user
+    WHERE user.iduser = @user
+);
+
+(
+	-- stars
+	SELECT ms.idmeme,
+	s.iduser, s.starred AS time,
+	IF(s.starred > @last, 1, 0) AS unread,
+	'star' AS type
+	FROM meme AS ms, star AS s
+	WHERE ms.iduser = @user
+	AND ms.idmeme = s.idmeme
+	AND s.iduser <> @user
+)
+UNION
+(
+	-- comments
+	SELECT mr.idmeme,
+	r.iduser, r.replyed AS time,
+	IF(r.replyed > @last, 1, 0) AS unread,
+	'comment' AS type
+	FROM meme AS mr, reply AS r
+	WHERE mr.iduser = @user
+	AND mr.idmeme = r.idmeme
+	AND r.iduser <> @user
+)
+UNION
+(
+	-- reposts
+	SELECT mp.idmeme,
+	p.iduser, p.posted AS time,
+	IF(p.posted > @last, 1, 0) AS unread,
+	'repost' AS type
+	FROM meme AS mp, meme AS p
+	WHERE mp.iduser = @user
+	AND mp.idmeme = p.share
+	AND p.iduser <> @user
+)
+UNION
+(
+	-- follows
+	SELECT null,
+	f.follower, f.followed,
+	f.followed > @last AS unread,
+	'follow' AS type
+	FROM follow as f
+	WHERE f.followee = @user
+)
+ORDER BY time DESC
+LIMIT 20 OFFSET :start
+";
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':start', $start, PDO::PARAM_INT);
+			$sth->bindParam(':id', $user->iduser, PDO::PARAM_INT);
+			$sth->execute();
+
+			$sth->nextRowset(); // skip setting @user
+			$sth->nextRowset(); // skip setting @last
+			$notifications = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+			$nots['notifications'] = array(); // to be filled with notifications
+
+			foreach ($notifications as $key => $not) {
+				// get the notifier's details
+				$notifier = userDetailsPersonal($user->ukey,$not['iduser']);
+				if(!$notifier['success']) continue; // hide the notification
+
+				$notification = array(
+					'type' => $not['type'],
+					'unread' => $not['unread'],
+					'time' => timeArray($not['time']),
+					'user' => $notifier['profile']
+				); 
+
+				// get the meme details if there's one associated with the notification
+				if(!is_null($not['idmeme'])) {
+					$meme = meme($user->ukey,$not['idmeme'],$thumb,null,true);
+					if(!$meme['success']) continue; // hide the notification
+					else $notification['meme'] = $meme['meme'];
+				}
+
+				// add the notification to the returned array
+				$nots['notifications'][] = $notification;
+			}
+
+			// number of notifications (will max out at 20)
+			$nots['num'] = count($nots['notifications']);
+		}
+		catch (PDOException $e) {
+			$nots['error'] = "There was an error getting the notifications from the database $e";
+			goto error;
+		}
+
+		$nots['success'] = true;
+
+		error:
+
+		return $nots;
+	}
+
 	// actions
 
 	function follow($key,$id) {
@@ -1306,6 +1425,8 @@ AND star.idmeme = @meme";
 	// time functions
 
 	function timeArray($str) {
+		// returns an array with the time $str formatted differently
+
 		$t = strtotime($str);
 		return array(
 			'epoch' => $t,
