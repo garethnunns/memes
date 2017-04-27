@@ -1,4 +1,5 @@
-$nHeight: 100px;
+$nHeight: 80px;
+$nHeightMob: $nHeight*(3/4);
 
 .notifications-containter {
 	.notification {
@@ -7,33 +8,99 @@ $nHeight: 100px;
 		padding: $md-pad;
 		@include clearfix;
 		font-size: $font-size-large;
+		border-radius: $br;
+
+		@include breakpoint(phone) {
+			padding: $sm-pad;
+			font-size: $font-size-base;
+		}
 
 		&.unread {
 			background-color: $vlblue;
-			border-radius: $br;
+			& > p {
+				font-weight: 700;
+			}
+		}
+
+		&.read {
+			background-color: darken($white, 5%);
 		}
 
 		a.pp {
+			float: left;
 			border-bottom: none;
 
 			img.pp {
 				height: $nHeight;
 				margin-right: $md-pad;
+
+				@include breakpoint(phone) {
+					height: $nHeightMob;
+					margin-right: $sm-pad;
+				}
+			}
+		}
+
+		& > p {
+			position: absolute;
+			top: 50%;
+			left: $nHeight + $md-pad * 2;
+			right: $nHeight + $md-pad * 2;
+			transform: translate(0,-50%);
+			margin-bottom: 0;
+
+			@include breakpoint(tablet) {
+				position: static;
+				transform: none;
+			}
+
+			.ago {
+				margin-left: $xs-pad;
+				color: $greyed-out;
+				font-style: italic;
+				font-weight: 400;
 			}
 		}
 
 		a.meme {
 			float: right;
 			border-bottom: none;
+			margin-left: $md-pad;
+
+			@include breakpoint(phone) {
+				margin-left: $sm-pad;
+			}
 
 			img {
 				height: $nHeight;
+
+				@include breakpoint(phone) {
+					height: $nHeightMob;
+					margin-right: $sm-pad;
+				}
 			}
 		}
 
 		div.follow {
 			float: right;
-			margin-top: ($nHeight - ($md-pad * 2) - $font-size-large)/2;
+			margin-top: ($nHeight - ($sm-pad * 2) - (1.5*$font-size-large))/2;
+			margin-left: $md-pad;
+
+			@include breakpoint(tablet) {
+				margin-top: ($nHeight - ($sm-pad * 2) - (1.5*$font-size-base))/2;
+			}
+
+			@include breakpoint(phone) {
+				margin-top: ($nHeightMob - ($sm-pad * 2) - (1.5*$font-size-base))/2;
+				margin-left: $sm-pad;
+			}
+			
+			button {
+				@include breakpoint(tablet) {
+					font-size: $font-size-base;
+					padding: $sm-pad;
+				}
+			}
 		}
 	}
 }

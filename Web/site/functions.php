@@ -1084,7 +1084,10 @@ UNION
 	WHERE f.followee = @user
 )
 ORDER BY time DESC
-LIMIT 20 OFFSET :start
+LIMIT 20 OFFSET :start;
+
+-- update the read time every time they are viewed
+UPDATE user SET user.notifications = CURRENT_TIMESTAMP WHERE user.iduser = @user;
 ";
 			$sth = $dbh->prepare($sql);
 			$sth->bindParam(':start', $start, PDO::PARAM_INT);
