@@ -64,7 +64,7 @@
 
 			$sth->execute(array($key)); // sanitise user input
 
-			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
+			if($sth->rowCount()!=1) return false;
 
 			return $sth->fetch(PDO::FETCH_OBJ);
 		}
@@ -89,7 +89,7 @@
 
 			$sth->execute(array($id)); // sanitise user input
 
-			if($sth->rowCount()==0 || $sth->rowCount()>1) return false;
+			if($sth->rowCount()!=1) return false;
 
 			return $sth->fetch(PDO::FETCH_OBJ);
 		}
@@ -1038,6 +1038,9 @@ SET @last = (
     WHERE user.iduser = @user
 );
 
+-- update the read time every time they are viewed
+UPDATE user SET user.notifications = CURRENT_TIMESTAMP WHERE user.iduser = @user;
+
 (
 	-- stars
 	SELECT ms.idmeme,
@@ -1085,9 +1088,6 @@ UNION
 )
 ORDER BY time DESC
 LIMIT 20 OFFSET :start;
-
--- update the read time every time they are viewed
-UPDATE user SET user.notifications = CURRENT_TIMESTAMP WHERE user.iduser = @user;
 ";
 			$sth = $dbh->prepare($sql);
 			$sth->bindParam(':start', $start, PDO::PARAM_INT);
@@ -1096,11 +1096,12 @@ UPDATE user SET user.notifications = CURRENT_TIMESTAMP WHERE user.iduser = @user
 
 			$sth->nextRowset(); // skip setting @user
 			$sth->nextRowset(); // skip setting @last
+			$sth->nextRowset(); // skip updating the read time
 			$notifications = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 			$nots['notifications'] = array(); // to be filled with notifications
 
-			foreach ($notifications as $key => $not) {
+			foreach ($notifications as $not) {
 				// get the notifier's details
 				$notifier = userDetailsPersonal($user->ukey,$not['iduser']);
 				if(!$notifier['success']) continue; // hide the notification

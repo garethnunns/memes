@@ -20,7 +20,7 @@
 	if(!$nots['success'])
 		echo "<p class='error'>There was an error displaying your starred memes&hellip;<br>{$starred['error']}</p>";
 	elseif(!$nots['num'])
-		echo "<p><i>You don't have any notifications yet 😢, try <a href='/add'>posting something</a></i></p>";
+		echo "<p><i>You don't have any notifications yet 😢, <a href='/add'>try posting something</a></i></p>";
 	else {
 		echo '<div class="notifications-containter">';
 		foreach ($nots['notifications'] as $not) {
