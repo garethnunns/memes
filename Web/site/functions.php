@@ -684,6 +684,131 @@ LIMIT 20 OFFSET :start";
 		return $memes;
 	}
 
+	function memeHotFeed($key,$start=0,$thumb=400,$full=1000) {
+		// the user's hot memes feed
+		// expected the user's $key
+		// returns an array with the first 20 memes in their feed, starting at $start
+
+		global $dbh; // database connection
+
+		$memes = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$memes['error'] = "Invalid user key";
+			goto error;
+		}
+
+		try {
+			$sql = "
+-- user's hot feed:
+SET @user = :id;
+
+-- this is a relative factor based off the average number of stars recently
+SET @rel = 
+(
+    SELECT ROUND(AVG(stars))
+    FROM (
+        SELECT COUNT(*) as stars
+        FROM star
+        WHERE star.starred BETWEEN DATE_SUB(now(), INTERVAL 2 WEEK) and NOW()
+        GROUP BY star.idmeme
+        ORDER BY COUNT(*)
+    ) AS allStars
+);
+
+-- convert it into an INT and if there haven't been any stars recently just set it to 1
+SET @rel = CAST(IF(@rel IS NULL, 1, @rel) AS INT);
+
+SELECT @user, m.idmeme,
+( -- number of stars this post has (1 point)
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.idmeme = m.idmeme
+) +
+( -- number of comments on this post (2 points)
+	SELECT COUNT(reply.idreply)
+	FROM reply
+	WHERE reply.idmeme = m.idmeme
+) * 2 +
+( -- number of reposts of the original (3 points)
+	SELECT COUNT(s.idmeme)
+	FROM meme AS s 
+	WHERE s.share = m.idmeme
+	OR s.share = m.share
+) * 3 +
+( -- whether this @user has starred it (-2 points)
+	SELECT COUNT(strd.idmeme)
+	FROM star AS strd 
+	WHERE strd.idmeme = m.idmeme
+	AND strd.iduser = @user
+) * -2 +
+( -- whether this @user has commented on it (-4 points)
+	SELECT COUNT(cmtd.idmeme)
+	FROM reply AS cmtd
+	WHERE cmtd.idmeme = m.idmeme
+	AND cmtd.iduser = @user
+    LIMIT 1
+) * -2 +
+( -- whether this @user has reposted it (-6 points)
+	SELECT COUNT(rptd.idmeme)
+	FROM meme AS rptd 
+	WHERE rptd.share = m.share
+	AND rptd.iduser = @user
+) * -6 +
+-- posted in the last hour: 10 rel points
+IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 HOUR) AND NOW(), 10 * @rel,
+	-- posted in the last 6 hour: 6 rel points
+	IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 6 HOUR) AND NOW(), 6 * @rel,
+		-- posted in the last day: 4 rel points
+		IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 DAY) AND NOW(), 4 * @rel,
+        	-- posted in the last 3 days: 2 rel points
+        	IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 3 DAY) AND NOW(), 2 * @rel,
+            	-- posted in the last week: 1 rel point
+               IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 WEEK) AND NOW(), @rel, 0)
+            )
+        )
+    )
+)
+AS points
+FROM meme as m
+WHERE m.posted <= CURRENT_TIMESTAMP
+ORDER BY points DESC, m.posted DESC
+LIMIT 20 OFFSET :start
+";
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$user->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$sth->nextRowset(); // skip setting @user
+			$sth->nextRowset(); // skip setting @rel
+			$sth->nextRowset(); // skip casting @rel
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
+
+			$memes['memes'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$meme = meme($key,$row['idmeme'],$thumb,$full,$limitComments);
+				if(!$meme['success']) {
+					$memes['error'] = isset($meme['error']) ? $meme['error'] : "There was an error retreiving meme #{$row['idmeme']}";
+					goto error;
+				}
+				array_push($memes['memes'], $meme['meme']);
+			}
+		}
+		catch (PDOException $e) {
+			$memes['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$memes['success'] = true;
+
+		error:
+
+		return $memes;
+	} 
+
 	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
 		// returns an array with all the information about the meme, expecting:
 		// $key 			The user's $key that is requesting them
@@ -730,7 +855,7 @@ SELECT m.*, o.iduser AS oIduser,
 	WHERE strd.idmeme = m.idmeme
 	AND strd.iduser = :iduser
 ) AS starred,
-(
+( -- number of stars this post has
 	SELECT COUNT(star.iduser)
 	FROM star
 	WHERE star.idmeme = m.idmeme

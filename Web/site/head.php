@@ -20,7 +20,7 @@
 <!-- Most browsers -->
 <link rel="icon" href="<?php echo $web; ?>favicon.ico">
 <link rel="icon" href="<?php echo $web; ?>favicon/favicon-32x32.png" sizes="32x32">
-<!--[if IE]><link rel="shortcut icon" href="http://altiview.co.uk/wp-content/themes/altiview/favicon.ico"><![endif]-->
+<!--[if IE]><link rel="shortcut icon" href="<?php echo $web; ?>favicon.ico"><![endif]-->
 
 <script
 	src="https://code.jquery.com/jquery-3.2.1.min.js"
