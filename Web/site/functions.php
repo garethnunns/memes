@@ -706,20 +706,20 @@ SET @user = :id;
 -- this is a relative factor based off the average number of stars recently
 SET @rel = 
 (
-    SELECT ROUND(AVG(stars))
-    FROM (
-        SELECT COUNT(*) as stars
-        FROM star
-        WHERE star.starred BETWEEN DATE_SUB(now(), INTERVAL 2 WEEK) and NOW()
-        GROUP BY star.idmeme
-        ORDER BY COUNT(*)
-    ) AS allStars
+	SELECT ROUND(AVG(stars))
+	FROM (
+		SELECT COUNT(*) as stars
+		FROM star
+		WHERE star.starred BETWEEN DATE_SUB(now(), INTERVAL 2 WEEK) and NOW()
+		GROUP BY star.idmeme
+		ORDER BY COUNT(*)
+	) AS allStars
 );
 
--- convert it into an INT and if there haven't been any stars recently just set it to 1
-SET @rel = CAST(IF(@rel IS NULL, 1, @rel) AS INT);
+-- convert it into an UNSIGNED and if there haven't been any stars recently just set it to the number of all stars
+SET @rel = CAST(IF(@rel IS NULL, (SELECT COUNT(*) FROM star) + 1, @rel) AS UNSIGNED);
 
-SELECT @user, m.idmeme,
+SELECT m.idmeme,
 ( -- number of stars this post has (1 point)
 	SELECT COUNT(star.iduser)
 	FROM star
@@ -747,7 +747,7 @@ SELECT @user, m.idmeme,
 	FROM reply AS cmtd
 	WHERE cmtd.idmeme = m.idmeme
 	AND cmtd.iduser = @user
-    LIMIT 1
+	LIMIT 1
 ) * -2 +
 ( -- whether this @user has reposted it (-6 points)
 	SELECT COUNT(rptd.idmeme)
@@ -761,13 +761,13 @@ IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 HOUR) AND NOW(), 10 * @rel,
 	IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 6 HOUR) AND NOW(), 6 * @rel,
 		-- posted in the last day: 4 rel points
 		IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 DAY) AND NOW(), 4 * @rel,
-        	-- posted in the last 3 days: 2 rel points
-        	IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 3 DAY) AND NOW(), 2 * @rel,
-            	-- posted in the last week: 1 rel point
-               IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 WEEK) AND NOW(), @rel, 0)
-            )
-        )
-    )
+			-- posted in the last 3 days: 2 rel points
+			IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 3 DAY) AND NOW(), 2 * @rel,
+				-- posted in the last week: 1 rel point
+			   IF(m.posted BETWEEN DATE_SUB(now(), INTERVAL 1 WEEK) AND NOW(), @rel, 0)
+			)
+		)
+	)
 )
 AS points
 FROM meme as m
@@ -1159,8 +1159,8 @@ SET @user = :id;
 
 SET @last = (
 	SELECT user.notifications
-    FROM user
-    WHERE user.iduser = @user
+	FROM user
+	WHERE user.iduser = @user
 );
 
 -- update the read time every time they are viewed
