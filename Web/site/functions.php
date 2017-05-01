@@ -1,6 +1,4 @@
 <?php
-	session_start();
-
 	// globals
 	require_once dirname(__FILE__).'/secure.php'; // database connection
 
@@ -247,7 +245,7 @@ AND emailcode IS NULL";
 		$protected = ['400', '401', '403', '404', '405', '406', '407', '408', '409', '410', '411', '412', '413', '414', '415', '416', '417', '421', '422', '423', '424', '426', '428', '429', '431', '500', '501', '502', '503', '504', '505', '506', '507', '508', '509', '510', '511', 'about', 'about-us', 'abuse', 'access', 'account', 'accounts', 'add', 'admin', 'administration', 'administrator', 'advertise', 'advertising', 'aes128-ctr', 'aes128-gcm', 'aes192-ctr', 'aes256-ctr', 'aes256-gcm', 'affiliate', 'affiliates', 'ajax', 'alert', 'alerts', 'alpha', 'amp', 'analytics', 'api', 'app', 'apps', 'asc', 'assets', 'atom', 'auth', 'authentication', 'authorize', 'autoconfig', 'avatar', 'backup', 'banner', 'banners', 'beta', 'billing', 'billings', 'blog', 'blogs', 'board', 'bookmark', 'bookmarks', 'broadcasthost', 'business', 'buy', 'cache', 'calendar', 'campaign', 'captcha', 'careers', 'cart', 'cas', 'categories', 'category', 'cdn', 'cgi', 'cgi-bin', 'chacha20-poly1305', 'change', 'channel', 'channels', 'chat', 'checkout', 'clear', 'client', 'close', 'comment', 'comments', 'community', 'compare', 'compose', 'config', 'connect', 'contact', 'contest', 'cookies', 'copy', 'copyright', 'count', 'create', 'css', 'curve25519-sha256', 'customize', 'dashboard', 'db', 'deals', 'debug', 'delete', 'desc', 'dev', 'developer', 'developers', 'diffie-hellman-group-exchange-sha256', 'diffie-hellman-group14-sha1', 'disconnect', 'discuss', 'dns', 'dns0', 'dns1', 'dns2', 'dns3', 'dns4', 'docs', 'documentation', 'domain', 'download', 'downloads', 'downvote', 'draft', 'drop', 'ecdh-sha2-nistp256', 'ecdh-sha2-nistp384', 'ecdh-sha2-nistp521', 'edit', 'editor', 'email', 'enterprise', 'error', 'errors', 'event', 'events', 'example', 'exception', 'exit', 'explore', 'export', 'extensions', 'false', 'family', 'faq', 'faqs', 'features', 'feed', 'feedback', 'feeds', 'feeds', 'file', 'files', 'filter', 'follow', 'follower', 'followers', 'following', 'fonts', 'forgot', 'forgot-password', 'forgotpassword', 'form', 'forms', 'forum', 'forums', 'friend', 'friends', 'ftp', 'get', 'go', 'group', 'groups', 'guest', 'guidelines', 'guides', 'head', 'header', 'help', 'hide', 'hmac-sha', 'hmac-sha1', 'hmac-sha1-etm', 'hmac-sha2-256', 'hmac-sha2-256-etm', 'hmac-sha2-512', 'hmac-sha2-512-etm', 'home', 'host', 'hosting', 'hostmaster', 'htpasswd', 'http', 'httpd', 'https', 'icons', 'images', 'imap', 'img', 'import', 'info', 'insert', 'investors', 'invitations', 'invite', 'invite', 'invites', 'invoice', 'is', 'isatap', 'issues', 'it', 'jobs', 'join', 'js', 'json', 'learn', 'legal', 'licensing', 'limit', 'load', 'local', 'localdomain', 'localhost', 'lock', 'login', 'logout', 'lost-password', 'mail', 'mail0', 'mail1', 'mail2', 'mail3', 'mail4', 'mail5', 'mail6', 'mail7', 'mail8', 'mail9', 'mailer-daemon', 'mailerdaemon', 'map', 'marketing', 'marketplace', 'master', 'me', 'media', 'member', 'members', 'message', 'messages', 'mis', 'mobile', 'moderator', 'modify', 'more', 'mx', 'my', 'network', 'new', 'news', 'newsletter', 'newsletters', 'next', 'nil', 'no-reply', 'nobody', 'noc', 'none', 'noreply', 'notification', 'notifications', 'ns', 'ns0', 'ns1', 'ns2', 'ns3', 'ns4', 'ns5', 'ns6', 'ns7', 'ns8', 'ns9', 'null', 'oauth', 'oauth2', 'offer', 'offers', 'online', 'openid', 'order', 'orders', 'overview', 'owner', 'page', 'pages', 'partners', 'passwd', 'password', 'pay', 'payment', 'payments', 'photo', 'photos', 'plans', 'plugins', 'policies', 'policy', 'pop', 'pop3', 'popular', 'portfolio', 'post', 'postfix', 'postmaster', 'poweruser', 'preferences', 'premium', 'press', 'previous', 'pricing', 'print', 'privacy', 'privacy-policy', 'private', 'product', 'profile', 'profiles', 'project', 'projects', 'public', 'purchase', 'put', 'quota', 'redirect', 'reduce', 'refund', 'refunds', 'register', 'registration', 'remove', 'replies', 'reply', 'report', 'request', 'request-password', 'reset', 'reset-password', 'response', 'return', 'returns', 'review', 'reviews', 'root', 'rootuser', 'rsa-sha2-2', 'rsa-sha2-512', 'rss', 'rules', 'sales', 'save', 'script', 'sdk', 'search', 'security', 'select', 'services', 'session', 'sessions', 'settings', 'setup', 'share', 'shift', 'shop', 'signin', 'signup', 'site', 'sitemap', 'sites', 'smtp', 'sort', 'source', 'sql', 'ssh', 'ssh-rsa', 'ssl', 'ssladmin', 'ssladministrator', 'sslwebmaster', 'stage', 'staging', 'stat', 'static', 'statistics', 'stats', 'status', 'store', 'stylesheet', 'stylesheets', 'subdomain', 'subscribe', 'sudo', 'super', 'superuser', 'support', 'survey', 'sync', 'sysadmin', 'system', 'tablet', 'tag', 'tags', 'team', 'telnet', 'terms', 'terms-of-use', 'test', 'testimonials', 'theme', 'themes', 'today', 'tools', 'topic', 'topics', 'tour', 'training', 'translate', 'translations', 'trending', 'trial', 'true', 'umac-128', 'umac-128-etm', 'umac-64', 'umac-64-etm', 'undefined', 'unfollow', 'unsubscribe', 'update', 'upgrade', 'usenet', 'user', 'username', 'users', 'uucp', 'var', 'verify', 'video', 'view', 'void', 'vote', 'webmail', 'webmaster', 'website', 'widget', 'widgets', 'wiki', 'wpad', 'write', 'www', 'www-data', 'www1', 'www2', 'www3', 'www4', 'you', 'yourname', 'yourusername', 'zlib'];
 
 		// add a few of our own to be sure
-		$pages = ['add','fire','follow','hot','meme','memes','memesta','memestagram','memester','meme me','star','starred'];
+		$pages = ['add','fire','follow','hot','meme','memes','memesta','memestagram','memester','meme me','star','stars','starred'];
 
 		$notAllowed = array_merge($protected,$pages);
 
@@ -675,6 +673,7 @@ LIMIT 20 OFFSET :start";
 		}
 		catch (PDOException $e) {
 			$memes['error'] = "There was an error retreiving memes from the database";
+			goto error;
 		}
 
 		$memes['success'] = true;
@@ -807,7 +806,70 @@ LIMIT 20 OFFSET :start
 		error:
 
 		return $memes;
-	} 
+	}
+
+	function stars($key,$start=0) {
+		// the stars on a meme
+		// expects the user's $key
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$stars = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$stars['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$meme = meme($_SESSION['key'],$_GET['meme'],400,null,true);
+		if(!$meme['success']) {
+			$stars['error'] = $meme['error'] ?: "Couldn't find that meme";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT star.iduser, star.starred
+FROM star
+WHERE star.idmeme = :id
+ORDER BY star.starred DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$meme['meme']['idmeme']);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
+
+			$stars['stars'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$starrer = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$starrer['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$stars['stars'][] = [
+					'user' => $starrer['profile'],
+					'time' => timeArray($row['starred'])
+				];
+			}
+
+			$stars['num'] = count($stars['stars']);
+		}
+		catch (PDOException $e) {
+			$stars['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$stars['success'] = true;
+
+		error:
+
+		return $stars;
+	}
 
 	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
 		// returns an array with all the information about the meme, expecting:
@@ -991,6 +1053,7 @@ LIMIT 1";
 				'long' => $row['longitude'],
 				'original' => $original,
 				'reposts-num' => $row['reposts'],
+				'reposts-str' => plural('repost',$row['reposts']),
 				'reposted' => $row['reposted'],  // has been reposted by the user
 				// you can't repost if:
 				// you posted the image

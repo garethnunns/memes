@@ -1,4 +1,7 @@
 <?php
+	session_set_cookie_params(6*60*60); // clients remember sessions for 6 hours
+	session_start();
+
 	// these are the functions that are only used on the website
 	// they build upon the core functions:
 	require_once dirname(__FILE__).'/functions.php';
@@ -59,6 +62,8 @@
 	function displayMeme($meme) {
 		// expects a $meme like those produced by the meme()['meme'] function
 
+		global $web; // to link to the list pages
+
 		echo "
 		<div class='memeContainer'>
 			<div class='meme-header'>
@@ -95,12 +100,14 @@
 				</div>
 				<div>
 					<span class='icon-star-".($meme['starred'] ? "full" : "empty")."'
-						onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>
-					<span id='num-stars-{$meme['idmeme']}'>{$meme['stars-num']}</span> 
-					<span id='num-stars-str-{$meme['idmeme']}'>{$meme['stars-str']}</span>
+						onClick='star(this,{$meme['idmeme']},\"#num-stars-{$meme['idmeme']}\",\"#num-stars-str-{$meme['idmeme']}\")'></span><br>".
+					($meme['stars-num'] ? "<a href='{$web}stars/{$meme['idmeme']}'>" : '') // only link the star page when there are some
+					."<span id='num-stars-{$meme['idmeme']}'>{$meme['stars-num']}</span> 
+					<span id='num-stars-str-{$meme['idmeme']}'>{$meme['stars-str']}</span>".
+					($meme['stars-num'] ? "</a>" : '') . "
 				</div>
 				<div>
-					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? "' onClick=\"expand('#repost-containter-{$meme['idmeme']}')\"" : "unrepostable'"))."'></span><br>{$meme['reposts-num']} reposts
+					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? "' onClick=\"expand('#repost-containter-{$meme['idmeme']}')\"" : "unrepostable'"))."'></span><br>{$meme['reposts-num']} {$meme['reposts-str']}
 				</div>
 			</div>";
 		if($meme['repostable'])
@@ -154,5 +161,23 @@
 				<img src='{$meme['images']['thumb']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>
 			</a>
 		</div>";
+	}
+
+	function displayUserList($event) {
+		// expects an array $event containing a ['user'] and ['time']
+
+		echo "
+		<h3 class='userList'>
+			<span class='follow'>".
+			($event['user']['you'] ? '(you)' : 
+				("<button onClick='follow(this,{$event['user']['iduser']})'>". 
+				(($event['user']['isFollowing']) ? 'Unfollow' : 'Follow') . "</button>")).
+			"</span>
+
+			<a href='{$event['user']['link']}' class='pp'>
+				<img src='{$event['user']['pic']}' alt='{$event['user']['username']} profile picture' class='pp'/></a>
+			<a href='{$event['user']['link']}'>{$event['user']['name']}</a> <span class='ago'>{$event['time']['ago']}</span>
+		</h3>
+		";
 	}
 ?>

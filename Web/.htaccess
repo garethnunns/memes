@@ -11,6 +11,11 @@ DirectoryIndex index.php index.html
 	RewriteRule \.exe - [F]
 	RewriteRule site/PHPMailer [F]
 
+	# stars on a meme
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^stars/([0-9]+)$ stars.php?meme=$1 [L,QSA]
+
 	# forward onto profile page (profile page never has any trailing slashes)
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d

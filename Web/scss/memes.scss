@@ -87,17 +87,6 @@ img {
 
 //specifics 
 
-@import 'icons', 'dropzone';
-
-body {
-	margin: 0;
-	padding: 0;
-
-	background-color: $white;
-	font-family: $font-family;
-	color: $black;
-}
-
 .wrapper {
 	position: relative;
 	margin: 0 auto;
@@ -116,7 +105,8 @@ header + .wrapper {
 	}
 }
 
-@import 'header','footer','meme','memeGrid','profile','notifications';
+// layouts & pages
+@import 'icons','dropzone','header','footer','meme','memeGrid','profile','notifications','lists';
 
 .pageError {
 	text-align: center;

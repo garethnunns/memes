@@ -1,0 +1,65 @@
+$listHeadingHeight: 200px;
+$listHeadingHeightMob: 200px / 2;
+
+.listHeadingContainer {
+	@include clearfix;
+	margin: $md-pad 0;
+
+	.meme {
+		float: left;
+		margin-right: $md-pad;
+		border-bottom: none;
+
+		@include breakpoint(phone) {
+			margin-right: $xs-pad;
+		}
+
+		img {
+			height: $listHeadingHeight;
+
+			@include breakpoint(phone) {
+				height: $listHeadingHeightMob;
+			}
+		}
+	}
+
+	.details {
+		h2 {
+			margin-top: ($listHeadingHeight - $font-size-h2) / 2;
+
+			@include breakpoint(phone) {
+				margin-top: 0;
+				font-size: $font-size-h3;
+			}
+		}
+	}
+}
+
+.userListContainer {
+	.userList {
+		@include clearfix;
+		margin: $sm-pad 0;
+
+		.follow {
+			float: right;
+			margin-left: $xs-pad;
+			font-size: $font-size-base;
+		}
+
+		.pp {
+			margin-right: $xs-pad;
+			border-bottom: none;
+
+			img {
+				height: 1.5em;
+			}
+		}
+
+		.ago {
+			margin-left: $xs-pad;
+			color: $greyed-out;
+			font-style: italic;
+			font-weight: 400;
+		}
+	}
+}
