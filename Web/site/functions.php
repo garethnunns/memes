@@ -871,6 +871,71 @@ LIMIT 300 OFFSET :start";
 		return $stars;
 	}
 
+	function reposts($key,$start=0) {
+		// the reposts on a meme
+		// expects the user's $key
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$reposts = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$reposts['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$meme = meme($_SESSION['key'],$_GET['meme'],400,null,true);
+		if(!$meme['success']) {
+			$reposts['error'] = $meme['error'] ?: "Couldn't find that meme";
+			goto error;
+		}
+
+		$id = $meme['meme']['original'] ? $meme['meme']['original']['idmeme'] : $meme['meme']['idmeme'];
+
+		try {
+			$sql = "
+SELECT meme.iduser, meme.posted
+FROM meme
+WHERE meme.share = :id
+ORDER BY meme.posted DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$id);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$limitComments = true; // as this is a list we don't want to send hundreds of comments
+
+			$reposts['reposts'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$poster = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$poster['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$reposts['reposts'][] = [
+					'user' => $poster['profile'],
+					'time' => timeArray($row['posted'])
+				];
+			}
+
+			$reposts['num'] = count($reposts['reposts']);
+		}
+		catch (PDOException $e) {
+			$reposts['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$reposts['success'] = true;
+
+		error:
+
+		return $reposts;
+	}
+
 	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
 		// returns an array with all the information about the meme, expecting:
 		// $key 			The user's $key that is requesting them

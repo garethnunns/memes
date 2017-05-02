@@ -107,8 +107,12 @@
 					($meme['stars-num'] ? "</a>" : '') . "
 				</div>
 				<div>
-					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? "' onClick=\"expand('#repost-containter-{$meme['idmeme']}')\"" : "unrepostable'"))."'></span><br>{$meme['reposts-num']} {$meme['reposts-str']}
-				</div>
+					<span class='icon-repost ".($meme['reposted'] ? "reposted" : ($meme['repostable'] ? "' onClick=\"expand('#repost-containter-{$meme['idmeme']}')\"" : "unrepostable'"))."'></span><br>".
+					// only link the reposts page when there are some
+					($meme['reposts-num'] ? "<a href='{$web}reposts/{$meme['idmeme']}'>" : '')
+					."{$meme['reposts-num']} {$meme['reposts-str']}".
+					($meme['reposts-num'] ? "</a>" : '')
+				."</div>
 			</div>";
 		if($meme['repostable'])
 			echo "<div class='meme-repost' id='repost-containter-{$meme['idmeme']}'>
@@ -130,7 +134,7 @@
 					<h4 class='meme-comment-name'>
 						<div class='meme-ago'>{$comment['time']['ago']}</div>
 						<a href='{$comment['commenter']['link']}' title='{$comment['commenter']['name']}'>
-							<img src='{$comment['commenter']['pic']}' class='pp' alt='{$meme['commenter']['username']} profile picture' /> {$comment['commenter']['username']}
+							<img src='{$comment['commenter']['pic']}' class='pp' alt='{$comment['commenter']['username']} profile picture' /> {$comment['commenter']['username']}
 						</a>
 					</h4>
 					<p>".htmlspecialchars($comment['comment'])."</p>
@@ -160,6 +164,40 @@
 				</div>
 				<img src='{$meme['images']['thumb']}' class='meme' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>
 			</a>
+		</div>";
+	}
+
+	function displayListHeading($meme,$type) {
+		// expects a $meme like those produced by the meme()['meme'] function
+		// and a type of either star or repost
+
+		echo "
+		<div class='listHeadingContainer'>
+			<a href='{$meme['link']}' class='meme'>
+				<img src='{$meme['images']['thumb']}' alt='Meme ".($meme['original'] ? 'reposted' : 'posted')." by {$meme['poster']['username']}'>
+			</a>
+			<div class='details'>";
+
+		switch ($type) {
+			case 'star':
+				echo "<h2>{$meme['stars-num']} {$meme['stars-str']} on this <a href='{$meme['link']}'>".($meme['original'] ? 'repost' : 'post')."</a> by <a href='{$meme['poster']['link']}'>{$meme['poster']['username']}</a></h2>";
+				break;
+			case 'repost':
+				echo "<h2>{$meme['reposts-num']} {$meme['reposts-str']} on this ".
+				($meme['original'] ?
+					"<a href='{$meme['original']['link']}'>post</a>" :
+					"<a href='{$meme['link']}'>post</a>"
+				)
+				." by ".
+				($meme['original'] ?
+					"<a href='{$meme['original']['poster']['link']}'>{$meme['original']['poster']['username']}</a>" :
+					"<a href='{$meme['poster']['link']}'>{$meme['poster']['username']}</a>"
+				)
+				."</h2>";
+				break;
+		}
+				
+		echo "</div>
 		</div>";
 	}
 

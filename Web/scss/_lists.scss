@@ -38,12 +38,14 @@ $listHeadingHeightMob: 200px / 2;
 .userListContainer {
 	.userList {
 		@include clearfix;
-		margin: $sm-pad 0;
+		margin: $md-pad 0;
 
 		.follow {
 			float: right;
 			margin-left: $xs-pad;
-			font-size: $font-size-base;
+			button {
+				font-size: $font-size-base;
+			}
 		}
 
 		.pp {
