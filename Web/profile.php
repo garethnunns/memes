@@ -39,12 +39,18 @@
 					{$profile['stats']['posts-str']}
 				</div>
 				<div>
-					<div class='number' id='num-followers'>{$profile['stats']['followers']}</div>
-					<span id='num-followers-str'>{$profile['stats']['followers-str']}</span>
+					<div class='number' id='num-followers'>{$profile['stats']['followers']}</div>".
+					($profile['stats']['followers'] ? // only show the followers link if there are some
+						"<a href='{$profile['user']['username']}/followers'>" : '')
+					."<span id='num-followers-str'>{$profile['stats']['followers-str']}</span>".
+					($profile['stats']['followers'] ? "</a>" : '')."
 				</div>
 				<div>
-					<div class='number'>{$profile['stats']['following']}</div>
-					{$profile['stats']['following-str']}
+					<div class='number'>{$profile['stats']['following']}</div>".
+					($profile['stats']['following'] ? // only show the followers link if there are some
+						"<a href='{$profile['user']['username']}/following'>" : '')
+					."{$profile['stats']['following-str']}".
+					($profile['stats']['following'] ? "</a>" : '')."
 				</div>
 				<div>
 					<div class='number'>{$profile['stats']['stars']}</div>

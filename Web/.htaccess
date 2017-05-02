@@ -36,6 +36,11 @@ DirectoryIndex index.php index.html
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^([a-zA-Z0-9-_]+)/followers$ followers.php?username=$1 [L,QSA]
 
+	# following
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^([a-zA-Z0-9-_]+)/following$ following.php?username=$1 [L,QSA]
+
 	# individual meme
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d

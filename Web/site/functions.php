@@ -1200,7 +1200,7 @@ LIMIT 300 OFFSET :start";
 			$stars['num'] = count($stars['stars']);
 		}
 		catch (PDOException $e) {
-			$stars['error'] = "There was an error retreiving memes from the database";
+			$stars['error'] = "There was an error retreiving users from the database";
 			goto error;
 		}
 
@@ -1264,7 +1264,7 @@ LIMIT 300 OFFSET :start";
 			$reposts['num'] = count($reposts['reposts']);
 		}
 		catch (PDOException $e) {
-			$reposts['error'] = "There was an error retreiving memes from the database";
+			$reposts['error'] = "There was an error retreiving users from the database";
 			goto error;
 		}
 
@@ -1326,7 +1326,7 @@ LIMIT 300 OFFSET :start";
 			$followers['num'] = count($followers['followers']);
 		}
 		catch (PDOException $e) {
-			$followers['error'] = "There was an error retreiving memes from the database";
+			$followers['error'] = "There was an error retreiving users from the database";
 			goto error;
 		}
 
@@ -1335,6 +1335,68 @@ LIMIT 300 OFFSET :start";
 		error:
 
 		return $followers;
+	}
+
+	function following($key,$id,$start=0) {
+		// the people that a user is following
+		// expects the user's $key
+		// the $id of the user
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$following = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$following['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$profile = userDetailsFromId($id);
+		if($profile===false) {
+			$following['error'] = "Invalid profile ID";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT follow.followee AS iduser, follow.followed
+FROM follow
+WHERE follow.follower = :id
+ORDER BY follow.followed DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$profile->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$following['following'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$follow = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$follow['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$following['following'][] = [
+					'user' => $follow['profile'],
+					'time' => timeArray($row['followed'])
+				];
+			}
+
+			$following['num'] = count($following['following']);
+		}
+		catch (PDOException $e) {
+			$following['error'] = "There was an error retreiving users from the database";
+			goto error;
+		}
+
+		$following['success'] = true;
+
+		error:
+
+		return $following;
 	}
 
 	function notifications($key, $start=0, $thumb=400) {
