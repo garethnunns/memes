@@ -780,12 +780,31 @@ LIMIT 1";
 
 	// lists of memes
 
-	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
+	function page($page,$length) {
+		// returns the 'line number', breaking it up into $pages of $length
+
+		switch ($lines) {
+			case 'short':
+				$lines = 20;
+				break;
+			case 'long':
+				$lines = 30;
+				break;
+			default:
+				$lines = intval($length);
+				break;
+		}
+		return intval($page)*$lines;
+	}
+
+	function memeFeed($key,$page=0,$thumb=400,$full=1000) {
 		// the user's meme feed
 		// expected the user's $key
-		// returns an array with the first 20 memes in their feed, starting at $start
+		// returns an array with the first 20 memes in their feed, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'short');
 
 		$memes = array('success' => false);
 
