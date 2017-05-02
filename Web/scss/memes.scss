@@ -120,9 +120,8 @@ header + .wrapper {
 	}
 }
 
-
 // forms
-#login, #signup {
+#login, #signup, .api {
 	td:not([colspan="2"]) {
 		width: 50%;
 	}

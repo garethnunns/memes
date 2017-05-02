@@ -87,14 +87,14 @@ input[type="tel"][disabled],
 input[type="color"][disabled],
 select[disabled],
 textarea[disabled] {
-	background-color: $dividers;
-	color: $grey;
+	background-color: $greyed-out;
+	color: $white;
 	cursor: not-allowed;
 }
 
 input:not([type])[disabled] {
 	background-color: $dividers;
-	color: $grey;
+	color: $white;
 	cursor: not-allowed;
 }
 
