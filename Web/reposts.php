@@ -28,7 +28,7 @@
 	if($found) {
 		displayListHeading($meme['meme'],'repost');
 
-		$reposts = reposts($_SESSION['key'],0);
+		$reposts = reposts($_SESSION['key'],$meme['meme']['idmeme'],0);
 
 		if(!$reposts['success'])
 			echo "<p class='error'>" . ($reposts['error'] ?: "There was an error getting the list of people") . "</p>";

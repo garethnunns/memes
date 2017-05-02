@@ -312,6 +312,8 @@ AND emailcode IS NULL";
 		return true;
 	}
 
+	// adding a meme
+
 	function validImage($file) {
 		// check's that the $file is an image and the right size
 		// expects an array in the standard PHP file style
@@ -566,6 +568,218 @@ AND emailcode IS NULL";
 		return isset($error) ? $error : true;
 	}
 
+	// outputting a meme
+
+	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
+		// returns an array with all the information about the meme, expecting:
+		// $key 			The user's $key that is requesting them
+		// $id 				The $id of the meme that you want
+		// $thumb 			The preferred size of the thumbnail
+		// $full 			The preferred size of the full size image
+		// $limitComments 	Whether or not the comments should be limited to 5 or not
+
+		global $dbh; // database connection
+
+		global $res, $web; // servers
+
+		$meme = array('success' => false);
+
+		if($key == 'public') $user = (object) array('iduser' => 0);
+		elseif(($user = userDetails($key)) === false) {
+			$meme['error'] = "Invalid user key";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT m.*, o.iduser AS oIduser,
+( -- number of reposts of the original
+	SELECT COUNT(s.idmeme)
+	FROM meme AS s 
+	WHERE s.share = m.idmeme
+	OR s.share = m.share
+) AS reposts,
+( -- whether this user :id has reposted it
+	SELECT COUNT(rptd.idmeme)
+	FROM meme AS rptd 
+	WHERE rptd.share = m.share
+	AND rptd.iduser = :iduser
+) AS reposted,
+( -- number of comments on this post
+	SELECT COUNT(reply.idreply)
+	FROM reply
+	WHERE reply.idmeme = m.idmeme
+) AS comments,
+( -- whether this user :id has starred it
+	SELECT COUNT(strd.idmeme)
+	FROM star AS strd 
+	WHERE strd.idmeme = m.idmeme
+	AND strd.iduser = :iduser
+) AS starred,
+( -- number of stars this post has
+	SELECT COUNT(star.iduser)
+	FROM star
+	WHERE star.idmeme = m.idmeme
+) AS stars
+FROM meme AS m
+
+-- user who did this post
+LEFT JOIN user as p ON m.iduser = p.iduser
+
+-- get the details of the original poster
+LEFT JOIN user AS o ON o.iduser = (
+	SELECT om.iduser
+	FROM meme AS om
+	WHERE om.idmeme = m.share
+)
+
+-- future proof against scheduled posts
+WHERE m.posted <= CURRENT_TIMESTAMP
+AND m.idmeme = :idmeme
+LIMIT 1";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':iduser',$user->iduser);
+			$sth->bindParam(':idmeme',$id);
+			$sth->execute();
+
+			$row = $sth->fetch(PDO::FETCH_ASSOC);
+
+			// to start off we need to work out the sizes of image that have been stored for this row
+			// in Apr 17 we stored 150 & 400 square versions, and 1000 & 2000 full versions
+			// this may change in the future so it made sense not to hard code this
+			// but instead store the sizes the image was resized to in a JSON object in the db 
+			$sizes = json_decode($row['sizes'],true);
+
+			if($sizes == null) // unable to interpret the $sizes
+				return false;
+
+			$pref = array( // what was asked for
+				'thumb' => $thumb,
+				'full' => $full
+			);
+
+			$chosen = array(); // what they'll get
+
+			// now find the best match for the requested sizes
+			foreach ($sizes as $kind => $ksizes) {
+				asort($ksizes); // ascending order
+				foreach ($ksizes as $size) { // keep going till we find the first one bigger than what they asked for
+					$chosen[$kind] = $size;
+					if($size >= $pref[$kind]) break;
+				}
+			}
+
+			$images = array();
+
+			// provide absolute paths to the resource server
+			foreach ($chosen as $kind => $size)
+				$images[$kind] = $res . $kind . '/' . $size . '/' . (empty($row['share']) ? $row['idmeme'] : $row['share']) . '.' . $row['ext'];
+
+			// get the standard details about the user
+			$poster = userDetailsPersonal($key,$row['iduser']);
+
+			if(!$poster['success']) { // there was an issue getting them
+				$meme['error'] = isset($poster['error']) ? $poster['error'] : "There was an error fetching the profile #{$row['iduser']}";
+				goto error;
+			}
+
+
+			$original = !empty($row['share']); // this is an original post (no one shared it)
+
+
+			if($original) { // someone shared it
+				// so get their details
+				$oPoster = userDetailsPersonal($key,$row['oIduser']);
+
+				if(!$oPoster['success']) {
+					$meme['error'] = isset($oPoster['error']) ? $oPoster['error'] : "There was an error fetching the profile #{$row['iduser']}";
+					goto error;
+				}
+
+				$original = array(
+					'idmeme' => $row['share'],
+					'link' => $web.$oPoster['profile']['username'].'/'.$row['share'],
+					'poster' => $oPoster['profile']
+				);
+			}
+
+			$comments = $row['comments'] > 0; // whether there are comments
+
+			if($comments) { // there are some comments
+				$comments = array();
+
+				$sql = "
+				SELECT reply.*
+				FROM reply
+				WHERE reply.idmeme = {$row['idmeme']}
+				ORDER BY reply.replyed DESC";
+				if($limitComments) $sql .= " LIMIT 5";
+
+				$csth = $dbh->prepare($sql);
+				$csth->execute();
+
+				foreach ($csth->fetchAll() as $crow) {
+					$commenter = userDetailsPersonal($key,$crow['iduser']);
+
+					if(!$commenter['success']) {
+						$meme['error'] = isset($commenter['error']) ? $commenter['error'] : "There was an error fetching the profile #{$crow['iduser']}";
+						goto error;
+					}
+
+					$comment = array(
+						'idcomment' => $crow['idreply'],
+						'comment' => $crow['reply'],
+						'commenter' => $commenter['profile'],
+						'time' => timeArray($crow['replyed']),
+					);
+
+					// unshift so that they come up in the right order
+					array_unshift($comments,$comment);
+				}
+			}
+
+			$meme['meme'] = array(
+				'idmeme' => $row['idmeme'],
+				'link' => $web.$poster['profile']['username'].'/'.$row['idmeme'],
+				'images' => $images,
+				'sizes' => $chosen,
+				'ext' => $row['ext'],
+				'poster' => $poster['profile'],
+				'time' => timeArray($row['posted']),
+				'caption' => $row['caption'],
+				'lat' => $row['latitude'],
+				'long' => $row['longitude'],
+				'original' => $original,
+				'reposts-num' => $row['reposts'],
+				'reposts-str' => plural('repost',$row['reposts']),
+				'reposted' => $row['reposted'],  // has been reposted by the user
+				// you can't repost if:
+				// you posted the image
+				// you have already reposted the image
+				'repostable' => (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1,
+				'stars-num' => $row['stars'],
+				'stars-str' => plural('star',$row['stars']),
+				'starred' => $row['starred'],
+				'comments-num' => $row['comments'],
+				'comments-str' => plural('comment',$row['comments']),
+				'comments' => $comments
+			);
+		}
+		catch (PDOException $e) {
+			$meme['error'] = "There was an error retreiving the meme from the database";
+			goto error;
+		}
+
+		$meme['success'] = true;
+
+		error:
+
+		return $meme;
+	}
+
+	// lists of memes
+
 	function memeFeed($key,$start=0,$thumb=400,$full=1000) {
 		// the user's meme feed
 		// expected the user's $key
@@ -808,342 +1022,6 @@ LIMIT 20 OFFSET :start
 		return $memes;
 	}
 
-	function stars($key,$start=0) {
-		// the stars on a meme
-		// expects the user's $key
-		// returns an array with the first 300 users, starting at $start
-
-		global $dbh; // database connection
-
-		$stars = array('success' => false);
-
-		if(($user = userDetails($key)) === false){
-			$stars['error'] = "Invalid user key";
-			goto error;
-		}
-
-		$meme = meme($_SESSION['key'],$_GET['meme'],400,null,true);
-		if(!$meme['success']) {
-			$stars['error'] = $meme['error'] ?: "Couldn't find that meme";
-			goto error;
-		}
-
-		try {
-			$sql = "
-SELECT star.iduser, star.starred
-FROM star
-WHERE star.idmeme = :id
-ORDER BY star.starred DESC
-LIMIT 300 OFFSET :start";
-
-			$sth = $dbh->prepare($sql);
-			$sth->bindParam(':id',$meme['meme']['idmeme']);
-			$sth->bindParam(':start',$start, PDO::PARAM_INT);
-			$sth->execute();
-
-			$limitComments = true; // as this is a list we don't want to send hundreds of comments
-
-			$stars['stars'] = array();
-
-			foreach ($sth->fetchAll() as $row) {
-				$starrer = userDetailsPersonal($key,$row['iduser']);
-
-				if(!$starrer['success']) // there was an issue getting them
-					continue; // skip showing this user
-
-				$stars['stars'][] = [
-					'user' => $starrer['profile'],
-					'time' => timeArray($row['starred'])
-				];
-			}
-
-			$stars['num'] = count($stars['stars']);
-		}
-		catch (PDOException $e) {
-			$stars['error'] = "There was an error retreiving memes from the database";
-			goto error;
-		}
-
-		$stars['success'] = true;
-
-		error:
-
-		return $stars;
-	}
-
-	function reposts($key,$start=0) {
-		// the reposts on a meme
-		// expects the user's $key
-		// returns an array with the first 300 users, starting at $start
-
-		global $dbh; // database connection
-
-		$reposts = array('success' => false);
-
-		if(($user = userDetails($key)) === false){
-			$reposts['error'] = "Invalid user key";
-			goto error;
-		}
-
-		$meme = meme($_SESSION['key'],$_GET['meme'],400,null,true);
-		if(!$meme['success']) {
-			$reposts['error'] = $meme['error'] ?: "Couldn't find that meme";
-			goto error;
-		}
-
-		$id = $meme['meme']['original'] ? $meme['meme']['original']['idmeme'] : $meme['meme']['idmeme'];
-
-		try {
-			$sql = "
-SELECT meme.iduser, meme.posted
-FROM meme
-WHERE meme.share = :id
-ORDER BY meme.posted DESC
-LIMIT 300 OFFSET :start";
-
-			$sth = $dbh->prepare($sql);
-			$sth->bindParam(':id',$id);
-			$sth->bindParam(':start',$start, PDO::PARAM_INT);
-			$sth->execute();
-
-			$limitComments = true; // as this is a list we don't want to send hundreds of comments
-
-			$reposts['reposts'] = array();
-
-			foreach ($sth->fetchAll() as $row) {
-				$poster = userDetailsPersonal($key,$row['iduser']);
-
-				if(!$poster['success']) // there was an issue getting them
-					continue; // skip showing this user
-
-				$reposts['reposts'][] = [
-					'user' => $poster['profile'],
-					'time' => timeArray($row['posted'])
-				];
-			}
-
-			$reposts['num'] = count($reposts['reposts']);
-		}
-		catch (PDOException $e) {
-			$reposts['error'] = "There was an error retreiving memes from the database";
-			goto error;
-		}
-
-		$reposts['success'] = true;
-
-		error:
-
-		return $reposts;
-	}
-
-	function meme($key,$id,$thumb=400,$full=1000,$limitComments=true) {
-		// returns an array with all the information about the meme, expecting:
-		// $key 			The user's $key that is requesting them
-		// $id 				The $id of the meme that you want
-		// $thumb 			The preferred size of the thumbnail
-		// $full 			The preferred size of the full size image
-		// $limitComments 	Whether or not the comments should be limited to 5 or not
-
-		global $dbh; // database connection
-
-		global $res, $web; // servers
-
-		$meme = array('success' => false);
-
-		if($key == 'public') $user = (object) array('iduser' => 0);
-		elseif(($user = userDetails($key)) === false) {
-			$meme['error'] = "Invalid user key";
-			goto error;
-		}
-
-		try {
-			$sql = "
-SELECT m.*, o.iduser AS oIduser,
-( -- number of reposts of the original
-	SELECT COUNT(s.idmeme)
-	FROM meme AS s 
-	WHERE s.share = m.idmeme
-	OR s.share = m.share
-) AS reposts,
-( -- whether this user :id has reposted it
-	SELECT COUNT(rptd.idmeme)
-	FROM meme AS rptd 
-	WHERE rptd.share = m.share
-	AND rptd.iduser = :iduser
-) AS reposted,
-( -- number of comments on this post
-	SELECT COUNT(reply.idreply)
-	FROM reply
-	WHERE reply.idmeme = m.idmeme
-) AS comments,
-( -- whether this user :id has starred it
-	SELECT COUNT(strd.idmeme)
-	FROM star AS strd 
-	WHERE strd.idmeme = m.idmeme
-	AND strd.iduser = :iduser
-) AS starred,
-( -- number of stars this post has
-	SELECT COUNT(star.iduser)
-	FROM star
-	WHERE star.idmeme = m.idmeme
-) AS stars
-FROM meme AS m
-
--- user who did this post
-LEFT JOIN user as p ON m.iduser = p.iduser
-
--- get the details of the original poster
-LEFT JOIN user AS o ON o.iduser = (
-	SELECT om.iduser
-	FROM meme AS om
-	WHERE om.idmeme = m.share
-)
-
--- future proof against scheduled posts
-WHERE m.posted <= CURRENT_TIMESTAMP
-AND m.idmeme = :idmeme
-LIMIT 1";
-
-			$sth = $dbh->prepare($sql);
-			$sth->bindParam(':iduser',$user->iduser);
-			$sth->bindParam(':idmeme',$id);
-			$sth->execute();
-
-			$row = $sth->fetch(PDO::FETCH_ASSOC);
-
-			// to start off we need to work out the sizes of image that have been stored for this row
-			// in Apr 17 we stored 150 & 400 square versions, and 1000 & 2000 full versions
-			// this may change in the future so it made sense not to hard code this
-			// but instead store the sizes the image was resized to in a JSON object in the db 
-			$sizes = json_decode($row['sizes'],true);
-
-			if($sizes == null) // unable to interpret the $sizes
-				return false;
-
-			$pref = array( // what was asked for
-				'thumb' => $thumb,
-				'full' => $full
-			);
-
-			$chosen = array(); // what they'll get
-
-			// now find the best match for the requested sizes
-			foreach ($sizes as $kind => $ksizes) {
-				asort($ksizes); // ascending order
-				foreach ($ksizes as $size) { // keep going till we find the first one bigger than what they asked for
-					$chosen[$kind] = $size;
-					if($size >= $pref[$kind]) break;
-				}
-			}
-
-			$images = array();
-
-			// provide absolute paths to the resource server
-			foreach ($chosen as $kind => $size)
-				$images[$kind] = $res . $kind . '/' . $size . '/' . (empty($row['share']) ? $row['idmeme'] : $row['share']) . '.' . $row['ext'];
-
-			// get the standard details about the user
-			$poster = userDetailsPersonal($key,$row['iduser']);
-
-			if(!$poster['success']) { // there was an issue getting them
-				$meme['error'] = isset($poster['error']) ? $poster['error'] : "There was an error fetching the profile #{$row['iduser']}";
-				goto error;
-			}
-
-
-			$original = !empty($row['share']); // this is an original post (no one shared it)
-
-
-			if($original) { // someone shared it
-				// so get their details
-				$oPoster = userDetailsPersonal($key,$row['oIduser']);
-
-				if(!$oPoster['success']) {
-					$meme['error'] = isset($oPoster['error']) ? $oPoster['error'] : "There was an error fetching the profile #{$row['iduser']}";
-					goto error;
-				}
-
-				$original = array(
-					'idmeme' => $row['share'],
-					'link' => $web.$oPoster['profile']['username'].'/'.$row['share'],
-					'poster' => $oPoster['profile']
-				);
-			}
-
-			$comments = $row['comments'] > 0; // whether there are comments
-
-			if($comments) { // there are some comments
-				$comments = array();
-
-				$sql = "
-				SELECT reply.*
-				FROM reply
-				WHERE reply.idmeme = {$row['idmeme']}
-				ORDER BY reply.replyed DESC";
-				if($limitComments) $sql .= " LIMIT 5";
-
-				$csth = $dbh->prepare($sql);
-				$csth->execute();
-
-				foreach ($csth->fetchAll() as $crow) {
-					$commenter = userDetailsPersonal($key,$crow['iduser']);
-
-					if(!$commenter['success']) {
-						$meme['error'] = isset($commenter['error']) ? $commenter['error'] : "There was an error fetching the profile #{$crow['iduser']}";
-						goto error;
-					}
-
-					$comment = array(
-						'idcomment' => $crow['idreply'],
-						'comment' => $crow['reply'],
-						'commenter' => $commenter['profile'],
-						'time' => timeArray($crow['replyed']),
-					);
-
-					// unshift so that they come up in the right order
-					array_unshift($comments,$comment);
-				}
-			}
-
-			$meme['meme'] = array(
-				'idmeme' => $row['idmeme'],
-				'link' => $web.$poster['profile']['username'].'/'.$row['idmeme'],
-				'images' => $images,
-				'sizes' => $chosen,
-				'ext' => $row['ext'],
-				'poster' => $poster['profile'],
-				'time' => timeArray($row['posted']),
-				'caption' => $row['caption'],
-				'lat' => $row['latitude'],
-				'long' => $row['longitude'],
-				'original' => $original,
-				'reposts-num' => $row['reposts'],
-				'reposts-str' => plural('repost',$row['reposts']),
-				'reposted' => $row['reposted'],  // has been reposted by the user
-				// you can't repost if:
-				// you posted the image
-				// you have already reposted the image
-				'repostable' => (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1,
-				'stars-num' => $row['stars'],
-				'stars-str' => plural('star',$row['stars']),
-				'starred' => $row['starred'],
-				'comments-num' => $row['comments'],
-				'comments-str' => plural('comment',$row['comments']),
-				'comments' => $comments
-			);
-		}
-		catch (PDOException $e) {
-			$meme['error'] = "There was an error retreiving the meme from the database";
-			goto error;
-		}
-
-		$meme['success'] = true;
-
-		error:
-
-		return $meme;
-	}
-
 	function profile($key,$id,$start=0,$thumb=400,$full=1000) {
 		global $dbh; // database connection
 
@@ -1267,6 +1145,196 @@ SELECT
 		error:
 
 		return $profile;
+	}
+
+	// list of users
+
+	function stars($key,$id,$start=0) {
+		// the stars on a meme
+		// expects the user's $key
+		// the $id of the meme
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$stars = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$stars['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$meme = meme($_SESSION['key'],$id,400,null,true);
+		if(!$meme['success']) {
+			$stars['error'] = $meme['error'] ?: "Couldn't find that meme";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT star.iduser, star.starred
+FROM star
+WHERE star.idmeme = :id
+ORDER BY star.starred DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$meme['meme']['idmeme']);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$stars['stars'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$starrer = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$starrer['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$stars['stars'][] = [
+					'user' => $starrer['profile'],
+					'time' => timeArray($row['starred'])
+				];
+			}
+
+			$stars['num'] = count($stars['stars']);
+		}
+		catch (PDOException $e) {
+			$stars['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$stars['success'] = true;
+
+		error:
+
+		return $stars;
+	}
+
+	function reposts($key,$id,$start=0) {
+		// the reposts on a meme
+		// expects the user's $key
+		// the $id of the meme
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$reposts = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$reposts['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$meme = meme($_SESSION['key'],$id,400,null,true);
+		if(!$meme['success']) {
+			$reposts['error'] = $meme['error'] ?: "Couldn't find that meme";
+			goto error;
+		}
+
+		$idmeme = $meme['meme']['original'] ? $meme['meme']['original']['idmeme'] : $meme['meme']['idmeme'];
+
+		try {
+			$sql = "
+SELECT meme.iduser, meme.posted
+FROM meme
+WHERE meme.share = :id
+ORDER BY meme.posted DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$idmeme);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$reposts['reposts'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$poster = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$poster['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$reposts['reposts'][] = [
+					'user' => $poster['profile'],
+					'time' => timeArray($row['posted'])
+				];
+			}
+
+			$reposts['num'] = count($reposts['reposts']);
+		}
+		catch (PDOException $e) {
+			$reposts['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$reposts['success'] = true;
+
+		error:
+
+		return $reposts;
+	}
+
+	function followers($key,$id,$start=0) {
+		// the followers of a user
+		// expects the user's $key
+		// the $id of the user
+		// returns an array with the first 300 users, starting at $start
+
+		global $dbh; // database connection
+
+		$followers = array('success' => false);
+
+		if(($user = userDetails($key)) === false){
+			$followers['error'] = "Invalid user key";
+			goto error;
+		}
+
+		$profile = userDetailsFromId($id);
+		if($profile===false) {
+			$followers['error'] = "Invalid profile ID";
+			goto error;
+		}
+
+		try {
+			$sql = "
+SELECT follow.follower AS iduser, follow.followed
+FROM follow
+WHERE follow.followee = :id
+ORDER BY follow.followed DESC
+LIMIT 300 OFFSET :start";
+
+			$sth = $dbh->prepare($sql);
+			$sth->bindParam(':id',$profile->iduser);
+			$sth->bindParam(':start',$start, PDO::PARAM_INT);
+			$sth->execute();
+
+			$followers['followers'] = array();
+
+			foreach ($sth->fetchAll() as $row) {
+				$follow = userDetailsPersonal($key,$row['iduser']);
+
+				if(!$follow['success']) // there was an issue getting them
+					continue; // skip showing this user
+
+				$followers['followers'][] = [
+					'user' => $follow['profile'],
+					'time' => timeArray($row['followed'])
+				];
+			}
+
+			$followers['num'] = count($followers['followers']);
+		}
+		catch (PDOException $e) {
+			$followers['error'] = "There was an error retreiving memes from the database";
+			goto error;
+		}
+
+		$followers['success'] = true;
+
+		error:
+
+		return $followers;
 	}
 
 	function notifications($key, $start=0, $thumb=400) {

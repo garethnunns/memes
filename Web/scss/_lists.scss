@@ -35,6 +35,30 @@ $listHeadingHeightMob: 200px / 2;
 	}
 }
 
+.followHeading {
+	@include breakpoint(tablet) {
+		text-align: center;
+	}
+
+	a.pp {
+		border-bottom: none;
+
+		@include breakpoint(tablet) {
+			display: block;
+		}
+	}
+
+	img.pp {
+		height: 3.5em;
+		margin-right: $xs-pad;
+		margin-bottom: $xs-pad;
+	}
+
+	button {
+		font-size: $font-size-base;
+	}
+}
+
 .userListContainer {
 	.userList {
 		@include clearfix;

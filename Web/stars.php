@@ -25,7 +25,7 @@
 	if($found) {
 		displayListHeading($meme['meme'],'star');
 
-		$stars = stars($_SESSION['key'],0);
+		$stars = stars($_SESSION['key'],$meme['meme']['idmeme'],0);
 
 		if(!$stars['success'])
 			echo "<p class='error'>" . ($stars['error'] ?: "There was an error getting the list of people") . "</p>";
