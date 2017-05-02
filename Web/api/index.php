@@ -60,9 +60,14 @@
 		],
 	];
 
-	foreach ($pages as $uri => $page) {
+	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
+	foreach ($pages as $uri => $page) 
+		echo "<tr><td>{$page['name']}</td><td><a href='#{$uri}'>{$uri}</a>";
+	echo "</table>";
+
+	foreach ($pages as $uri => $page) { // output all the forms
 		echo "
-		<form method='POST' action='{$current}{$uri}'>
+		<form method='POST' action='{$current}{$uri}' id='{$uri}'>
 			<table class='api'>
 				<tr>
 					<td colspan='2'>
