@@ -9,7 +9,7 @@ DirectoryIndex index.php index.html
 	# stars on a meme
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^([a-z]+)$ /api/0.1/$1.php [P]
+	RewriteRule ^([a-z]+)$ /api/0.1/$1.php [L]
 </IfModule>
 
 #Error Documents

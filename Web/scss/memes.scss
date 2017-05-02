@@ -61,6 +61,7 @@ $border-form: 2px solid $greyed-out;
 
 // fonts
 $sans-serif: 'Open Sans', Helvetica, sans-serif;
+$monospace: Menlo, Monaco, Consolas, 'Courier New', monospace;
 $font-family: $sans-serif;
 
 // clear some defaults first
@@ -137,6 +138,14 @@ header + .wrapper {
 
 	[colspan="2"] {
 		text-align: center !important;
+	}
+}
+
+.api .result {
+	word-break: break-all;
+
+	td:nth-child(1):not([colspan="2"]) {
+		vertical-align: top;
 	}
 }
 

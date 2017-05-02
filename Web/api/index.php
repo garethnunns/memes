@@ -33,7 +33,7 @@
 
 					<tr>
 						<td>password</td>
-						<td><input type="text" name="password"></td>
+						<td><input type="password" name="password"></td>
 					</tr>
 
 					<tr>
@@ -49,9 +49,12 @@ $("form").submit(function(e) {
 
 	var form = this;
 
-	$.post($(form).prop('action'), $(form).serialize(), function(data) {
-		var ret = $('td.result', form).length ? $('td.result', this) : $('<tr><td colspan="2" class="result"></td></tr>').appendTo($('table.api',form)).children('td.result');
-		ret.html('<h3>Returned:</h3>'+data);
+	var ret = $('tr.result', form).length ? $('tr.result', form) : $('<tr class="result"></tr>').appendTo($('table.api',form));
+
+	$.post($(form).prop('action'), $(form).serialize(), function(data, s, xhr) {
+		ret.html('<td>Returned ('+xhr.status+'):</td><td><code>'+JSON.stringify(data, null, 2).replace(/\n/g, "<br>").replace(/[ ]/g, "&nbsp;")+'</code></td>');
+	},'json').fail(function(xhr) {
+		ret.html('<td>Returned ('+xhr.status+'):</td><td>There was a server error completing your request</td>');
 	});
 });
 		</script>
