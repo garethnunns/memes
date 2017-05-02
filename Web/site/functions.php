@@ -862,12 +862,14 @@ LIMIT 20 OFFSET :start";
 		return $memes;
 	}
 
-	function memeStarredFeed($key,$start=0,$thumb=400,$full=1000) {
+	function memeStarredFeed($key,$page=0,$thumb=400,$full=1000) {
 		// the user's starred meme feed
 		// expected the user's $key
-		// returns an array with the first 20 memes in their feed, starting at $start
+		// returns an array with the first 20 memes in their feed, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'short');
 
 		$memes = array('success' => false);
 
@@ -916,12 +918,14 @@ LIMIT 20 OFFSET :start";
 		return $memes;
 	}
 
-	function memeHotFeed($key,$start=0,$thumb=400,$full=1000) {
+	function memeHotFeed($key,$page=0,$thumb=400,$full=1000) {
 		// the user's hot memes feed
 		// expected the user's $key
-		// returns an array with the first 20 memes in their feed, starting at $start
+		// returns an array with the first 20 memes in their feed, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'short');
 
 		$memes = array('success' => false);
 
@@ -1041,8 +1045,14 @@ LIMIT 20 OFFSET :start
 		return $memes;
 	}
 
-	function profile($key,$id,$start=0,$thumb=400,$full=1000) {
+	function profile($key,$id,$page=0,$thumb=400,$full=1000) {
+		// the user's profile, with the memes they've posted feed and their details (with stats)
+		// expected the user's $key
+		// returns an array with the first 20 memes in their feed, starting at $page
+
 		global $dbh; // database connection
+
+		$start = page($page,'short');
 
 		global $res, $web; // servers
 
@@ -1168,13 +1178,15 @@ SELECT
 
 	// list of users
 
-	function stars($key,$id,$start=0) {
+	function stars($key,$id,$page=0) {
 		// the stars on a meme
 		// expects the user's $key
 		// the $id of the meme
-		// returns an array with the first 300 users, starting at $start
+		// returns an array with the first 300 users, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'long');
 
 		$stars = array('success' => false);
 
@@ -1230,13 +1242,15 @@ LIMIT 300 OFFSET :start";
 		return $stars;
 	}
 
-	function reposts($key,$id,$start=0) {
+	function reposts($key,$id,$page=0) {
 		// the reposts on a meme
 		// expects the user's $key
 		// the $id of the meme
-		// returns an array with the first 300 users, starting at $start
+		// returns an array with the first 300 users, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'long');
 
 		$reposts = array('success' => false);
 
@@ -1294,13 +1308,15 @@ LIMIT 300 OFFSET :start";
 		return $reposts;
 	}
 
-	function followers($key,$id,$start=0) {
+	function followers($key,$id,$page=0) {
 		// the followers of a user
 		// expects the user's $key
 		// the $id of the user
-		// returns an array with the first 300 users, starting at $start
+		// returns an array with the first 300 users, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'long');
 
 		$followers = array('success' => false);
 
@@ -1356,13 +1372,15 @@ LIMIT 300 OFFSET :start";
 		return $followers;
 	}
 
-	function following($key,$id,$start=0) {
+	function following($key,$id,$page=0) {
 		// the people that a user is following
 		// expects the user's $key
 		// the $id of the user
-		// returns an array with the first 300 users, starting at $start
+		// returns an array with the first 300 users, starting at $page
 
 		global $dbh; // database connection
+
+		$start = page($page,'long');
 
 		$following = array('success' => false);
 
@@ -1418,8 +1436,14 @@ LIMIT 300 OFFSET :start";
 		return $following;
 	}
 
-	function notifications($key, $start=0, $thumb=400) {
+	function notifications($key, $page=0, $thumb=400) {
+		// returns the user's
+		// expects the user $key
+		// returns the first 20 starting from $page
+
 		global $dbh; // database connection
+
+		$start = page($page,'short');
 
 		global $res; // for providing absolute path to thumbnail of meme and profile pic
 
@@ -1763,7 +1787,7 @@ AND star.idmeme = @meme";
 
 		global $dbh; // database connection
 
-		global $web; // to return link
+		global $web; // to return link of the repost
 
 		$ret = array();
 
