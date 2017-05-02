@@ -632,6 +632,11 @@ AND emailcode IS NULL";
 
 		global $res, $web; // servers
 
+		// defaults when nothing was passed
+		$thumb = $thumb ?: 400;
+		$full = $full ?: 1000;
+		$limitComments = ($limitComments != '' && $limitComments != null) ? $limitComments : true;
+
 		$meme = array('success' => false);
 
 		if($key == 'public') $user = (object) array('iduser' => 0);

@@ -1,8 +1,8 @@
 <?php
 	require_once '../site/web.php';
 
-	$current = $web.'api/0.1/';
 	$current = '/api/0.1/';
+	$currentAbs = $web.substr($current,1);
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -18,29 +18,88 @@
 			<h1><?php echo "$sitename API" ?></h1>
 			<p>Welcome to our API. Below you can test your API calls, each has the expected fields for the request which are sent as post arguments to the page</p>
 
-			<form method="POST" action="<?php echo $current; ?>login">
-				<table class="api">
-					<tr>
-						<td colspan="2">
-							<h2>Login</h2>
-							<h4><?php echo $current; ?>login</h4>
-						</td>
-					</tr>
-					<tr>
-						<td>username</td>
-						<td><input type="text" name="username"></td>
-					</tr>
+<?php
+	$pages = [
+		'login' => [
+			'name' => 'Login',
+			'desc' => "This will provide you with your user ID and key.<br>You then use this key to access the other elements of the API. The key may change periodically.",
+			'fields' => [
+				'username' => [
+					'type' => 'string',
+				],
+				'password' => [
+					'type' => 'string',
+					'kind' => 'password'
+				],
+			],
+		],
+		'meme' => [
+			'name' => 'Meme',
+			'desc' => "This is for requesting an individual meme.<br>thumb &amp; full are only preferred sizes and different sizes may be returned",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+				'full' => [
+					'type' => 'int',
+					'default' => 1000,
+				],
+				'limitComments' => [
+					'type' => 'bool',
+					'default' => true,
+				],
+			],
+		],
+	];
 
-					<tr>
-						<td>password</td>
-						<td><input type="password" name="password"></td>
-					</tr>
+	foreach ($pages as $uri => $page) {
+		echo "
+		<form method='POST' action='{$current}{$uri}'>
+			<table class='api'>
+				<tr>
+					<td colspan='2'>
+						<h2>{$page['name']}</h2>
+						<h4>{$currentAbs}{$uri}</h4>
+						<p>{$page['desc']}</p>
+					</td>
+				</tr>";
+		
+		foreach ($page['fields'] as $name => $field) {
+			echo "
+			<tr>
+				<td>".(!isset($field['default']) ? "<strong>{$name}</strong>" : $name)." <em>[{$field['type']}]</em></td><td>";
 
-					<tr>
-						<td colspan="2"><input type="submit" value="Send"></td>
-					</tr>
-				</table>
-			</form>
+			switch ($field['kind']) {
+				case 'password':
+					echo "<input type='password' name='{$name}'>";
+					break;
+				case 'text':
+					echo "<textarea name='{$name}'></textarea>";
+					break;
+				default:
+					echo "<input type='text' name='{$name}'>";
+					break;
+			}
+			echo (isset($field['default']) ? " <em>(default: {$field['default']})</em>" : '')."</td>
+			</tr>";
+		}
+
+		echo "	<tr>
+					<td colspan='2'><input type='submit' value='Test'></td>
+				</tr>
+			</table>
+		</form>
+		";
+	}
+?>
 		</div>
 
 		<script type="text/javascript">
