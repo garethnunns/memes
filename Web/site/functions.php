@@ -154,6 +154,56 @@ AND emailcode IS NULL";
 		return $userProfile;
 	}
 
+	function login($username,$password) {
+		// returns a users key and id
+		// or an error
+
+		global $dbh;
+
+		$login = ['success' => false];
+
+		try {
+			$sql = "SELECT user.password, user.iduser, user.ukey, user.emailcode
+					FROM user
+					WHERE username = ?";
+
+			$sth = $dbh->prepare($sql);
+
+			$sth->execute(array($username)); // sanitise user input
+
+			if($sth->rowCount()!=1) { // username not found
+				$login['error'] = "Invalid username or password";
+				goto error;
+			}
+			else {
+				$user = $sth->fetch(PDO::FETCH_OBJ);
+
+				if(password_verify($password,$user->password)) { // password correct
+					if(!empty($user->emailcode)) { // they haven't verified their email yet
+						$login['error'] = "You haven't validated your email address yet";
+						$login['email'] = true;
+						goto error;
+					}
+					$login['user'] = $user->iduser;
+					$login['key'] = $user->ukey;
+					$login['success'] = true;
+				}
+				else {
+					$login['error'] = "Invalid username or password";
+					goto error;
+				}
+			}
+		}
+		catch (PDOException $e) {
+			$login['error'] = "There was an issue looking you up in the database";
+			goto error;
+		}
+
+		error:
+
+		return $login;
+	}
+
 	function valid($field, $text) {
 		// verify the text is valid to be inserted
 		// for any $text it will check that $field in the database can take length string
@@ -482,7 +532,7 @@ AND emailcode IS NULL";
 		global $web; // get the web server location
 
 		// check the caption is valid - you may want to do this before resizing the images
-		if(($cerror = valid('meme.caption',$_POST['caption'])) !== true) 
+		if(($cerror = valid('meme.caption',$caption)) !== true) 
 			$error = $cerror;
 		else {
 			// check the s3 connection first
