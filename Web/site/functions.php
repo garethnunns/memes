@@ -838,7 +838,7 @@ LIMIT 1";
 	function page($page,$length) {
 		// returns the 'line number', breaking it up into $pages of $length
 
-		switch ($lines) {
+		switch ($length) {
 			case 'short':
 				$lines = 20;
 				break;

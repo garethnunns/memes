@@ -58,6 +58,28 @@
 				],
 			],
 		],
+		'feed' => [
+			'name' => 'Meme Feed',
+			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order from the accounts the user follows",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+				'full' => [
+					'type' => 'int',
+					'default' => 1000,
+				]
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
