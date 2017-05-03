@@ -184,6 +184,23 @@
 				],
 			],
 		],
+		'reposts' => [
+			'name' => 'Reposts List',
+			'desc' => "Returns a list of 300 <em>'users'</em> which have reposted a meme with <strong>id</strong>, in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
