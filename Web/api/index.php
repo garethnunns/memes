@@ -18,6 +18,8 @@
 			<h1><?php echo "$sitename API" ?></h1>
 			<p>Welcome to our API. Below you can test your API calls, each has the expected fields for the request which are sent as post arguments to the page</p>
 
+			<p>In general, there will always be a <em>'success'</em> boolean returned. If it's not successful there will be a fairly user friendly error accosciated. If it is successful then they'll be an array of arrays returned as well.</p>
+
 <?php
 	$pages = [
 		'login' => [
@@ -60,7 +62,29 @@
 		],
 		'feed' => [
 			'name' => 'Meme Feed',
-			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order from the accounts the user follows",
+			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order of posting from the accounts the user follows",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+				'full' => [
+					'type' => 'int',
+					'default' => 1000,
+				]
+			],
+		],
+		'starred' => [
+			'name' => 'Starred Memes Feed',
+			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order from when the user has starred them",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
