@@ -37,7 +37,7 @@
 		],
 		'meme' => [
 			'name' => 'Meme',
-			'desc' => "This is for requesting an individual meme.<br>thumb &amp; full are only preferred sizes and different sizes may be returned",
+			'desc' => "This is for requesting an individual meme.<br>thumb &amp; full are only preferred sizes and different sizes may be returned.<br>The <em>'poster'</em> elements provide the same information as <a href='#user'>user</a>.",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
@@ -60,9 +60,50 @@
 				],
 			],
 		],
+		'user' => [
+			'name' => 'User profile',
+			'desc' => "This will provide a <em>'profile'</em> array on success with useful information about the user with the <strong>id</strong>",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+			],
+		],
+		'profile' => [
+			'name' => 'Profile',
+			'desc' => "This is primarily designed for outputting a profile page for the user with the provided <strong>id</strong>.<br>
+				The <em>'user'</em> array is the same as the <em>'profile'</em> array returned by <a href='#user'>user</a>.<br>
+				The <em>'memes'</em> array is a series of 20 memes (in the style of <a href='#meme'>meme</a> posted by the user, in reverse chronological of when they posted them<br>
+				There are also some useful <em>'stats'</em> returned",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+				'full' => [
+					'type' => 'int',
+					'default' => 1000,
+				]
+			],
+		],
 		'feed' => [
 			'name' => 'Meme Feed',
-			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order of posting from the accounts the user follows",
+			'desc' => "This is a series of 20 memes (in the style of <a href='#meme'>meme</a> with the comments limited) which are in reverse chronological order of posting from the accounts the user follows",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
@@ -84,7 +125,7 @@
 		],
 		'starred' => [
 			'name' => 'Starred Memes Feed',
-			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in reverse chronological order from when the user has starred them",
+			'desc' => "This is a series of 20 memes (in the style of <a href='#meme'>meme</a> with the comments limited) which are in reverse chronological order from when the user has starred them",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
@@ -106,7 +147,7 @@
 		],
 		'hot' => [
 			'name' => 'Hot Memes Feed',
-			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in 'hotest' order - so the most interacted with and most suitable for the user first",
+			'desc' => "This is a series of 20 memes (in the style of <a href='#meme'>meme</a> with the comments limited) which are in 'hotest' order - so the most interacted with and most suitable for the user first",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
