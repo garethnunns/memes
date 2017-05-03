@@ -1250,7 +1250,7 @@ SELECT
 			goto error;
 		}
 
-		$meme = meme($_SESSION['key'],$id,400,null,true);
+		$meme = meme($key,$id,400,null,true);
 		if(!$meme['success']) {
 			$stars['error'] = $meme['error'] ?: "Couldn't find that meme";
 			goto error;
@@ -1314,7 +1314,7 @@ LIMIT 300 OFFSET :start";
 			goto error;
 		}
 
-		$meme = meme($_SESSION['key'],$id,400,null,true);
+		$meme = meme($key,$id,400,null,true);
 		if(!$meme['success']) {
 			$reposts['error'] = $meme['error'] ?: "Couldn't find that meme";
 			goto error;

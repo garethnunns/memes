@@ -74,7 +74,7 @@
 			],
 		],
 		'profile' => [
-			'name' => 'Profile',
+			'name' => 'Profile Feed',
 			'desc' => "This is primarily designed for outputting a profile page for the user with the provided <strong>id</strong>.<br>
 				The <em>'user'</em> array is the same as the <em>'profile'</em> array returned by <a href='#user'>user</a>.<br>
 				The <em>'memes'</em> array is a series of 20 memes (in the style of <a href='#meme'>meme</a> posted by the user, in reverse chronological of when they posted them<br>
@@ -165,6 +165,23 @@
 					'type' => 'int',
 					'default' => 1000,
 				]
+			],
+		],
+		'stars' => [
+			'name' => 'Stars List',
+			'desc' => "Returns a list of 300 <em>'users'</em> which have starred a meme with <strong>id</strong>, in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
 			],
 		],
 	];
