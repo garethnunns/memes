@@ -18,7 +18,7 @@
 			<h1><?php echo "$sitename API" ?></h1>
 			<p>Welcome to our API. Below you can test your API calls, each has the expected fields for the request which are sent as post arguments to the page</p>
 
-			<p>In general, there will always be a <em>'success'</em> boolean returned. If it's not successful there will be a fairly user friendly error accosciated. If it is successful then they'll be an array of arrays returned as well.</p>
+			<p>In general, there will always be a <em>'success'</em> boolean returned. If it's not successful there will be a fairly user friendly <em>'error'</em> accosciated. If it is successful then they'll be an array of arrays returned as well.</p>
 
 <?php
 	$pages = [
@@ -104,6 +104,28 @@
 				]
 			],
 		],
+		'hot' => [
+			'name' => 'Hot Memes Feed',
+			'desc' => "This is a series of 20 memes (in the style of 'meme' with the comments limited) which are in 'hotest' order - so the most interacted with and most suitable for the user first",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+				'full' => [
+					'type' => 'int',
+					'default' => 1000,
+				]
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
@@ -168,7 +190,5 @@ $("form").submit(function(e) {
 	});
 });
 		</script>
-
-		<?php include '../site/footer.php'; ?>
 	</body>
 </html>
