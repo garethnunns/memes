@@ -241,7 +241,7 @@
 		],
 		'notifications' => [
 			'name' => 'Notifications',
-			'desc' => "Returns a list of 20 <em>'notifications'</em> for this user. When this is called the notifications are read<br>
+			'desc' => "Returns a list of 20 <em>'notifications'</em> for this user. When this is called the notifications are read.<br>
 				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.
 				If there is a meme associated with the notification, then there will be a <em>'meme'</em> array in the style of <a href='#meme'>meme</a> with the comments limited",
 			'fields' => [
@@ -256,6 +256,21 @@
 				'thumb' => [
 					'type' => 'int',
 					'default' => 400,
+				],
+			],
+		],
+		'star' => [
+			'name' => 'Star a Meme',
+			'desc' => "Stars a meme with the <strong>id</strong>.<br>
+				<em>'starred'</em> is whether that user has now starred it.<br>
+				Then there's also the new number of stars (<em>'stars-num'</em>) and the correct plural (<em>'stars-str'</em>)",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int'
 				],
 			],
 		],

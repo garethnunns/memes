@@ -1716,7 +1716,7 @@ AND followee = @followee;";
 			$mcheck->execute(array($id));
 
 			if($mcheck->rowCount() != 1) {
-				$ret['error'] = "The meme didn't exist";
+				$ret['error'] = "The meme doesn't exist";
 				goto error;
 			}
 
@@ -1798,7 +1798,7 @@ AND star.idmeme = @meme";
 			$mcheck->execute(array($id));
 
 			if($mcheck->rowCount() != 1) {
-				$ret['error'] = "The meme didn't exist";
+				$ret['error'] = "The meme doesn't exist";
 				goto error;
 			}
 			
