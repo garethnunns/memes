@@ -274,6 +274,21 @@
 				],
 			],
 		],
+		'repost' => [
+			'name' => 'Repost a Meme',
+			'desc' => "Reposts a meme with the <strong>id</strong>.<br>
+				<em>'reposted'</em> is whether that user has now reposted it.<br>
+				Then there's also the new number of reposts (<em>'reposts-num'</em>) and the correct plural (<em>'reposts-str'</em>)",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int'
+				],
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";

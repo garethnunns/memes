@@ -1864,13 +1864,23 @@ AND star.idmeme = @meme";
 			SELECT meme.*
 			FROM meme
 			-- check it exists
-			WHERE meme.idmeme = ?
+			WHERE meme.idmeme = :meme
 			-- make sure it's not already a repost
 			AND meme.share IS NULL
 			-- not the user's own post
-			AND meme.iduser <> ?";
+			AND meme.iduser <> :user
+			-- and that user hasn't already reposted it
+			AND NOT (
+				SELECT COUNT(*)
+				FROM meme AS a
+				WHERE a.share = :meme
+				AND a.iduser = :user
+			)
+			";
 			$mcheck = $dbh->prepare($sql);
-			$mcheck->execute(array($id,$user->iduser));
+			$mcheck->bindParam(':meme',$id);
+			$mcheck->bindParam(':user',$user->iduser);
+			$mcheck->execute();
 
 			if($mcheck->rowCount() != 1) {
 				$ret['error'] = "That meme can't be reposted";
