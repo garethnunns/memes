@@ -46,8 +46,9 @@
 							var r = JSON.parse(res);
 
 							if(r.success) {
-								if (typeof r.link !== 'undefined')
-									window.location.href = r.link;
+								if (typeof r['meme']['link'] !== 'undefined')
+									window.location.href = r['meme']['link'];
+								else document.getElementById("error").innerHTML = "There was an internal error";
 							}
 							else {
 								document.getElementById("error").innerHTML = (typeof r.error !== 'undefined') ? r.error : "There was an error";

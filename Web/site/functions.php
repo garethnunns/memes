@@ -364,12 +364,15 @@ AND emailcode IS NULL";
 
 	// adding a meme
 
-	function validImage($file) {
+	function validImage($file, $minx=400, $miny=400) {
 		// check's that the $file is an image and the right size
-		// expects an array in the standard PHP file style
-		// returns TRUE or an array of errors if not
+		// expects:
+		// a $file array in the standard PHP file style
+		// the minimum dimensions for the image
 
 		global $types, $exts;
+
+		$ret = ['success' => false];
 
 		$errors = array();
 
@@ -408,7 +411,8 @@ AND emailcode IS NULL";
 
 							// first check is to make sure it's high enough resolution
 							// for now I think anything less that 300x300 is too small
-							if(($w < 400) || ($h < 400)) array_push($errors, "The image is too low resolution (minimum of 400x400)");
+							if(($w < $minx) || ($h < $miny)) 
+								array_push($errors, "The image is too low resolution (minimum of {$minx}x{$miny})");
 
 							// next check if it's too big
 							// this will save the server having to resize massive images
@@ -428,40 +432,67 @@ AND emailcode IS NULL";
 			}
 		}
 
-		return empty($errors) ? true : $errors;
+		if(empty($errors)) $ret['success'] = true;
+		else foreach ($errors as $error) $ret['error'] .= $error . '. ';
+
+		return $ret;
 	}
 
-	function resizeImage($file, &$created) {
-		// validates & resizes & crops the $file and stores the locations of these in the $created array
-		// expects an array in the standard PHP file style
-		// returns TRUE or an array of errors if not
+	function addMeme($key, $file, $caption, $lat=null, $long=null) {
+		// resizes & crops the $file and stores the locations of these in the $created array
+		// then stores the meme in the database and transfers the images to Amazon S3
+		// expects a $file array in the standard PHP file style
+
+		global $target, $fulls, $squares; // for resizing
+
+		global $dbh; // database connection
+
+		global $aws, $bucket; // aws details
+
+		global $web; // get the web server location
+
+		ini_set('memory_limit', '-1'); // attempt to get round the file limit
+
+		$ret = ['success' => false];
+
+		if(($user = userDetails($key)) === false) {
+			$ret['error'] = "Invalid user key";
+			goto error;
+		}
+
+		if(($cerror = valid('meme.caption',$caption)) !== true) {
+			$ret['error'] = $cerror ?: "Invalid caption";
+			goto error;
+		}
 
 		// make sure it is a valid image
-		if(($errors = validImage($file)) !== true) // there were errors validating the image
-			return $errors;
-
-		global $target, $fulls, $squares;
-
-		ini_set('memory_limit', '-1');
-
-		$errors = array();
+		$valid = validImage($file,400,400);
+		if(!$valid['success']) {
+			$ret['error'] = $valid['error'] ?: "Invalid image";
+			goto error;
+		}
 
 		$info = getimagesize($file["tmp_name"]);
 
 		if($info["mime"] == "image/jpg" || $info["mime"] == "image/jpeg") $type = "jpg";
 		elseif ($info["mime"] == "image/png") $type = "png";
-		else array_push($errors, "Unrecognised image type");
+		else {
+			$ret['error'] = "Unrecognised image type";
+			goto error;
+		}
 
 		// load the image
-		$error = "Couldn't load the image";
-		if($type == "jpg") if(!$src = imagecreatefromjpeg($file["tmp_name"])) array_push($errors, $error);
-		if($type == "png") if(!$src = imagecreatefrompng($file["tmp_name"])) array_push($errors, $error);
+		if(($type == "png" && !$src = imagecreatefrompng($file["tmp_name"])) || (($type == "jpg") && !$src = imagecreatefromjpeg($file["tmp_name"]))) {
+			$ret['error'] = "Couldn't load the image";
+			goto error;
+		}
 
 		// get the current width and height
 		list($w,$h) = $info;
 
 		$ratio = $w/$h;
 
+		// where we'll store the location of all the created images
 		$created = array();
 
 		foreach ($fulls as $size) { // these will all be resized, with a width of $size
@@ -472,11 +503,11 @@ AND emailcode IS NULL";
 			$fileName = tempnam($target, $size); // get a unique name
 			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
 			$fileName .= $type == "jpg" ? '.jpg' : ($type == "png" ? '.png' : '');
-			
-			$error = "There was an error saving the ".$size."px version of the image";
 
-			if($type == "jpg") if(!imagejpeg($resized,$fileName)) array_push($errors, $error);
-			if($type == "png") if(!imagepng($resized,$fileName)) array_push($errors, $error);
+			if( (($type == "png") && !imagepng($resized,$fileName)) || (($type == "jpg") && !imagejpeg($resized,$fileName)) ) {
+				$ret['error'] = "There was an error saving the ".$size."px version of the image";
+				goto error;
+			}
 			
 			$created['full'][$size] = $fileName;
 		}
@@ -503,119 +534,113 @@ AND emailcode IS NULL";
 			$fileName = tempnam($target, $size); // get a unique name
 			unlink($fileName); // delete the temporary file - we don't really need it, we just wanted the name
 			$fileName .= $type == "jpg" ? '.jpg' : ($type == "png" ? '.png' : '');
-			
-			$error = "There was an error saving the ".$size."px version of the image";
 
-			if($type == "jpg") if(!imagejpeg($resized,$fileName)) array_push($errors, $error);
-			if($type == "png") if(!imagepng($resized,$fileName)) array_push($errors, $error);
+			if( (($type == "png") && !imagepng($resized,$fileName)) || (($type == "jpg") && !imagejpeg($resized,$fileName)) ) {
+				$ret['error'] = "There was an error saving the ".$size."px version of the image";
+				goto error;
+			}
 			
 			$created['thumb'][$size] = $fileName;
 		}
 
-		imagedestroy($src);
+		imagedestroy($src); // destroy the php image that's been used to generate the other images
 
-		return empty($errors) ? true : $errors;
-	}
+		// finished resizing - now try and store it
 
-	function storeMeme($key, $images, $caption, $lat=null, $long=null, &$link=null) {
-		// store the meme in the database and transfer the images to Amazon S3
-		// expected variables
-		// $key 		the user's key in the database
-		// $images		an array of images in the style created by resizeImage
-		// caption		the caption to go with the image
-		// Will return TRUE on success, a string as an error if not
-
-		global $dbh; // database connection
-
-		global $aws, $bucket; // aws details
-
-		global $web; // get the web server location
-
-		// check the caption is valid - you may want to do this before resizing the images
-		if(($cerror = valid('meme.caption',$caption)) !== true) 
-			$error = $cerror;
-		else {
-			// check the s3 connection first
-			$s3 = Aws\S3\S3Client::factory($aws);
-			if(!class_exists('Aws\S3\S3Client') || !class_exists('Aws\CommandPool'))
-				$error = 'There was an error forming a connection to the resource server';
-			else {
-				if(!$s3->doesBucketExist($bucket)) // check the bucket is there
-					$error = 'There was an error locating the resource server';
-				else {
-					try {
-						if(($user = userDetails($key)) === false) $error = "There was an error with the key";
-						else {
-							// store in db
-							$sizes = array();
-
-							foreach ($images as $type => $csizes)
-								foreach ($csizes as $size => $image) {
-									if(!isset($sizes[$type])) $sizes[$type] = array();
-									array_push($sizes[$type], $size);
-									$ext = strtolower(pathinfo($image,PATHINFO_EXTENSION));
-								}
-
-							$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, ext, caption, latitude, longitude) 
-								VALUES (?, ?, ?, ?, ?, ?)");
-
-							$sth->execute(array(
-								$user->iduser,
-								json_encode($sizes),
-								$ext,
-								$caption,
-								$lat,
-								$long
-							));
-
-							$id = $dbh->lastInsertId();
-						}
-					}
-					catch (PDOException $e) {
-						$error = "There was an error adding the meme to the database";
-					}
-
-					if(!isset($error)) {
-						// copy the images over to aws
-						$commands = array();
-
-						foreach ($images as $type => $csizes) {
-							foreach ($csizes as $size => $image) {
-								$commands[] = $s3->getCommand('PutObject', array(
-									'Bucket'     => $bucket,
-									'Key'        => $type.'/'.$size.'/'.$id.'.'.$ext,
-									'SourceFile' => $image,
-									'Metadata'   => array(
-										'User' => $user->iduser
-									)
-								));
-							}
-						}
-
-						$pool = new Aws\CommandPool($s3, $commands);
-
-						// Initiate the pool transfers
-						$promise = $pool->promise();
-
-						try { // Force the pool to complete synchronously
-							$result = $promise->wait();
-						}
-						catch (AwsException $e) {
-							$error = "There was an error transferring the images to the resource server";
-						}
-
-						if($link!==null) $link = $web . $user->username . '/' . $id;
-					}
-				}
-			}
+		if(!class_exists('Aws\S3\S3Client') || !class_exists('Aws\CommandPool')) {
+			$ret['error'] = 'There was an error forming a connection to the resource server';
+			goto error;
 		}
 
+		try {
+			$s3 = Aws\S3\S3Client::factory($aws);
+		}
+		catch (S3Exception $e) {
+			$ret['error'] = "There was an error connection to the resource server";
+			goto error;
+		}
+
+		if(!$s3->doesBucketExist($bucket)) { // check the bucket is there
+			$ret['error'] = 'There was an error locating the resource server';
+			goto error;
+		}
+
+		// get the sizes that were produced
+		$sizes = array();
+
+		foreach ($created as $format => $csizes)
+			foreach ($csizes as $size => $image) {
+				if(!isset($sizes[$format])) $sizes[$format] = array();
+				array_push($sizes[$format], $size);
+			}
+
+		try {
+			$sth = $dbh->prepare("INSERT INTO meme (iduser, sizes, ext, caption, latitude, longitude) 
+								VALUES (?, ?, ?, ?, ?, ?)");
+
+			$sth->execute(array(
+				$user->iduser,
+				json_encode($sizes),
+				$type,
+				$caption,
+				$lat,
+				$long
+			));
+
+			$id = $dbh->lastInsertId();
+		}
+		catch (PDOException $e) {
+			$ret['error'] = "There was an error adding the meme to the database $e";
+			goto error;
+		}
+
+		// copy the images over to aws
+		$commands = array();
+
+		// to increase the performance we pool the put commands so they all send at once
+		foreach ($created as $format => $csizes)
+			foreach ($csizes as $size => $image)
+				$commands[] = $s3->getCommand('PutObject', array(
+					'Bucket'     => $bucket,
+					'Key'        => $format.'/'.$size.'/'.$id.'.'.$type,
+					'SourceFile' => $image,
+					'Metadata'   => array(
+						'User' => $user->iduser
+					)
+				));
+
+		$pool = new Aws\CommandPool($s3, $commands);
+
+		// Initiate the pool transfers
+		$promise = $pool->promise();
+
+		try { // Force the pool to complete synchronously
+			$result = $promise->wait();
+		}
+		catch (AwsException $e) {
+			$ret['error'] = "There was an error transferring the images to the resource server";
+			goto error;
+		}
+
+
+		$freshMeme = meme($key,$id);
+		if(!$freshMeme['success']) {
+			$ret['error'] = "There was an issue finding the new meme";
+			goto error;
+		}
+
+		$ret['meme'] = $freshMeme['meme'];
+
+		$ret['success'] = true;
+
+		error:
+
 		// delete all of the images off the server (this happens even if errors were thrown)
-		foreach ($images as $type => $csizes)
+		foreach ($created as $type => $csizes)
 			foreach ($csizes as $size => $image)
 				unlink($image);
 
-		return isset($error) ? $error : true;
+		return $ret;
 	}
 
 	// outputting a meme
