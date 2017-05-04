@@ -169,7 +169,8 @@
 		],
 		'stars' => [
 			'name' => 'Stars List',
-			'desc' => "Returns a list of 300 <em>'users'</em> which have starred a meme with <strong>id</strong>, in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'desc' => "Returns a list of 300 <em>'stars'</em> which are the stars on a meme with <strong>id</strong>.<br>
+				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
@@ -186,7 +187,26 @@
 		],
 		'reposts' => [
 			'name' => 'Reposts List',
-			'desc' => "Returns a list of 300 <em>'users'</em> which have reposted a meme with <strong>id</strong>, in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'desc' => "Returns a list of 300 <em>'reposts'</em> which are the reposts on a meme with <strong>id</strong>.<br>
+				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+			],
+		],
+		'followers' => [
+			'name' => 'Followers List',
+			'desc' => "Returns a list of 300 <em>'followers'</em> which follow the user with <strong>id</strong>.<br>
+				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
 			'fields' => [
 				'key' => [
 					'type' => 'string',
