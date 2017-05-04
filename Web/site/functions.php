@@ -1781,7 +1781,7 @@ AND star.idmeme = @meme";
 		return $ret;
 	}
 
-	function comment($key,$id, $comment) {
+	function comment($key,$id,$comment) {
 		// comments on a meme, expecting:
 		// $key		commenter's key
 		// $id		$id of the meme
@@ -1794,7 +1794,7 @@ AND star.idmeme = @meme";
 		$ret['success'] = false;
 
 		try {
-			if(($cError = valid('reply.reply',$comment)) === false) {
+			if(($cError = valid('reply.reply',$comment)) !== true) {
 				$ret['error'] = $cError;
 				goto error;
 			}

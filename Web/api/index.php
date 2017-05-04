@@ -289,6 +289,24 @@
 				],
 			],
 		],
+		'comment' => [
+			'name' => 'Comment on a Meme',
+			'desc' => "Comments on a meme with the <strong>id</strong>.<br>
+				<em>'commenter'</em> is the user that just commented on the meme, which is in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.
+				Then there's also the new number of comments (<em>'comments-num'</em>) and the correct plural (<em>'comments-str'</em>)",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int'
+				],
+				'comment' => [
+					'type' => 'string(140)'
+				],
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
