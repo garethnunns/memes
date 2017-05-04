@@ -239,6 +239,26 @@
 				],
 			],
 		],
+		'notifications' => [
+			'name' => 'Notifications',
+			'desc' => "Returns a list of 20 <em>'notifications'</em> for this user. When this is called the notifications are read<br>
+				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.
+				If there is a meme associated with the notification, then there will be a <em>'meme'</em> array in the style of <a href='#meme'>meme</a> with the comments limited",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0
+				],
+				'thumb' => [
+					'type' => 'int',
+					'default' => 400,
+				],
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
