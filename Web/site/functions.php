@@ -657,9 +657,26 @@ SELECT m.*, o.iduser AS oIduser,
 ( -- whether this user :id has reposted it
 	SELECT COUNT(rptd.idmeme)
 	FROM meme AS rptd 
-	WHERE rptd.share = m.share
+	WHERE rptd.share = :idmeme
 	AND rptd.iduser = :iduser
 ) AS reposted,
+( -- whether this user can repost it
+	SELECT COUNT(*)
+	FROM meme AS rpbl
+	-- check it exists
+	WHERE rpbl.idmeme = :idmeme
+	-- make sure it's not already a repost
+	AND rpbl.share IS NULL
+	-- not the user's own post
+	AND rpbl.iduser <> :iduser
+	-- haven't already reposted it
+	AND NOT (
+		SELECT COUNT(*)
+		FROM meme AS a
+		WHERE a.share = :idmeme
+		AND a.iduser = :iduser
+	)
+) AS repostable,
 ( -- number of comments on this post
 	SELECT COUNT(reply.idreply)
 	FROM reply
@@ -809,10 +826,7 @@ LIMIT 1";
 				'reposts-num' => $row['reposts'],
 				'reposts-str' => plural('repost',$row['reposts']),
 				'reposted' => $row['reposted'],  // has been reposted by the user
-				// you can't repost if:
-				// you posted the image
-				// you have already reposted the image
-				'repostable' => (($user->iduser == $row['iduser']) || ($user->iduser == $row['oIduser'])) ? 0 : 1,
+				'repostable' => $row['repostable'],  // the user can repost it
 				'stars-num' => $row['stars'],
 				'stars-str' => plural('star',$row['stars']),
 				'starred' => $row['starred'],
