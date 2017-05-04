@@ -261,7 +261,7 @@
 		],
 		'star' => [
 			'name' => 'Star a Meme',
-			'desc' => "Stars a meme with the <strong>id</strong>.<br>
+			'desc' => "Stars (or unstars) a meme with the <strong>id</strong>.<br>
 				<em>'starred'</em> is whether that user has now starred it.<br>
 				Then there's also the new number of stars (<em>'stars-num'</em>) and the correct plural (<em>'stars-str'</em>)",
 			'fields' => [
@@ -304,6 +304,21 @@
 				],
 				'comment' => [
 					'type' => 'string(140)'
+				],
+			],
+		],
+		'follow' => [
+			'name' => 'Follow a user',
+			'desc' => "Follows (or unfollows) a user with the <strong>id</strong>.<br>
+				<em>'followed'</em> is whether that user has now reposted it.<br>
+				Then there's also the new number of followers (<em>'followers-num'</em>) and the correct plural (<em>'followers-str'</em>)",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int'
 				],
 			],
 		],

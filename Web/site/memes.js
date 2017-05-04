@@ -6,12 +6,11 @@ function follow(button, id, num=null, numStr=null) {
 	// (numStr)	to be the html element storing the associated text
 
 	$.post('/ajax/follow.php', {id: id}, function (data) {
-		if(data.success && (typeof data.isFollowing !== 'undefined')) {
-			$(button).html(data.isFollowing ? 'Unfollow' : 'Follow');
+		if(data.success && (typeof data.followed !== 'undefined')) {
+			$(button).html(data.followed ? 'Unfollow' : 'Follow');
 			$(button).blur();
-			if(num!=null) $(num).html(data.followers);
+			if(num!=null) $(num).html(data['followers-num']);
 			if(numStr!=null) $(numStr).html(data['followers-str']);
-			console.log('follow()',data);
 		}
 		console.log('follow()',data);
 	}, 'json');

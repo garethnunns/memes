@@ -1691,10 +1691,10 @@ AND followee = @followee;";
 
 			$follow = $sth->fetch(PDO::FETCH_ASSOC);
 
-			$ret['isFollowing'] = !$follow['wasFollowing'];
+			$ret['followed'] = !$follow['wasFollowing'];
 
-			$ret['followers'] = intval($follow['wasFollowing'] ? --$row['oldFollowers'] : ++$row['oldFollowers']);
-			$ret['followers-str'] = plural('follower',$ret['followers']);
+			$ret['followers-num'] = intval($follow['wasFollowing'] ? --$row['oldFollowers'] : ++$row['oldFollowers']);
+			$ret['followers-str'] = plural('follower',$ret['followers-num']);
 		}
 		catch (PDOException $e) {
 			$ret['error'] = "There was an error updating the database";
