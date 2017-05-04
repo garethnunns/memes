@@ -221,6 +221,24 @@
 				],
 			],
 		],
+		'following' => [
+			'name' => 'Following List',
+			'desc' => "Returns a list of 300 <em>'following'</em> which are followed by the user with <strong>id</strong>.<br>
+				Each has a <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'id' => [
+					'type' => 'int',
+				],
+				'page' => [
+					'type' => 'int',
+					'default' => 0,
+				],
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
