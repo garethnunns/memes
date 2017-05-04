@@ -259,6 +259,33 @@
 				],
 			],
 		],
+		'add' => [
+			'name' => 'Add a Meme',
+			'desc' => "Stars (or unstars) a meme with the <strong>id</strong>.<br>
+				Returns the posted <em>'meme'</em> in the style of <a href='#meme'>meme</a> with the default parameters",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'file' => [
+					'type' => 'file',
+					'kind' => 'file'
+				],
+				'caption' => [
+					'type' => 'string(140)',
+					'kind' => 'text',
+				],
+				'lat' => [
+					'type' => 'float(10,6)',
+					'default' => 'null',
+				],
+				'long' => [
+					'type' => 'float(10,6)',
+					'default' => 'null',
+				]
+			],
+		],
 		'star' => [
 			'name' => 'Star a Meme',
 			'desc' => "Stars (or unstars) a meme with the <strong>id</strong>.<br>
@@ -303,7 +330,8 @@
 					'type' => 'int'
 				],
 				'comment' => [
-					'type' => 'string(140)'
+					'type' => 'string(140)',
+					'kind' => 'text',
 				],
 			],
 		],
@@ -330,8 +358,13 @@
 	echo "</table>";
 
 	foreach ($pages as $uri => $page) { // output all the forms
+		$multipart = '';
+
+		foreach ($page['fields'] as $field)
+			if($field['kind'] == 'file') $multipart = ' enctype="multipart/form-data" ';
+
 		echo "
-		<form method='POST' action='{$current}{$uri}' id='{$uri}'>
+		<form method='POST' action='{$current}{$uri}' id='{$uri}' {$multipart}>
 			<table class='api'>
 				<tr>
 					<td colspan='2'>
@@ -352,6 +385,9 @@
 					break;
 				case 'text':
 					echo "<textarea name='{$name}'></textarea>";
+					break;
+				case 'file':
+					echo "<input type='file' name='{$name}'>";
 					break;
 				default:
 					echo "<input type='text' name='{$name}'>";

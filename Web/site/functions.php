@@ -457,19 +457,19 @@ AND emailcode IS NULL";
 
 		if(($user = userDetails($key)) === false) {
 			$ret['error'] = "Invalid user key";
-			goto error;
+			return $ret;
 		}
 
 		if(($cerror = valid('meme.caption',$caption)) !== true) {
 			$ret['error'] = $cerror ?: "Invalid caption";
-			goto error;
+			return $ret;
 		}
 
 		// make sure it is a valid image
 		$valid = validImage($file,400,400);
 		if(!$valid['success']) {
 			$ret['error'] = $valid['error'] ?: "Invalid image";
-			goto error;
+			return $ret;
 		}
 
 		$info = getimagesize($file["tmp_name"]);
@@ -478,13 +478,13 @@ AND emailcode IS NULL";
 		elseif ($info["mime"] == "image/png") $type = "png";
 		else {
 			$ret['error'] = "Unrecognised image type";
-			goto error;
+			return $ret;
 		}
 
 		// load the image
 		if(($type == "png" && !$src = imagecreatefrompng($file["tmp_name"])) || (($type == "jpg") && !$src = imagecreatefromjpeg($file["tmp_name"]))) {
 			$ret['error'] = "Couldn't load the image";
-			goto error;
+			return $ret;
 		}
 
 		// get the current width and height
@@ -622,7 +622,7 @@ AND emailcode IS NULL";
 			goto error;
 		}
 
-
+		// get the newly posted meme
 		$freshMeme = meme($key,$id);
 		if(!$freshMeme['success']) {
 			$ret['error'] = "There was an issue finding the new meme";
