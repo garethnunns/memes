@@ -352,7 +352,22 @@
 		],
 		'user-first-name' => [
 			'name' => 'Set first name',
-			'desc' => "Sets the first name for the user.<br>
+			'desc' => "Sets the user's first name to <em>'text'</em>.<br>
+				Returns <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.<br>
+				<b>The 'text' must not be left blank and can only contain letters, spaces, apostrophes, hyphens and full stops.</b>",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'text' => [
+					'type' => 'string(20)'
+				],
+			],
+		],
+		'user-surname' => [
+			'name' => 'Set surname',
+			'desc' => "Sets the user's surname to <em>'text'</em>.<br>
 				Returns <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.<br>
 				<b>The 'text' must not be left blank and can only contain letters, spaces, apostrophes, hyphens and full stops.</b>",
 			'fields' => [
