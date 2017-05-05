@@ -412,13 +412,27 @@ $("form").submit(function(e) {
 	e.preventDefault();
 
 	var form = this;
+	var fdata = new FormData(form);
+
+	var sub = $('[type="submit"]',form).val('Testing...');
 
 	var ret = $('tr.result', form).length ? $('tr.result', form) : $('<tr class="result"></tr>').appendTo($('table.api',form));
 
-	$.post($(form).prop('action'), $(form).serialize(), function(data, s, xhr) {
-		ret.html('<td>Returned ('+xhr.status+'):</td><td><code>'+JSON.stringify(data, null, 2).replace(/\n/g, "<br>").replace(/[ ]/g, "&nbsp;")+'</code></td>');
-	},'json').fail(function(xhr) {
-		ret.html('<td>Returned ('+xhr.status+'):</td><td>There was a server error completing your request</td>');
+	$.ajax({
+		url: $(form).prop('action'),
+		method: "POST",
+		dataType: 'json',
+		data: fdata,
+		processData: false,
+		contentType: false,
+		success: function(data, s, xhr) {
+			ret.html('<td>Returned ('+xhr.status+'):</td><td><code>'+JSON.stringify(data, null, 2).replace(/\n/g, "<br>").replace(/[ ]/g, "&nbsp;")+'</code></td>');
+		},
+		error: function(xhr) {
+			ret.html('<td>Returned ('+xhr.status+'):</td><td>There was a server error completing your request</td>');
+		}
+	}).then(function() {
+		sub.val('Test');
 	});
 });
 		</script>
