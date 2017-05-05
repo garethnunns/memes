@@ -116,7 +116,7 @@
 		try {
 			$psql = "
 SELECT user.iduser, CONCAT(:web,user.username) as link, user.username,
-CONCAT(user.firstName,' ',user.surname) as name, 
+user.firstName, user.surname, CONCAT(user.firstName,' ',user.surname) as name, 
 CONCAT(:res,user.picUri) as pic,
 (
 	SELECT COUNT(isFollowing.follower)
@@ -1952,6 +1952,101 @@ AND star.idmeme = @meme";
 		$ret['success'] = true;
 
 		error:
+
+		return $ret;
+	}
+
+	// update user profile
+
+	function setUserFirstName($key,$text) {
+		// sets this user's first name to $text
+
+		global $dbh;
+
+		$ret = ['success' => false];
+
+		if(($user = userDetails($key)) === false) {
+			$ret['error'] = "Invalid user key";
+			return $ret;
+		}
+
+		if(($terror = valid('user.firstName',$text)) !== true) {
+			$ret['error'] = $terror ?: "Invalid name";
+			return $ret;
+		}
+
+		try {
+			$sth = $dbh->prepare('UPDATE user SET user.firstName = ? WHERE user.iduser = ?');
+			$sth->execute(array($text,$user->iduser));
+		}
+		catch(PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+			return $ret;
+		}
+
+		$ret['success'] = true;
+
+		return $ret;
+	}
+
+	function setUserSurname($key,$text) {
+		// sets this user's surname to $text
+
+		global $dbh;
+
+		$ret = ['success' => false];
+
+		if(($user = userDetails($key)) === false) {
+			$ret['error'] = "Invalid user key";
+			return $ret;
+		}
+
+		if(($terror = valid('user.surname',$text)) !== true) {
+			$ret['error'] = $terror ?: "Invalid name";
+			return $ret;
+		}
+
+		try {
+			$sth = $dbh->prepare('UPDATE user SET user.surname = ? WHERE user.iduser = ?');
+			$sth->execute(array($text,$user->iduser));
+		}
+		catch(PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+			return $ret;
+		}
+
+		$ret['success'] = true;
+
+		return $ret;
+	}
+
+	function setUserPassword($key,$text) {
+		// sets this user's password to $text
+
+		global $dbh;
+
+		$ret = ['success' => false];
+
+		if(($user = userDetails($key)) === false) {
+			$ret['error'] = "Invalid user key";
+			return $ret;
+		}
+
+		if(($terror = valid('user.password',$text)) !== true) {
+			$ret['error'] = $terror ?: "Invalid name";
+			return $ret;
+		}
+
+		try {
+			$sth = $dbh->prepare('UPDATE user SET user.password = ? WHERE user.iduser = ?');
+			$sth->execute(array(password_hash($text,PASSWORD_DEFAULT),$user->iduser));
+		}
+		catch(PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+			return $ret;
+		}
+
+		$ret['success'] = true;
 
 		return $ret;
 	}

@@ -226,14 +226,14 @@ Or just ignore this message";
 					<tr>
 						<td>First Name</td>
 						<td>
-							<input type="text" name="firstName" placeholder="First name" minlength="1" maxlength="60" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName'] ?>" title="The first name can only contain letters, spaces, hyphens and full stops." required>
+							<input type="text" name="firstName" placeholder="First name" minlength="1" maxlength="20" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName'] ?>" pattern="^[a-zA-Z\s'\.-]{1,20}$" title="The first name can only contain letters, spaces, apostrophes, hyphens and full stops." required>
 							<?php if(isset($errors['user.firstName'])) echo "<p class='error'>{$errors['user.firstName']}</p>" ?>
 						</td>
 					</tr>
 					<tr>
 						<td>Surname</td>
 						<td>
-							<input type="text" name="surname" placeholder="Surname" minlength="1" maxlength="60" value="<?php if(isset($_POST['surname'])) echo $_POST['surname'] ?>" title="The surname can only contain letters, spaces, hyphens and full stops." required>
+							<input type="text" name="surname" placeholder="Surname" minlength="1" maxlength="20" value="<?php if(isset($_POST['surname'])) echo $_POST['surname'] ?>" pattern="^[a-zA-Z\s'\.-]{1,20}$" title="The surname can only contain letters, spaces, apostrophes, hyphens and full stops." required>
 							<?php if(isset($errors['user.surname'])) echo "<p class='error'>{$errors['user.surname']}</p>" ?>
 						</td>
 					</tr>

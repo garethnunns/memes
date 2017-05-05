@@ -122,7 +122,7 @@ header + .wrapper {
 }
 
 // forms
-#login, #signup, .api {
+#login, #signup, .settings, .api {
 	td:not([colspan="2"]) {
 		width: 50%;
 	}
@@ -141,6 +141,10 @@ header + .wrapper {
 	}
 }
 
+.grecaptcha-badge {
+	//margin: 10px auto;
+}
+
 .api .result {
 	word-break: break-all;
 
@@ -149,8 +153,9 @@ header + .wrapper {
 	}
 }
 
-.grecaptcha-badge {
-	margin: 10px auto;
+.settings [type="submit"] {
+	margin: $xs-pad;
+	font-size: $font-size-small;
 }
 
 [onClick] {

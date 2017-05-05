@@ -1,5 +1,4 @@
 <?php
-	session_set_cookie_params(6*60*60); // clients remember sessions for 6 hours
 	session_start();
 
 	// these are the functions that are only used on the website
