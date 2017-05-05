@@ -380,6 +380,21 @@
 				],
 			],
 		],
+		'user-picture' => [
+			'name' => 'Set profile picture',
+			'desc' => "Sets the user's profile picture to <em>'file'</em>.<br>
+				Returns <em>'user'</em> in the same format as the <em>'profile'</em> array returned from <a href='#user'>user</a>.",
+			'fields' => [
+				'key' => [
+					'type' => 'string',
+					'kind' => 'text'
+				],
+				'file' => [
+					'type' => 'file',
+					'kind' => 'file'
+				]
+			],
+		],
 	];
 
 	echo "<table class='api'><tr><td colspan='2'><h2>Table of contents</h2><td></tr>";
