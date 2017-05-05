@@ -122,7 +122,7 @@ header + .wrapper {
 }
 
 // forms
-#login, #signup, .settings, .api {
+form#login, form#signup, table.settings, table.api {
 	td:not([colspan="2"]) {
 		width: 50%;
 	}
@@ -153,9 +153,15 @@ header + .wrapper {
 	}
 }
 
-.settings [type="submit"] {
-	margin: $xs-pad;
-	font-size: $font-size-small;
+table.settings {
+	img#current {
+		margin: $sm-pad auto;
+	}
+
+	[type="submit"] {
+		margin: $xs-pad;
+		font-size: $font-size-small;
+	}
 }
 
 [onClick] {

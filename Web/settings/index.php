@@ -61,6 +61,20 @@
 				</form>
 			</td>
 		</tr>";
+
+	echo "
+	<tr>
+		<td>Profile picture</td>
+		<td>
+			<form method='post' action='/ajax/userPicture.php' enctype='multipart/form-data'>
+				<input type='file' name='file'>
+				<input type='submit' value='Update'>
+				<p><em>Note: your profile picture may take up to a day to change after updating it</em></p>
+				<p class='center'><strong>Current:</strong><br>
+				<img src='{$header['profile']['pic']}' alt='Your profile picture' id='current'></p>
+			</form>
+		</td>
+	</tr>";
 ?>
 			</table>
 
@@ -91,10 +105,13 @@ $("form").submit(function(e) {
 				sub.val('Update');
 			}
 			else {
+				if(typeof data['user']['pic'] !== 'undefined')
+					$('.settings #current').attr('src',data['user']['pic']);
 				sub.val('Updated!').delay(1000).queue(function(n) {
 					sub.val('Update');
 					n();
 				});
+				console.log(data);
 			}
 		},
 		error: function(xhr) {

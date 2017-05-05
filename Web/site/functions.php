@@ -1984,6 +1984,15 @@ AND star.idmeme = @meme";
 			return $ret;
 		}
 
+		// get the newly updated user
+		$updatedUser = userDetailsPersonal($key,$user->iduser);
+		if(!$updatedUser['success']) {
+			$ret['error'] = "There was an issue finding the new user ({$updatedUser['error']})";
+			return $ret;
+		}
+
+		$ret['user'] = $updatedUser['profile'];
+
 		$ret['success'] = true;
 
 		return $ret;
@@ -2014,6 +2023,15 @@ AND star.idmeme = @meme";
 			$ret['error'] = "There was an error updating the database";
 			return $ret;
 		}
+
+		// get the newly updated user
+		$updatedUser = userDetailsPersonal($key,$user->iduser);
+		if(!$updatedUser['success']) {
+			$ret['error'] = "There was an issue finding the new user ({$updatedUser['error']})";
+			return $ret;
+		}
+
+		$ret['user'] = $updatedUser['profile'];
 
 		$ret['success'] = true;
 
@@ -2046,7 +2064,153 @@ AND star.idmeme = @meme";
 			return $ret;
 		}
 
+		// get the newly updated user
+		$updatedUser = userDetailsPersonal($key,$user->iduser);
+		if(!$updatedUser['success']) {
+			$ret['error'] = "There was an issue finding the new user ({$updatedUser['error']})";
+			return $ret;
+		}
+
+		$ret['user'] = $updatedUser['profile'];
+
 		$ret['success'] = true;
+
+		return $ret;
+	}
+
+	function setUserPicture($key, $file) {
+		// resizes & crops the $file and stores
+		// then stores the meme in the database and transfers the images to Amazon S3
+		// expects a $file array in the standard PHP file style
+
+		global $target; // for resizing
+
+		global $dbh; // database connection
+
+		global $aws, $bucket; // aws details
+
+		global $web; // get the web server location
+
+		ini_set('memory_limit', '-1'); // attempt to get round the file limit
+
+		$ret = ['success' => false];
+
+		if(($user = userDetails($key)) === false) {
+			$ret['error'] = "Invalid user key";
+			return $ret;
+		}
+
+		// make sure it is a valid image
+		$valid = validImage($file,100,100);
+		if(!$valid['success']) {
+			$ret['error'] = $valid['error'] ?: "Invalid image";
+			return $ret;
+		}
+
+		$info = getimagesize($file["tmp_name"]);
+
+		if($info["mime"] == "image/jpg" || $info["mime"] == "image/jpeg") $type = "jpg";
+		elseif ($info["mime"] == "image/png") $type = "png";
+		else {
+			$ret['error'] = "Unrecognised image type";
+			return $ret;
+		}
+
+		// load the image
+		if(($type == "png" && !$src = imagecreatefrompng($file["tmp_name"])) || (($type == "jpg") && !$src = imagecreatefromjpeg($file["tmp_name"]))) {
+			$ret['error'] = "Couldn't load the image";
+			return $ret;
+		}
+
+		// get the current width and height
+		list($width,$height) = $info;
+
+		// resize and crop the image to 200x200 square
+		// defaults for a square image
+		$x = 0;
+		$y = 0;
+
+		if($width > $height) { // landscape
+			$x = floor(($width/2) - ($height/2)); // middle - (half of the square)
+			$width = $height;
+		}
+		elseif($height > $width) { // portrait
+			$y = floor(($height/2) - ($width/2)); // middle - (half of the square)
+			$height = $width;
+		}
+
+		$resized = imagecreatetruecolor(200, 200);
+		imagealphablending($resized, false);
+		imagesavealpha($resized, true);
+		imagecopyresampled($resized, $src, 0, 0, $x, $y, 200, 200, $width, $height);
+		
+		$fileName = tempnam($target, 'prof'); // get a unique name
+
+		if((($type == "png") && !imagepng($resized,$fileName)) || (($type == "jpg") && !imagejpeg($resized,$fileName))) {
+			$ret['error'] = "There was an error saving the profile picture on the server";
+			goto error;
+		}
+
+		imagedestroy($src); // destroy the php image that's been used to generate the smaller version
+
+		// finished resizing - now try and store it
+
+		if(!class_exists('Aws\S3\S3Client') || !class_exists('Aws\CommandPool')) {
+			$ret['error'] = 'There was an error forming a connection to the resource server';
+			goto error;
+		}
+
+		try {
+			$s3 = Aws\S3\S3Client::factory($aws);
+		}
+		catch (S3Exception $e) {
+			$ret['error'] = "There was an error connection to the resource server";
+			goto error;
+		}
+
+		if(!$s3->doesBucketExist($bucket)) { // check the bucket is there
+			$ret['error'] = 'There was an error locating the resource server';
+			goto error;
+		}
+
+		$uri = 'profile/user/'.$user->iduser.'.'.$type;
+
+		try {
+			$s3->putObject(array(
+				'Bucket'     => $bucket,
+				'Key'        => $uri,
+				'SourceFile' => $fileName
+			));
+		}
+		catch (AwsException $e) {
+			$ret['error'] = "There was an error transferring the image to the resource server";
+			goto error;
+		}
+
+		try {
+			$sth = $dbh->prepare('UPDATE user SET user.picUri = ? WHERE user.iduser = ?');
+			$sth->execute(array($uri,$user->iduser));
+		}
+		catch (PDOException $e) {
+			$ret['error'] = "There was an error updating the database";
+			goto error;
+		}
+
+		// get the newly updated user
+		$updatedUser = userDetailsPersonal($key,$user->iduser);
+		if(!$updatedUser['success']) {
+			$ret['error'] = "There was an issue finding the new user ({$updatedUser['error']})";
+			goto error;
+		}
+
+		$ret['user'] = $updatedUser['profile'];
+
+		$ret['success'] = true;
+
+		error:
+
+		// delete the compressed version, even if there were errors
+		unlink($fileName);
 
 		return $ret;
 	}
