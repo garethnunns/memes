@@ -14,16 +14,16 @@ public class MemesDBHelper extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "memes.db";
 
-    public SQLiteDatabase myDB;
+    public SQLiteDatabase theDB;
 
     public MemesDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
-        myDB = getWritableDatabase();
+        theDB = getWritableDatabase();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        myDB = db;
+        theDB = db;
 
         String sql = // create the meme table first
         "CREATE TABLE IF NOT EXISTS " +
@@ -99,11 +99,11 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void clearMeme(String table_name){
-        myDB.execSQL("DELETE FROM "+ MemesContract.Tables.TABLE_MEME);
+    public int clearMeme() {
+        return theDB.delete(MemesContract.Tables.TABLE_MEME,null,null);
     }
 
-    public void clearUser(String table_name){
-        myDB.execSQL("DELETE FROM "+ MemesContract.Tables.TABLE_USER);
+    public int clearUser() {
+        return theDB.delete(MemesContract.Tables.TABLE_USER,null,null);
     }
 }
