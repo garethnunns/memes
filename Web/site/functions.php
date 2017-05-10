@@ -165,7 +165,7 @@ AND emailcode IS NULL";
 		try {
 			$sql = "SELECT user.password, user.iduser, user.ukey, user.emailcode
 					FROM user
-					WHERE username = ?";
+					WHERE BINARY username = ?";
 
 			$sth = $dbh->prepare($sql);
 
