@@ -24,7 +24,7 @@ public class MemesContract {
 
         // meme table
         public static final String TABLE_MEME = "meme";
-        public static final String MEME_IDMEME = "idmeme";
+        public static final String MEME_IDMEME = "_id";
         public static final String MEME_IDUSER = "iduser";
         public static final String MEME_THUMB = "thumb";
         public static final String MEME_FULL = "full";
@@ -36,10 +36,10 @@ public class MemesContract {
         public static final String MEME_LONG = "long";
         public static final String MEME_OPOST = "original_post";
         public static final String MEME_OPOSTER = "original_poster";
-        public static final String MEME_STARS_NUM = "stars-num";
-        public static final String MEME_COMMENTS_NUM = "comments-num";
+        public static final String MEME_STARS_NUM = "stars_num";
+        public static final String MEME_COMMENTS_NUM = "comments_num";
         public static final String MEME_COMMENTS = "comments";
-        public static final String MEME_REPOSTS_NUM = "reposts-num";
+        public static final String MEME_REPOSTS_NUM = "reposts_num";
         public static final String MEME_REPOSTED = "reposted";
         public static final String MEME_REPOSTABLE = "repostable";
 
@@ -50,7 +50,7 @@ public class MemesContract {
 
         // user table
         public static final String TABLE_USER = "user";
-        public static final String USER_IDUSER = "iduser";
+        public static final String USER_IDUSER = "_id";
         public static final String USER_USERNAME = "username";
         public static final String USER_FIRSTNAME = "firstName";
         public static final String USER_SURNAME = "surname";

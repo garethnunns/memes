@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class MemesDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 3;
     public static final String DB_NAME = "memes.db";
 
     public SQLiteDatabase theDB;
@@ -31,15 +31,15 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_IDMEME +
         " INT NOT NULL, " +
         MemesContract.Tables.MEME_IDUSER +
-        " INT NULL COMMENT 'The user that posted it', " +
+        " INT NULL, " +
         MemesContract.Tables.MEME_THUMB +
-        " VARCHAR(150) NULL COMMENT 'Full URL to thumbnail', " +
+        " VARCHAR(150) NULL, " +
         MemesContract.Tables.MEME_FULL +
-        " VARCHAR(150) NULL COMMENT 'Full URL to large image', " +
+        " VARCHAR(150) NULL, " +
         MemesContract.Tables.MEME_LINK +
-        " VARCHAR(150) NULL COMMENT 'Full URL to the meme on the web server', " +
+        " VARCHAR(150) NULL, " +
         MemesContract.Tables.MEME_EPOCH +
-        " INT UNSIGNED NULL COMMENT 'Order by this', " +
+        " INT UNSIGNED NULL, " +
         MemesContract.Tables.MEME_AGO +
         " VARCHAR(10) NULL, " +
         MemesContract.Tables.MEME_CAPTION +
@@ -49,9 +49,9 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_LONG +
         " DECIMAL(10,6) NULL, " +
         MemesContract.Tables.MEME_OPOST +
-        " INT NULL COMMENT 'Id of the original post (if it’s a repost)', " +
+        " INT NULL, " +
         MemesContract.Tables.MEME_OPOSTER +
-        " INT NULL COMMENT 'id of the original poster (if it’s a repost)', " +
+        " INT NULL, " +
         MemesContract.Tables.MEME_STARS_NUM +
         " INT NULL, " +
         MemesContract.Tables.MEME_COMMENTS_NUM +
@@ -61,9 +61,9 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_REPOSTS_NUM +
         " INT NULL, " +
         MemesContract.Tables.MEME_REPOSTED +
-        " TINYINT(1) NULL COMMENT 'Whether the user has reposted this post', " +
+        " TINYINT(1) NULL, " +
         MemesContract.Tables.MEME_REPOSTABLE +
-        " TINYINT(1) NULL COMMENT 'Whether the meme is reportable');" +
+        " TINYINT(1) NULL);" +
         // then the user table
         "CREATE TABLE IF NOT EXISTS " +
         MemesContract.Tables.TABLE_USER + " ( " +
@@ -76,13 +76,13 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.USER_SURNAME +
         " VARCHAR(60) NULL, " +
         MemesContract.Tables.USER_NAME +
-        " VARCHAR(121) NULL COMMENT 'Length allows for firstName + surname', " +
+        " VARCHAR(121) NULL, " +
         MemesContract.Tables.USER_PIC +
-        " VARCHAR(150) NULL COMMENT 'Full URL to profile pic', " +
+        " VARCHAR(150) NULL, " +
         MemesContract.Tables.USER_FOLLOWING +
-        " TINYINT(1) NULL COMMENT 'Whether the user is following them', " +
+        " TINYINT(1) NULL, " +
         MemesContract.Tables.USER_YOU +
-        " TINYINT(1) NULL COMMENT 'To save comparing with stored user id'" +
+        " TINYINT(1) NULL" +
         ");";
 
         db.execSQL(sql);
