@@ -148,7 +148,8 @@ public class MemesContentProvider extends ContentProvider {
 
         switch(theUriMatcher.match(uri)) {
             case FEED: {
-                if (TextUtils.isEmpty(sortOrder)) sortOrder = MemesContract.Tables.MEME_EPOCH + " DESC";
+                if (TextUtils.isEmpty(sortOrder))
+                    sortOrder = MemesContract.Tables.MEME_EPOCH + " DESC";
 
                 retCursor = theDBHelper.getReadableDatabase().query(
                         MemesContract.Tables.TABLE_MEME, // Table to Query

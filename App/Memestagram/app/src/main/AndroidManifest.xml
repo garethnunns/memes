@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.garethnunns.memestagram">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,7 +22,17 @@
             android:name="com.garethnunns.memestagram.MemesContentProvider"
             android:authorities="com.garethnunns.memestagram"
             android:enabled="true"
+            android:exported="true"
+            android:permission="com.garethnunns.memestagram.providerPermission"
             ></provider>
-    </application>
 
+        <application
+            android:name=".Global">
+
+        </application>
+    </application>
+    <permission
+        android:name="com.garethnunns.memestagram.providerPermission"
+        android:protectionLevel="normal"
+        android:label="Memestagram Content Provider"></permission>
 </manifest>
