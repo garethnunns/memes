@@ -9,33 +9,98 @@
         android:id="@+id/meme_heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginBottom="@dimen/pad_lg"
+        android:layout_marginLeft="@dimen/pad_md"
+        android:layout_marginRight="@dimen/pad_md"
+        android:layout_marginTop="@dimen/pad_lg">
 
-        <TextView
-            android:id="@+id/meme_poster"
+        <ImageView
+            android:id="@+id/meme_pp"
+            android:layout_width="75sp"
+            android:layout_height="75sp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/pad_md"
+            android:contentDescription="@string/desc_pp" />
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25sp"/>
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/meme_ago"
+            android:layout_toEndOf="@+id/meme_pp">
+
+            <TextView
+                android:id="@+id/meme_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="25sp"
+                tools:text="Username" />
+
+            <TextView
+                android:id="@+id/meme_posted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/meme_username"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text="Posted" />
+
+            <TextView
+                android:id="@+id/meme_by"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/meme_username"
+                android:layout_toEndOf="@+id/meme_posted"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text=" by " />
+
+            <TextView
+                android:id="@+id/meme_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/meme_username"
+                android:layout_toEndOf="@+id/meme_by"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text="poster's name" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/meme_ago"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/pad_xs"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_sm"
+            tools:text="25w" />
+
     </RelativeLayout>
 
     <ImageView
+        android:id="@+id/meme_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/meme_image"
-        android:scaleType="fitStart"
-        android:adjustViewBounds="true" />
+        android:layout_below="@+id/meme_heading"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/desc_meme"
+        android:scaleType="fitStart" />
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/meme_caption"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/meme_image"
-        android:textSize="18sp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginBottom="@dimen/pad_sm"
+        android:layout_marginEnd="@dimen/pad_lg"
+        android:layout_marginStart="@dimen/pad_lg"
+        android:layout_marginTop="@dimen/pad_sm"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_md"
+        tools:text="Caption" />
 </RelativeLayout>

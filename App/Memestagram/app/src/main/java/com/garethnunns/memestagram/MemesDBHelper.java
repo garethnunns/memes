@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class MemesDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 9;
     public static final String DB_NAME = "memes.db";
 
     public SQLiteDatabase theDB;
@@ -28,6 +28,8 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         String sql = // create the meme table first
         "CREATE TABLE IF NOT EXISTS " +
         MemesContract.Tables.TABLE_MEME + " ( " +
+        MemesContract.Tables.MEME_ID +
+        " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
         MemesContract.Tables.MEME_IDMEME +
         " INT NOT NULL, " +
         MemesContract.Tables.MEME_IDUSER +
@@ -63,7 +65,8 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_REPOSTED +
         " TINYINT(1) NULL, " +
         MemesContract.Tables.MEME_REPOSTABLE +
-        " TINYINT(1) NULL);" +
+        " TINYINT(1) NULL " +
+        ");" +
         // then the user table
         "CREATE TABLE IF NOT EXISTS " +
         MemesContract.Tables.TABLE_USER + " ( " +
@@ -91,6 +94,7 @@ public class MemesDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // wipe the databases and start again
         String drop = "DROP TABLE IF EXISTS " +
                 MemesContract.Tables.TABLE_MEME +
                 "; DROP TABLE IF EXISTS " +

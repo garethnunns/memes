@@ -24,24 +24,26 @@ public class MemesContract {
 
         // meme table
         public static final String TABLE_MEME = "meme";
-        public static final String MEME_IDMEME = "_id";
-        public static final String MEME_IDUSER = "iduser";
-        public static final String MEME_THUMB = "thumb";
-        public static final String MEME_FULL = "full";
-        public static final String MEME_LINK = "link";
-        public static final String MEME_EPOCH = "epoch";
-        public static final String MEME_AGO = "ago";
-        public static final String MEME_CAPTION = "caption";
-        public static final String MEME_LAT = "lat";
-        public static final String MEME_LONG = "long";
-        public static final String MEME_OPOST = "original_post";
-        public static final String MEME_OPOSTER = "original_poster";
-        public static final String MEME_STARS_NUM = "stars_num";
-        public static final String MEME_COMMENTS_NUM = "comments_num";
-        public static final String MEME_COMMENTS = "comments";
-        public static final String MEME_REPOSTS_NUM = "reposts_num";
-        public static final String MEME_REPOSTED = "reposted";
-        public static final String MEME_REPOSTABLE = "repostable";
+        public static final String PRE_MEME = "meme_";
+        public static final String MEME_ID = "_id"; // without the ID lots of things break
+        public static final String MEME_IDMEME = PRE_MEME + "idmeme";
+        public static final String MEME_IDUSER = PRE_MEME + "iduser";
+        public static final String MEME_THUMB = PRE_MEME + "thumb";
+        public static final String MEME_FULL = PRE_MEME + "full";
+        public static final String MEME_LINK = PRE_MEME + "link";
+        public static final String MEME_EPOCH = PRE_MEME + "epoch";
+        public static final String MEME_AGO = PRE_MEME + "ago";
+        public static final String MEME_CAPTION = PRE_MEME + "caption";
+        public static final String MEME_LAT = PRE_MEME + "lat";
+        public static final String MEME_LONG = PRE_MEME + "long";
+        public static final String MEME_OPOST = PRE_MEME + "original_post";
+        public static final String MEME_OPOSTER = PRE_MEME + "original_poster";
+        public static final String MEME_STARS_NUM = PRE_MEME + "stars_num";
+        public static final String MEME_COMMENTS_NUM = PRE_MEME + "comments_num";
+        public static final String MEME_COMMENTS = PRE_MEME + "comments";
+        public static final String MEME_REPOSTS_NUM = PRE_MEME + "reposts_num";
+        public static final String MEME_REPOSTED = PRE_MEME + "reposted";
+        public static final String MEME_REPOSTABLE = PRE_MEME + "repostable";
 
         // users URI
         public static final Uri USERS_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MEMES).build();

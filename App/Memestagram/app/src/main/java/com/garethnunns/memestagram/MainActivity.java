@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("Memestagram", "Welcome");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -40,15 +42,14 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         ContentValues values = new ContentValues();
         values.put(MemesContract.Tables.MEME_IDMEME,"4");
         values.put(MemesContract.Tables.MEME_IDUSER,"1");
-        values.put(MemesContract.Tables.MEME_THUMB,"http://memes-store.garethnunns.com/thumb/400/1.jpg");
-        values.put(MemesContract.Tables.MEME_FULL,"http://memes-store.garethnunns.com/full/1000/1.jpg");
+        values.put(MemesContract.Tables.MEME_THUMB,"http://memes-store.garethnunns.com/thumb/400/13.jpg");
+        values.put(MemesContract.Tables.MEME_FULL,"http://memes-store.garethnunns.com/full/1000/13.jpg");
         values.put(MemesContract.Tables.MEME_LINK,"http://memes.garethnunns.com/garethnunns/1");
         values.put(MemesContract.Tables.MEME_EPOCH,"1493065722");
         values.put(MemesContract.Tables.MEME_AGO,"2w");
         values.put(MemesContract.Tables.MEME_CAPTION,"Hello world");
         values.put(MemesContract.Tables.MEME_STARS_NUM,"3");
         values.put(MemesContract.Tables.MEME_COMMENTS_NUM,"1");
-        //values.put(MemesContract.Tables.MEME_COMMENTS,"Hello. World.");
         values.put(MemesContract.Tables.MEME_REPOSTS_NUM,"1");
         values.put(MemesContract.Tables.MEME_REPOSTED,"0");
         values.put(MemesContract.Tables.MEME_REPOSTABLE,"0");
@@ -59,9 +60,11 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] columns = {
+                MemesContract.Tables.MEME_ID,
                 MemesContract.Tables.MEME_IDMEME,
                 MemesContract.Tables.MEME_IDUSER,
                 MemesContract.Tables.MEME_CAPTION,
+                MemesContract.Tables.MEME_AGO,
                 MemesContract.Tables.MEME_FULL
         };
         CursorLoader loader = new CursorLoader(this,MemesContract.Tables.MEMES_CONTENT_URI,columns,null,null,null);
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
-
         Log.i("Loader","onLoadFinished");
     }
 

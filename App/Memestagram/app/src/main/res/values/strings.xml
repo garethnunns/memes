@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Memestagram</string>
+    <string name="desc_pp">User\'s profile picture</string>
+    <string name="desc_meme">The meme posted by the user</string>
 </resources>
