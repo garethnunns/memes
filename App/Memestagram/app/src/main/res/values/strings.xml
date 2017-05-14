@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">Memestagram</string>
+    <string name="welcome">Welcome to Memestagram</string>
     <string name="desc_pp">User\'s profile picture</string>
     <string name="desc_meme">The meme posted by the user</string>
+    <string name="error_internal">There was an internal error</string>
+    <string name="error_no_connection">There is currently no internet conneciton</string>
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
+
+    <string name="web">http://memes.garethnunns.com/</string>
+    <string name="api">http://memes.garethnunns.com/api/0.1/</string>
 
     <!-- Strings related to login -->
     <string name="prompt_username">Username</string>

@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("Memestagram", "Welcome");
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -62,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         user.put(MemesContract.Tables.USER_YOU,"1");
 
         getContentResolver().insert(MemesContract.Tables.USERS_CONTENT_URI,user);
+
+        // TODO: implement logout button: login.edit().clear().commit();
     }
 
     @Override

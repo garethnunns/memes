@@ -30,13 +30,7 @@ public class MemeAdapter extends CursorAdapter {
 
     @Override
     public void bindView(final View view, final Context context, Cursor cursor) {
-        // TODO: do a multitable select in the CP
-
-        // http://memes-store.garethnunns.com/profile/user/1.png
-
         // load the user's profile picture
-
-        // load the full image
         final String ppURL = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_PIC));
         final ImageView pp = (ImageView) view.findViewById(R.id.meme_pp);
         Picasso.with(context)

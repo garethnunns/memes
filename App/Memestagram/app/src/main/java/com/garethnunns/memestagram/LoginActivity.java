@@ -3,11 +3,12 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +20,19 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by gareth on 14/05/2017.
@@ -27,19 +41,6 @@ import android.widget.TextView;
  */
 
 public class LoginActivity extends AppCompatActivity {
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask AuthTask = null;
-
     // UI references.
     private EditText UsernameView;
     private EditText PasswordView;
@@ -53,11 +54,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getSupportActionBar().setTitle(R.string.welcome);
+
         login = getSharedPreferences("login",MODE_PRIVATE);
 
-        getSupportActionBar().setTitle(R.string.action_sign_in);
-
-        //feed();
+        feed();
 
         // Set up the login form.
         UsernameView = (EditText) findViewById(R.id.username);
@@ -74,8 +75,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button EmailSignInButton = (Button) findViewById(R.id.sign_in_button);
-        EmailSignInButton.setOnClickListener(new OnClickListener() {
+        if(savedInstanceState != null) {
+            UsernameView.setText(savedInstanceState.getString("username"));
+            PasswordView.setText(savedInstanceState.getString("password"));
+        }
+
+        Button SignInButton = (Button) findViewById(R.id.sign_in_button);
+        SignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -86,11 +92,18 @@ public class LoginActivity extends AppCompatActivity {
         ProgressView = findViewById(R.id.login_progress);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString("username",UsernameView.getText().toString());
+        savedInstanceState.putString("password",PasswordView.getText().toString());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
     private void feed() {
-        //if(login.contains("key")) {
+        if(login.contains("key")) {
             Intent goFeed = new Intent(LoginActivity.this,MainActivity.class);
             startActivity(goFeed);
-        //}
+        }
     }
 
 
@@ -100,17 +113,13 @@ public class LoginActivity extends AppCompatActivity {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (AuthTask != null) {
-            return;
-        }
-
         // Reset errors.
         UsernameView.setError(null);
         PasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = UsernameView.getText().toString();
-        String password = PasswordView.getText().toString();
+        final String username = UsernameView.getText().toString();
+        final String password = PasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -123,22 +132,84 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Check for a username isn't blank
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(username)) {
             UsernameView.setError(getString(R.string.error_field_required));
             focusView = UsernameView;
             cancel = true;
         }
 
-        if (cancel) {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (cancel)
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+        else // check for internet connectivity
+            if(cm.getActiveNetworkInfo() == null
+                    || !cm.getActiveNetworkInfo().isAvailable()
+                    || !cm.getActiveNetworkInfo().isConnected())
+                Toast.makeText(getApplicationContext(), getString(R.string.error_no_connection), Toast.LENGTH_LONG).show();
+        else {
+            // Show a progress spinner and perform the user login attempt.
             showProgress(true);
-            AuthTask = new UserLoginTask(email, password);
-            AuthTask.execute((Void) null);
+
+            String url = getString(R.string.api) + "login";
+
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonRes = new JSONObject(response);
+                                Boolean success = jsonRes.getBoolean("success");
+                                if(success) {
+                                    String key = jsonRes.getString("key");
+                                    Integer id = jsonRes.getInt("user");
+
+                                    System.out.println("It worked!\nkey: "+key+"\nid: "+id);
+
+                                    // store all of the data in a shared preferences file
+                                    SharedPreferences.Editor loginEditor = login.edit();
+
+                                    loginEditor.clear();
+
+                                    loginEditor.putString("username",username);
+                                    loginEditor.putString("password",password);
+                                    loginEditor.putString("key",key);
+                                    loginEditor.putInt("iduser",id);
+
+                                    loginEditor.commit();
+
+                                    feed();
+                                }
+                                else
+                                    Toast.makeText(getApplicationContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                            } catch (JSONException e) {
+                                System.out.println(response);
+                                Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            }
+                            showProgress(false);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            showProgress(false);
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams()
+                {
+                    Map<String, String>  params = new HashMap<>();
+                    // the POST parameters:
+                    params.put("username", username);
+                    params.put("password", password);
+                    return params;
+                }
+            };
+            Volley.newRequestQueue(this).add(postRequest);
         }
     }
 
@@ -175,66 +246,6 @@ public class LoginActivity extends AppCompatActivity {
             // and hide the relevant UI components.
             ProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             LoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String username;
-        private final String password;
-        public String error = "";
-
-        UserLoginTask(String u, String p) {
-            username = u;
-            password = p;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                error = "Incorrect username or password";
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(username)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(password);
-                }
-            }
-
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            AuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                // TODO: set login shred pref here (username, password, key, userid)
-                feed();
-            } else {
-                PasswordView.setError(error);
-                PasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            AuthTask = null;
-            showProgress(false);
         }
     }
 }
