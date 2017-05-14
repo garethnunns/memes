@@ -4,35 +4,40 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <permission
+        android:name="com.garethnunns.memestagram.providerPermission"
+        android:label="Memestagram Content Provider"
+        android:protectionLevel="normal" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:label="Feed">
+        </activity>
+
+        <provider
+            android:name=".MemesContentProvider"
+            android:authorities="com.garethnunns.memestagram"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.garethnunns.memestagram.providerPermission" />
+
+        <application android:name=".Global"></application>
+
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <provider
-            android:name="com.garethnunns.memestagram.MemesContentProvider"
-            android:authorities="com.garethnunns.memestagram"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="com.garethnunns.memestagram.providerPermission"
-            ></provider>
-
-        <application
-            android:name=".Global">
-
-        </application>
     </application>
-    <permission
-        android:name="com.garethnunns.memestagram.providerPermission"
-        android:protectionLevel="normal"
-        android:label="Memestagram Content Provider"></permission>
+
 </manifest>

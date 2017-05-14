@@ -2,7 +2,9 @@ package com.garethnunns.memestagram;
 
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("Memestagram", "Welcome");
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

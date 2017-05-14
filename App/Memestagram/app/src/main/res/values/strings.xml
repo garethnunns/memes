@@ -3,4 +3,10 @@
     <string name="desc_pp">User\'s profile picture</string>
     <string name="desc_meme">The meme posted by the user</string>
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="error_field_required">This field is required</string>
 </resources>
