@@ -18,8 +18,9 @@ import android.util.Log;
 public class MemesContentProvider extends ContentProvider {
     public static final String LOG_TAG = "MemesContentProvider";
     public static final int FEED = 100;
-    public static final int MEME = 201;
-    public static final int USER = 202;
+    public static final int USERS = 101;
+    public static final int MEME = 200;
+    public static final int USER = 201;
     private static final UriMatcher theUriMatcher = buildUriMatcher();
     public static MemesDBHelper theDBHelper;
 
@@ -29,6 +30,8 @@ public class MemesContentProvider extends ContentProvider {
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_MEMES,FEED);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_MEMES+"/#",MEME);
+
+        matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_USERS,USERS);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_USERS+"/#",USER);
 
@@ -52,6 +55,8 @@ public class MemesContentProvider extends ContentProvider {
                 return MemesContract.Tables.MEMES_CONTENT_TYPE_DIR;
             case MEME:
                 return MemesContract.Tables.MEMES_CONTENT_TYPE_ITEM;
+            case USERS:
+                return MemesContract.Tables.USERS_CONTENT_TYPE_DIR;
             case USER:
                 return MemesContract.Tables.USERS_CONTENT_TYPE_ITEM;
             default:
@@ -65,9 +70,17 @@ public class MemesContentProvider extends ContentProvider {
         Uri retUri = null;
 
         switch(theUriMatcher.match(uri)) {
-            case FEED:{
+            case FEED:{ // same as an individual meme (below)
             }
             case MEME:{
+                try {
+                    Long iduser = values.getAsLong(MemesContract.Tables.MEME_IDMEME);
+                    delete(MemesContract.Tables.buildMemeUriWithID(iduser), null, null);
+                }
+                catch (NullPointerException e) {
+                    delete(MemesContract.Tables.MEMES_CONTENT_URI,null,null);
+                }
+
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 long _id = db.insert(MemesContract.Tables.TABLE_MEME,null,values);
                 if (_id > 0)
@@ -76,7 +89,17 @@ public class MemesContentProvider extends ContentProvider {
                     throw new SQLException("Failed to insert meme");
                 break;
             }
+            case USERS: { // same as an individual meme (below)
+            }
             case USER:{
+                try {
+                    Long iduser = values.getAsLong(MemesContract.Tables.USER_IDUSER);
+                    delete(MemesContract.Tables.buildUserUriWithID(iduser), null, null);
+                }
+                catch (NullPointerException e) {
+                    delete(MemesContract.Tables.USERS_CONTENT_URI,null,null);
+                }
+
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 long _id = db.insert(MemesContract.Tables.TABLE_USER,null,values);
                 if (_id > 0)
@@ -105,6 +128,8 @@ public class MemesContentProvider extends ContentProvider {
                 String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
                 return db.update(MemesContract.Tables.TABLE_MEME,values,MemesContract.Tables.MEME_IDMEME+"=?",args);
             }
+            case USERS: {
+            }
             case USER:{
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
@@ -127,6 +152,10 @@ public class MemesContentProvider extends ContentProvider {
                 String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
                 return db.delete(MemesContract.Tables.TABLE_MEME,MemesContract.Tables.MEME_IDMEME+"=?", args);
             }
+            case USERS: {
+                Log.i(LOG_TAG, "delete() all users");
+                return theDBHelper.clearUser();
+            }
             case USER: {
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
@@ -148,18 +177,16 @@ public class MemesContentProvider extends ContentProvider {
 
         switch(theUriMatcher.match(uri)) {
             case FEED: {
-                if (TextUtils.isEmpty(sortOrder))
-                    sortOrder = MemesContract.Tables.MEME_EPOCH + " DESC";
+                String sql = "SELECT "+MemesContract.Tables.TABLE_MEME+".*, "+
+                        MemesContract.Tables.TABLE_USER+".* " +
+                        "FROM " + MemesContract.Tables.TABLE_MEME+
+                        ", " + MemesContract.Tables.TABLE_USER +
+                        " WHERE " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
+                        " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
+                        " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC";
 
-                retCursor = theDBHelper.getReadableDatabase().query(
-                        MemesContract.Tables.TABLE_MEME, // Table to Query
-                        projection, //Columns
-                        null, // Columns for the "where" clause
-                        null, // Values for the "where" clause
-                        null, // columns to group by
-                        null, // columns to filter by row groups
-                        sortOrder // sort order
-                );
+                retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,null);
+
                 Log.i(LOG_TAG, "Returning all memes for the feed");
                 Log.i(LOG_TAG, "Got " + retCursor.getCount() + " rows");
                 break;

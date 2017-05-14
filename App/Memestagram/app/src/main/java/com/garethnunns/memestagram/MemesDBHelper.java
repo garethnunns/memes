@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class MemesDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DB_VERSION = 9;
+    public static final int DB_VERSION = 15;
     public static final String DB_NAME = "memes.db";
 
     public SQLiteDatabase theDB;
@@ -25,7 +25,7 @@ public class MemesDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         theDB = db;
 
-        String sql = // create the meme table first
+        String meme = // create the meme table first
         "CREATE TABLE IF NOT EXISTS " +
         MemesContract.Tables.TABLE_MEME + " ( " +
         MemesContract.Tables.MEME_ID +
@@ -52,8 +52,10 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         " DECIMAL(10,6) NULL, " +
         MemesContract.Tables.MEME_OPOST +
         " INT NULL, " +
-        MemesContract.Tables.MEME_OPOSTER +
+        MemesContract.Tables.MEME_OPOSTER_ID +
         " INT NULL, " +
+        MemesContract.Tables.MEME_OPOSTER_USERNAME +
+        " VARCHAR(50) NULL, " +
         MemesContract.Tables.MEME_STARS_NUM +
         " INT NULL, " +
         MemesContract.Tables.MEME_COMMENTS_NUM +
@@ -66,10 +68,14 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         " TINYINT(1) NULL, " +
         MemesContract.Tables.MEME_REPOSTABLE +
         " TINYINT(1) NULL " +
-        ");" +
-        // then the user table
-        "CREATE TABLE IF NOT EXISTS " +
+        ");";
+
+        db.execSQL(meme);
+
+        String user = " CREATE TABLE IF NOT EXISTS " +
         MemesContract.Tables.TABLE_USER + " ( " +
+        MemesContract.Tables.USER_ID +
+        " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
         MemesContract.Tables.USER_IDUSER +
         " INT NOT NULL, " +
         MemesContract.Tables.USER_USERNAME +
@@ -87,8 +93,8 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.USER_YOU +
         " TINYINT(1) NULL" +
         ");";
+        db.execSQL(user);
 
-        db.execSQL(sql);
         Log.i("Memestagram","MemesDBHelper onCreate()");
     }
 

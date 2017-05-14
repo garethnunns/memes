@@ -10,25 +10,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/pad_lg"
-        android:layout_marginLeft="@dimen/pad_md"
-        android:layout_marginRight="@dimen/pad_md"
+        android:layout_marginLeft="@dimen/pad_lg"
+        android:layout_marginRight="@dimen/pad_lg"
         android:layout_marginTop="@dimen/pad_lg">
 
         <ImageView
             android:id="@+id/meme_pp"
-            android:layout_width="75sp"
-            android:layout_height="75sp"
+            android:layout_width="65sp"
+            android:layout_height="65sp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/pad_md"
+            android:layout_marginEnd="@dimen/pad_lg"
             android:contentDescription="@string/desc_pp" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/meme_ago"
-            android:layout_toEndOf="@+id/meme_pp">
+            android:layout_toEndOf="@+id/meme_pp"
+            android:layout_toStartOf="@+id/meme_ago">
 
             <TextView
                 android:id="@+id/meme_username"

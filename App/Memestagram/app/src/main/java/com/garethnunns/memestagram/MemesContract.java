@@ -24,7 +24,7 @@ public class MemesContract {
 
         // meme table
         public static final String TABLE_MEME = "meme";
-        public static final String PRE_MEME = "meme_";
+        public static final String PRE_MEME = TABLE_MEME + "_";
         public static final String MEME_ID = "_id"; // without the ID lots of things break
         public static final String MEME_IDMEME = PRE_MEME + "idmeme";
         public static final String MEME_IDUSER = PRE_MEME + "iduser";
@@ -37,7 +37,8 @@ public class MemesContract {
         public static final String MEME_LAT = PRE_MEME + "lat";
         public static final String MEME_LONG = PRE_MEME + "long";
         public static final String MEME_OPOST = PRE_MEME + "original_post";
-        public static final String MEME_OPOSTER = PRE_MEME + "original_poster";
+        public static final String MEME_OPOSTER_ID = PRE_MEME + "original_poster_iduser";
+        public static final String MEME_OPOSTER_USERNAME = PRE_MEME + "original_poster_username";
         public static final String MEME_STARS_NUM = PRE_MEME + "stars_num";
         public static final String MEME_COMMENTS_NUM = PRE_MEME + "comments_num";
         public static final String MEME_COMMENTS = PRE_MEME + "comments";
@@ -46,20 +47,22 @@ public class MemesContract {
         public static final String MEME_REPOSTABLE = PRE_MEME + "repostable";
 
         // users URI
-        public static final Uri USERS_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MEMES).build();
+        public static final Uri USERS_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();
         public static final String USERS_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
         public static final String USERS_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
 
         // user table
         public static final String TABLE_USER = "user";
-        public static final String USER_IDUSER = "_id";
-        public static final String USER_USERNAME = "username";
-        public static final String USER_FIRSTNAME = "firstName";
-        public static final String USER_SURNAME = "surname";
-        public static final String USER_NAME = "name";
-        public static final String USER_PIC = "pic";
-        public static final String USER_FOLLOWING = "isFollowing";
-        public static final String USER_YOU = "you";
+        public static final String PRE_USER = TABLE_USER + "_";
+        public static final String USER_ID = "_id";
+        public static final String USER_IDUSER = PRE_USER + "iduser";
+        public static final String USER_USERNAME = PRE_USER + "username";
+        public static final String USER_FIRSTNAME = PRE_USER + "firstName";
+        public static final String USER_SURNAME = PRE_USER + "surname";
+        public static final String USER_NAME = PRE_USER + "name";
+        public static final String USER_PIC = PRE_USER + "pic";
+        public static final String USER_FOLLOWING = PRE_USER + "isFollowing";
+        public static final String USER_YOU = PRE_USER + "you";
 
         public static Uri buildMemeUriWithID(long ID){
             return ContentUris.withAppendedId(MEMES_CONTENT_URI,ID);

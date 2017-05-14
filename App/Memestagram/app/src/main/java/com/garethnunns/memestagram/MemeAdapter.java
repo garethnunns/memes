@@ -37,7 +37,7 @@ public class MemeAdapter extends CursorAdapter {
         // load the user's profile picture
 
         // load the full image
-        final String ppURL = "http://memes-store.garethnunns.com/profile/user/1.png";
+        final String ppURL = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_PIC));
         final ImageView pp = (ImageView) view.findViewById(R.id.meme_pp);
         Picasso.with(context)
                 .load(ppURL)
@@ -60,16 +60,23 @@ public class MemeAdapter extends CursorAdapter {
                 });
 
         TextView username = (TextView) view.findViewById(R.id.meme_username);
-        username.setText("Username");
+        username.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME)));
+
+        Long o_post = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
 
         TextView posted = (TextView) view.findViewById(R.id.meme_posted);
-        posted.setText("Posted");
+        TextView name = (TextView) view.findViewById(R.id.meme_name);
+        if((o_post == null) || (o_post == 0)) {
+            posted.setText("Posted");
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
+        }
+        else {
+            posted.setText("Originally posted");
+            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_USERNAME)));
+        }
 
         TextView by = (TextView) view.findViewById(R.id.meme_by);
         by.setText(" by ");
-
-        TextView name = (TextView) view.findViewById(R.id.meme_name);
-        name.setText("Gareth Nunns");
 
         TextView ago = (TextView) view.findViewById(R.id.meme_ago);
         ago.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_AGO)));
