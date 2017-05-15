@@ -89,18 +89,9 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
                                 // get the memes
                                 JSONArray jsonMemes = jsonRes.getJSONArray("memes");
 
-                                // loop through the memes
-                                for (int i = 0; i < jsonMemes.length(); i++) {
-                                    // get this meme object
-                                    JSONObject jsonMeme = jsonMemes.getJSONObject(i);
-
-                                    // retrieve the poster object
-                                    JSONObject jsonPoster = jsonMeme.getJSONObject("poster");
-
-                                    memestagram.insertUser(MainActivity.this,jsonPoster);
-
-                                    memestagram.insertMeme(MainActivity.this,jsonMeme);
-                                }
+                                // loop through the memes and store them
+                                for (int i = 0; i < jsonMemes.length(); i++)
+                                    memestagram.insertMeme(MainActivity.this,jsonMemes.getJSONObject(i));
 
                                 getLoaderManager().restartLoader(MEMES_LOADER, null, MainActivity.this);
                             }

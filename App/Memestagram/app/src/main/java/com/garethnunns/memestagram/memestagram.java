@@ -62,6 +62,9 @@ class memestagram {
 
         JSONObject jsonPoster = jsonMeme.getJSONObject("poster");
 
+        // store the poster of this meme
+        memestagram.insertUser(context,jsonPoster);
+
         // see if it is an original post
         Object original = jsonMeme.get("original");
         if(original instanceof Boolean) {
@@ -69,6 +72,7 @@ class memestagram {
             // this might get fixed in a later API revision
             // if it's in this block then it's an original post
             // e.g. not a repost
+            meme.put(MemesContract.Tables.MEME_OPOST,0);
         }
         else {
             // a repost
