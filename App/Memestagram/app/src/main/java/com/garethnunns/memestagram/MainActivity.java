@@ -148,8 +148,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
                                      */
                                 }
 
-                                // TODO: make it notify
-                                adapter.notifyDataSetChanged();
+                                getLoaderManager().restartLoader(MEMES_LOADER, null, MainActivity.this);
                             }
                             else
                                 Toast.makeText(getApplicationContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
