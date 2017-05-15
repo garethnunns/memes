@@ -103,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         if(memestagram.loggedIn(getApplicationContext())) {
             Intent goFeed = new Intent(LoginActivity.this,MainActivity.class);
             startActivity(goFeed);
+            finish();
         }
     }
 
