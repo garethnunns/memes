@@ -40,7 +40,7 @@ public class MemeAdapter extends CursorAdapter {
                 .into(pp, new Callback() {
                     @Override
                     public void onSuccess() { // look in the cache
-                        Log.v("Picasso","Image found in the cache - " + ppURL);
+                        Log.i("Picasso","Image found in the cache - " + ppURL);
                     }
 
                     @Override
@@ -81,14 +81,14 @@ public class MemeAdapter extends CursorAdapter {
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));
         final ImageView image = (ImageView) view.findViewById(R.id.meme_image);
-        Picasso.with(context)
+        Picasso.with(context) // TODO: fix resizing of images
                 .load(full)
                 .networkPolicy(NetworkPolicy.OFFLINE) // try use the cache
                 .placeholder(R.drawable.loading)
                 .into(image, new Callback() {
                     @Override
                     public void onSuccess() { // look in the cache
-                        Log.v("Picasso","Image found in the cache - " + full);
+                        Log.i("Picasso","Image found in the cache - " + full);
                     }
 
                     @Override

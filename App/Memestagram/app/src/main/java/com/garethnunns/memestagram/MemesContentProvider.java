@@ -43,7 +43,7 @@ public class MemesContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        theDBHelper = new MemesDBHelper(getContext(),MemesDBHelper.DB_NAME,null,MemesDBHelper.DB_VERSION);
+        theDBHelper = new MemesDBHelper(getContext());
         Log.i(LOG_TAG, "onCreate()");
         return true;
     }

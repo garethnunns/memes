@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void feed() {
-        if(login.contains("key")) {
+        if(memestagram.loggedIn(getApplicationContext())) {
             Intent goFeed = new Intent(LoginActivity.this,MainActivity.class);
             startActivity(goFeed);
         }
@@ -166,8 +166,6 @@ public class LoginActivity extends AppCompatActivity {
                                     String key = jsonRes.getString("key");
                                     Integer id = jsonRes.getInt("user");
 
-                                    System.out.println("It worked!\nkey: "+key+"\nid: "+id);
-
                                     // store all of the data in a shared preferences file
                                     SharedPreferences.Editor loginEditor = login.edit();
 
@@ -181,6 +179,7 @@ public class LoginActivity extends AppCompatActivity {
                                     loginEditor.commit();
 
                                     feed();
+                                    showProgress(false);
                                 }
                                 else
                                     Toast.makeText(getApplicationContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
