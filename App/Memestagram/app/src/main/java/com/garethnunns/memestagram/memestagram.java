@@ -1,9 +1,14 @@
 package com.garethnunns.memestagram;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -33,5 +38,75 @@ class memestagram {
         Intent gologin = new Intent(context,LoginActivity.class);
         context.startActivity(gologin);
         ((Activity) context).finish();
+    }
+
+    public static Uri insertUser(Context context, JSONObject jsonUser) throws JSONException {
+        // inserts a user into the database
+        ContentValues user = new ContentValues();
+        user.put(MemesContract.Tables.USER_IDUSER, jsonUser.getString("iduser"));
+        user.put(MemesContract.Tables.USER_LINK, jsonUser.getString("link"));
+        user.put(MemesContract.Tables.USER_USERNAME, jsonUser.getString("username"));
+        user.put(MemesContract.Tables.USER_FIRSTNAME, jsonUser.getString("firstName"));
+        user.put(MemesContract.Tables.USER_SURNAME, jsonUser.getString("surname"));
+        user.put(MemesContract.Tables.USER_NAME, jsonUser.getString("name"));
+        user.put(MemesContract.Tables.USER_PIC, jsonUser.getString("pic"));
+        user.put(MemesContract.Tables.USER_FOLLOWING, jsonUser.getString("isFollowing"));
+        user.put(MemesContract.Tables.USER_YOU, jsonUser.getString("you"));
+
+        return context.getContentResolver().insert(MemesContract.Tables.USERS_CONTENT_URI, user);
+    }
+
+    public static Uri insertMeme(Context context, JSONObject jsonMeme) throws JSONException {
+        // inserts a meme into the databse
+        ContentValues meme = new ContentValues();
+
+        JSONObject jsonPoster = jsonMeme.getJSONObject("poster");
+
+        // see if it is an original post
+        Object original = jsonMeme.get("original");
+        if(original instanceof Boolean) {
+            // ideally your API wouldn't return different variable types...
+            // this might get fixed in a later API revision
+            // if it's in this block then it's an original post
+            // e.g. not a repost
+        }
+        else {
+            // a repost
+            JSONObject jsonOriginal = jsonMeme.getJSONObject("original");
+            JSONObject jsonOPoster = jsonOriginal.getJSONObject("poster");
+
+            memestagram.insertUser(context,jsonOPoster);
+
+            meme.put(MemesContract.Tables.MEME_OPOST,jsonOriginal.getString("idmeme"));
+            meme.put(MemesContract.Tables.MEME_OPOSTER_ID,jsonOPoster.getString("iduser"));
+            meme.put(MemesContract.Tables.MEME_OPOSTER_USERNAME,jsonOPoster.getString("username"));
+        }
+
+        // then store the meme
+        meme.put(MemesContract.Tables.MEME_IDMEME,jsonMeme.getString("idmeme"));
+        meme.put(MemesContract.Tables.MEME_IDUSER,jsonPoster.getString("iduser"));
+
+        // get the images object
+        JSONObject jsonImages = jsonMeme.getJSONObject("images");
+        meme.put(MemesContract.Tables.MEME_THUMB,jsonImages.getString("thumb"));
+        meme.put(MemesContract.Tables.MEME_FULL,jsonImages.getString("full"));
+
+        meme.put(MemesContract.Tables.MEME_LINK,jsonMeme.getString("link"));
+
+        // get the time object
+        JSONObject jsonTime = jsonMeme.getJSONObject("time");
+        meme.put(MemesContract.Tables.MEME_EPOCH,jsonTime.getString("epoch"));
+        meme.put(MemesContract.Tables.MEME_AGO,jsonTime.getString("ago"));
+
+        meme.put(MemesContract.Tables.MEME_CAPTION,jsonMeme.getString("caption"));
+        meme.put(MemesContract.Tables.MEME_STARS_NUM,jsonMeme.getString("stars-num"));
+        meme.put(MemesContract.Tables.MEME_COMMENTS_NUM,jsonMeme.getString("comments-num"));
+        meme.put(MemesContract.Tables.MEME_REPOSTS_NUM,jsonMeme.getString("reposts-num"));
+        meme.put(MemesContract.Tables.MEME_REPOSTED,jsonMeme.getString("reposted"));
+        meme.put(MemesContract.Tables.MEME_REPOSTABLE,jsonMeme.getString("repostable"));
+        meme.put(MemesContract.Tables.MEME_LAT,jsonMeme.getString("lat"));
+        meme.put(MemesContract.Tables.MEME_LONG,jsonMeme.getString("long"));
+
+        return context.getContentResolver().insert(MemesContract.Tables.MEMES_CONTENT_URI,meme);
     }
 }

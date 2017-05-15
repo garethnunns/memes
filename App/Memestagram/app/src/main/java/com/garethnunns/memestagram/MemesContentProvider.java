@@ -69,6 +69,8 @@ public class MemesContentProvider extends ContentProvider {
         Log.i(LOG_TAG, "insert()");
         Uri retUri = null;
 
+        // TODO: update instead of delete when it already exists
+
         switch(theUriMatcher.match(uri)) {
             case FEED:{ // same as an individual meme (below)
             }

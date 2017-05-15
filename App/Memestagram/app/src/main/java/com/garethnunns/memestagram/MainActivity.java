@@ -1,6 +1,5 @@
 package com.garethnunns.memestagram;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -62,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     }
 
     public void updateFeed(final int page) {
+        // TODO: add some sort of loading sign
+
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if(cm.getActiveNetworkInfo() == null
@@ -93,59 +94,12 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
                                     // get this meme object
                                     JSONObject jsonMeme = jsonMemes.getJSONObject(i);
 
-                                    // store the users to start off with
-
                                     // retrieve the poster object
                                     JSONObject jsonPoster = jsonMeme.getJSONObject("poster");
 
-                                    ContentValues poster = new ContentValues();
-                                    poster.put(MemesContract.Tables.USER_IDUSER,jsonPoster.getString("iduser"));
-                                    poster.put(MemesContract.Tables.USER_LINK,jsonPoster.getString("link"));
-                                    poster.put(MemesContract.Tables.USER_USERNAME,jsonPoster.getString("username"));
-                                    poster.put(MemesContract.Tables.USER_FIRSTNAME,jsonPoster.getString("firstName"));
-                                    poster.put(MemesContract.Tables.USER_SURNAME,jsonPoster.getString("surname"));
-                                    poster.put(MemesContract.Tables.USER_NAME,jsonPoster.getString("name"));
-                                    poster.put(MemesContract.Tables.USER_PIC,jsonPoster.getString("pic"));
-                                    poster.put(MemesContract.Tables.USER_FOLLOWING,jsonPoster.getString("isFollowing"));
-                                    poster.put(MemesContract.Tables.USER_YOU,jsonPoster.getString("you"));
+                                    memestagram.insertUser(MainActivity.this,jsonPoster);
 
-                                    getContentResolver().insert(MemesContract.Tables.USERS_CONTENT_URI,poster);
-
-                                    // TODO: store the original poster
-
-                                    // then store the meme
-                                    ContentValues meme = new ContentValues();
-                                    meme.put(MemesContract.Tables.MEME_IDMEME,jsonMeme.getString("idmeme"));
-                                    meme.put(MemesContract.Tables.MEME_IDUSER,jsonPoster.getString("iduser"));
-
-                                    // get the images object
-                                    JSONObject jsonImages = jsonMeme.getJSONObject("images");
-                                    meme.put(MemesContract.Tables.MEME_THUMB,jsonImages.getString("thumb"));
-                                    meme.put(MemesContract.Tables.MEME_FULL,jsonImages.getString("full"));
-
-                                    meme.put(MemesContract.Tables.MEME_LINK,jsonMeme.getString("link"));
-
-                                    // get the time object
-                                    JSONObject jsonTime = jsonMeme.getJSONObject("time");
-                                    meme.put(MemesContract.Tables.MEME_EPOCH,jsonTime.getString("epoch"));
-                                    meme.put(MemesContract.Tables.MEME_AGO,jsonTime.getString("ago"));
-
-                                    meme.put(MemesContract.Tables.MEME_CAPTION,jsonMeme.getString("caption"));
-                                    meme.put(MemesContract.Tables.MEME_STARS_NUM,jsonMeme.getString("stars-num"));
-                                    meme.put(MemesContract.Tables.MEME_COMMENTS_NUM,jsonMeme.getString("comments-num"));
-                                    meme.put(MemesContract.Tables.MEME_REPOSTS_NUM,jsonMeme.getString("reposts-num"));
-                                    meme.put(MemesContract.Tables.MEME_REPOSTED,jsonMeme.getString("reposted"));
-                                    meme.put(MemesContract.Tables.MEME_REPOSTABLE,jsonMeme.getString("repostable"));
-
-                                    getContentResolver().insert(MemesContract.Tables.MEMES_CONTENT_URI,meme);
-
-                                    /*
-                                    public static final String MEME_LAT = PRE_MEME + "lat";
-                                    public static final String MEME_LONG = PRE_MEME + "long";
-                                    public static final String MEME_OPOST = PRE_MEME + "original_post";
-                                    public static final String MEME_OPOSTER_ID = PRE_MEME + "original_poster_iduser";
-                                    public static final String MEME_OPOSTER_USERNAME = PRE_MEME + "original_poster_username";
-                                     */
+                                    memestagram.insertMeme(MainActivity.this,jsonMeme);
                                 }
 
                                 getLoaderManager().restartLoader(MEMES_LOADER, null, MainActivity.this);
