@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
 
                                     // get the images object
                                     JSONObject jsonImages = jsonMeme.getJSONObject("images");
-                                    meme.put(MemesContract.Tables.MEME_THUMB,jsonImages.getString("full"));
-                                    meme.put(MemesContract.Tables.MEME_FULL,jsonImages.getString("thumb"));
+                                    meme.put(MemesContract.Tables.MEME_THUMB,jsonImages.getString("thumb"));
+                                    meme.put(MemesContract.Tables.MEME_FULL,jsonImages.getString("full"));
 
                                     meme.put(MemesContract.Tables.MEME_LINK,jsonMeme.getString("link"));
 

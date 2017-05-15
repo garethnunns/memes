@@ -81,7 +81,7 @@ public class MemeAdapter extends CursorAdapter {
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));
         final ImageView image = (ImageView) view.findViewById(R.id.meme_image);
-        Picasso.with(context) // TODO: fix resizing of images
+        Picasso.with(context)
                 .load(full)
                 .networkPolicy(NetworkPolicy.OFFLINE) // try use the cache
                 .placeholder(R.drawable.loading)
@@ -100,5 +100,7 @@ public class MemeAdapter extends CursorAdapter {
                                 .into(image);
                     }
                 });
+
+        // TODO: add action buttons
     }
 }
