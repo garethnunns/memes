@@ -5,20 +5,29 @@
     <string name="error_no_connection">There is currently no internet conneciton</string>
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
 
-    <!-- outputting a meme -->
+    <!-- actions -->
+    <string name="Refresh">Refresh</string>
+    <string name="Share">Share</string>
+    <string name="Logout">Logout</string>
+
+    <!-- related to a meme -->
     <string name="desc_pp">User\'s profile picture</string>
     <string name="desc_meme">The meme posted by the user</string>
     <string name="posted">Posted</string>
     <string name="originally_posted">Originally posted</string>
     <string name="by">by</string>
+    <string name="Starred">Starred</string>
 
-    <!-- resources -->
-    <string name="web">http://memes.garethnunns.com/</string>
-    <string name="api">http://memes.garethnunns.com/api/0.1/</string>
-
-    <!-- Strings related to login -->
+    <!-- login -->
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="error_field_required">This field is required</string>
+
+    <!-- settings -->
+    <string name="Settings">Settings</string>
+
+    <!-- resources -->
+    <string name="web">http://memes.garethnunns.com/</string>
+    <string name="api">http://memes.garethnunns.com/api/0.1/</string>
 </resources>

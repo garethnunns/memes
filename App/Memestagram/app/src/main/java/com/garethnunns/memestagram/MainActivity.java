@@ -9,6 +9,9 @@ import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     //The Loader ID, defined by developers, a loader is registered with the LoaderManager using this ID
     private static final int MEMES_LOADER = 1;
 
-    private int page = 0;
+    private int currentPage = 0;
     private SharedPreferences login;
 
     @Override
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         setContentView(R.layout.activity_main);
 
         if(!memestagram.loggedIn(getApplicationContext()))
-            memestagram.logout(getApplicationContext());
+            memestagram.logout(getApplicationContext(),this);
 
         login = memestagram.getLogin(getApplicationContext());
 
@@ -55,9 +58,45 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         ListView lv = (ListView) findViewById(R.id.memes_list);
         lv.setAdapter(adapter);
 
-        updateFeed(page);
+        updateFeed(currentPage);
+    }
 
-        // TODO: implement logout button
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actions,menu);
+
+        // for the main meme feed
+        // it's one of the activities where
+        // we don't want to show the share button
+        menu.findItem(R.id.action_share).setVisible(false);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                updateFeed(0);
+                break;
+
+            case R.id.action_starred:
+                Toast.makeText(this, "Starred selected", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.action_settings:
+                Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.action_logout:
+                memestagram.logout(getApplicationContext(),this);
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
     }
 
     public void updateFeed(final int page) {

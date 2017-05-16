@@ -31,13 +31,14 @@ class memestagram {
         return true;
     }
 
-    public static void logout(Context context) {
+    public static void logout(Context context, Activity activity) {
         // logs the user out
         SharedPreferences login = getLogin(context);
         login.edit().clear().commit();
         Intent gologin = new Intent(context,LoginActivity.class);
+        gologin.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(gologin);
-        ((Activity) context).finish();
+        activity.finish();
     }
 
     public static Uri insertUser(Context context, JSONObject jsonUser) throws JSONException {
