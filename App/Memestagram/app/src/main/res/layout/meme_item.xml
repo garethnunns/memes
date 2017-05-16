@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/meme_full"
     android:layout_width="match_parent"
@@ -103,4 +104,93 @@
         android:textColor="@color/black"
         android:textSize="@dimen/font_md"
         tools:text="Caption" />
+
+    <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/meme_caption"
+        android:layout_marginTop="@dimen/pad_md">
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/meme_comments"
+            android:layout_height="wrap_content"
+            app:layout_widthPercent="33%">
+
+            <ImageView
+                android:id="@+id/meme_ic_comment"
+                android:layout_centerHorizontal="true"
+                android:contentDescription="@string/desc_comment"
+                android:gravity="center"
+                android:src="@drawable/grey_comment"
+                app:layout_aspectRatio="100%"
+                app:layout_widthPercent="40%" />
+
+            <TextView
+                android:id="@+id/meme_comments_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/meme_ic_comment"
+                android:layout_margin="@dimen/pad_md"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text="x comments" />
+        </android.support.percent.PercentRelativeLayout>
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/meme_stars"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/meme_comments"
+            app:layout_widthPercent="33%">
+
+            <ImageView
+                android:id="@+id/meme_ic_star"
+                android:layout_centerHorizontal="true"
+                android:contentDescription="@string/desc_star"
+                android:gravity="center"
+                android:src="@drawable/grey_star_empty"
+                app:layout_aspectRatio="100%"
+                app:layout_widthPercent="40%" />
+
+            <TextView
+                android:id="@+id/meme_stars_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/meme_ic_star"
+                android:layout_margin="@dimen/pad_md"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text="y stars" />
+        </android.support.percent.PercentRelativeLayout>
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/meme_reposts"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/meme_stars"
+            app:layout_widthPercent="33%">
+
+            <ImageView
+                android:id="@+id/meme_ic_repost"
+                android:layout_centerHorizontal="true"
+                android:contentDescription="@string/desc_star"
+                android:gravity="center"
+                android:src="@drawable/grey_repost"
+                app:layout_aspectRatio="100%"
+                app:layout_widthPercent="40%" />
+
+            <TextView
+                android:id="@+id/meme_reposts_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/meme_ic_repost"
+                android:layout_margin="@dimen/pad_md"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md"
+                tools:text="z repost" />
+        </android.support.percent.PercentRelativeLayout>
+    </android.support.percent.PercentRelativeLayout>
+
 </RelativeLayout>

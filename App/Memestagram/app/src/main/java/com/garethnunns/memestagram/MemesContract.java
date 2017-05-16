@@ -42,8 +42,12 @@ public class MemesContract {
         public static final String MEME_OPOSTER_ID = PRE_MEME + "original_poster_iduser";
         public static final String MEME_OPOSTER_USERNAME = PRE_MEME + "original_poster_username";
         public static final String MEME_STARS_NUM = PRE_MEME + "stars_num";
+        public static final String MEME_STARS_STR = PRE_MEME + "stars_str";
+        public static final String MEME_STARRED = PRE_MEME + "starred";
         public static final String MEME_COMMENTS_NUM = PRE_MEME + "comments_num";
+        public static final String MEME_COMMENTS_STR = PRE_MEME + "comments_str";
         public static final String MEME_REPOSTS_NUM = PRE_MEME + "reposts_num";
+        public static final String MEME_REPOSTS_STR = PRE_MEME + "reposts_str";
         public static final String MEME_REPOSTED = PRE_MEME + "reposted";
         public static final String MEME_REPOSTABLE = PRE_MEME + "repostable";
 

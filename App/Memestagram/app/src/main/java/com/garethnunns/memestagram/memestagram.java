@@ -10,6 +10,7 @@ import android.net.Uri;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -112,11 +113,19 @@ class memestagram {
         meme.put(MemesContract.Tables.MEME_AGO,jsonTime.getString("ago"));
 
         meme.put(MemesContract.Tables.MEME_CAPTION,jsonMeme.getString("caption"));
+
         meme.put(MemesContract.Tables.MEME_STARS_NUM,jsonMeme.getString("stars-num"));
+        meme.put(MemesContract.Tables.MEME_STARS_STR,jsonMeme.getString("stars-str"));
+        meme.put(MemesContract.Tables.MEME_STARRED,jsonMeme.getString("starred"));
+
         meme.put(MemesContract.Tables.MEME_COMMENTS_NUM,jsonMeme.getString("comments-num"));
+        meme.put(MemesContract.Tables.MEME_COMMENTS_STR,jsonMeme.getString("comments-str"));
+
         meme.put(MemesContract.Tables.MEME_REPOSTS_NUM,jsonMeme.getString("reposts-num"));
+        meme.put(MemesContract.Tables.MEME_REPOSTS_STR,jsonMeme.getString("reposts-str"));
         meme.put(MemesContract.Tables.MEME_REPOSTED,jsonMeme.getString("reposted"));
         meme.put(MemesContract.Tables.MEME_REPOSTABLE,jsonMeme.getString("repostable"));
+
         meme.put(MemesContract.Tables.MEME_LAT,jsonMeme.getString("lat"));
         meme.put(MemesContract.Tables.MEME_LONG,jsonMeme.getString("long"));
 

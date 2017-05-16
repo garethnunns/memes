@@ -2,6 +2,7 @@ package com.garethnunns.memestagram;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,9 +77,6 @@ public class MemeAdapter extends CursorAdapter {
         TextView ago = (TextView) view.findViewById(R.id.meme_ago);
         ago.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_AGO)));
 
-        TextView caption = (TextView) view.findViewById(R.id.meme_caption);
-        caption.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_CAPTION)));
-
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));
         final ImageView image = (ImageView) view.findViewById(R.id.meme_image);
@@ -102,6 +100,27 @@ public class MemeAdapter extends CursorAdapter {
                     }
                 });
 
-        // TODO: add action buttons
+        TextView caption = (TextView) view.findViewById(R.id.meme_caption);
+        String strCaption = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_CAPTION));
+        if(TextUtils.isEmpty(strCaption))
+            caption.setVisibility(View.GONE);
+        else {
+            caption.setVisibility(View.VISIBLE);
+            caption.setText(strCaption);
+        }
+
+        // TODO: make image do something
+
+        TextView comments_num = (TextView) view.findViewById(R.id.meme_comments_num);
+        comments_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_NUM)) +
+                " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_STR)));
+
+        TextView stars_num = (TextView) view.findViewById(R.id.meme_stars_num);
+        stars_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARS_NUM)) +
+                " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARS_STR)));
+
+        TextView reposts_num = (TextView) view.findViewById(R.id.meme_reposts_num);
+        reposts_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTS_NUM)) +
+                " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTS_STR)));
     }
 }

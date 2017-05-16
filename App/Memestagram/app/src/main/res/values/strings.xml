@@ -12,10 +12,13 @@
 
     <!-- related to a meme -->
     <string name="desc_pp">User\'s profile picture</string>
-    <string name="desc_meme">The meme posted by the user</string>
     <string name="posted">Posted</string>
     <string name="originally_posted">Originally posted</string>
     <string name="by">by</string>
+    <string name="desc_meme">The meme posted by the user</string>
+    <string name="desc_comment">Comment icon</string>
+    <string name="desc_star">Star icon</string>
+    <string name="desc_repost">Repost icon</string>
     <string name="Starred">Starred</string>
 
     <!-- login -->
