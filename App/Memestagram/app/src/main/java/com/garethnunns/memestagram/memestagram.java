@@ -33,8 +33,16 @@ class memestagram {
 
     public static void logout(Context context, Activity activity) {
         // logs the user out
+
+        // removes their login details
         SharedPreferences login = getLogin(context);
         login.edit().clear().commit();
+
+        // remove all the memes and users as this data is specific to that user
+        MemesDBHelper theDBHelper = new MemesDBHelper(context);
+        theDBHelper.clearMeme();
+        theDBHelper.clearUser();
+
         Intent gologin = new Intent(context,LoginActivity.class);
         gologin.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(gologin);

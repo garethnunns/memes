@@ -15,6 +15,8 @@ public class MemesContract {
     public static final String PATH_MEMES = "memes";
     public static final String PATH_USERS = "users";
 
+    // TODO: create feed, hot, starred, profile tables
+
     /* Inner class that defines the meme table contents */
     public static class Tables implements BaseColumns {
         // memes URI
