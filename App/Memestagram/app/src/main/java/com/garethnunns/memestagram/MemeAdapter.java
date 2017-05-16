@@ -16,6 +16,7 @@ import com.squareup.picasso.Picasso;
 
 /**
  * Created by gareth on 12/05/2017.
+ * output the memes in a list in the style of meme_item.xml
  */
 
 public class MemeAdapter extends CursorAdapter {
@@ -60,17 +61,17 @@ public class MemeAdapter extends CursorAdapter {
 
         TextView posted = (TextView) view.findViewById(R.id.meme_posted);
         TextView name = (TextView) view.findViewById(R.id.meme_name);
-        if((o_post == null) || (o_post == 0)) {
-            posted.setText("Posted");
+        if(o_post == 0) {
+            posted.setText(R.string.posted);
             name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
         }
         else {
-            posted.setText("Originally posted");
+            posted.setText(R.string.originally_posted);
             name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_USERNAME)));
         }
 
         TextView by = (TextView) view.findViewById(R.id.meme_by);
-        by.setText(" by ");
+        by.setText(" "+context.getString(R.string.by)+" ");
 
         TextView ago = (TextView) view.findViewById(R.id.meme_ago);
         ago.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_AGO)));
