@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         // init the loader
         getLoaderManager().initLoader(MEMES_LOADER, null, this);
 
-        adapter = new MemeAdapter(getApplicationContext(),null);
+        adapter = new MemeAdapter(getApplicationContext(),null, MainActivity.this);
         //bind the adapter to the listview
         ListView lv = (ListView) findViewById(R.id.memes_list);
         lv.setAdapter(adapter);
@@ -122,9 +122,6 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
                             JSONObject jsonRes = new JSONObject(response);
                             Boolean success = jsonRes.getBoolean("success");
                             if(success) {
-                                //String key = jsonRes.getString("key");
-                                //Integer id = jsonRes.getInt("user");
-
                                 // get the memes
                                 JSONArray jsonMemes = jsonRes.getJSONArray("memes");
 

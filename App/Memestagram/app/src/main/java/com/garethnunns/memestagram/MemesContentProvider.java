@@ -124,11 +124,15 @@ public class MemesContentProvider extends ContentProvider {
 
         switch(theUriMatcher.match(uri)) {
             case FEED:{
+                SQLiteDatabase db = theDBHelper.getWritableDatabase();
+                return db.update(MemesContract.Tables.TABLE_MEME,values,selection,selectionArgs);
             }
             case MEME:{
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
-                String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
-                return db.update(MemesContract.Tables.TABLE_MEME,values,MemesContract.Tables.MEME_IDMEME+"=?",args);
+                Long id = ContentUris.parseId(uri);
+                Log.i(LOG_TAG, ""+id);
+                String[] args = new String[] {String.valueOf(id)};
+                return db.update(MemesContract.Tables.TABLE_MEME,values,MemesContract.Tables.MEME_IDMEME+" = ?",args);
             }
             case USERS: {
             }

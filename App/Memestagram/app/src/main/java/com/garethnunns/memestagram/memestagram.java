@@ -6,10 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -130,5 +139,57 @@ class memestagram {
         meme.put(MemesContract.Tables.MEME_LONG,jsonMeme.getString("long"));
 
         return context.getContentResolver().insert(MemesContract.Tables.MEMES_CONTENT_URI,meme);
+    }
+
+    public static void star(final Context context, final Activity a, final Integer loader, final Integer idmeme) {
+        // stars a meme with idmeme, then updates the loader
+
+        final SharedPreferences login = getLogin(context);
+
+        String url = context.getString(R.string.api) + "star";
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonRes = new JSONObject(response);
+                            Boolean success = jsonRes.getBoolean("success");
+                            if(success) {
+                                ContentValues values = new ContentValues();
+                                values.put(MemesContract.Tables.MEME_STARRED,jsonRes.getString("starred"));
+                                values.put(MemesContract.Tables.MEME_STARS_NUM,jsonRes.getString("stars-num"));
+                                values.put(MemesContract.Tables.MEME_STARS_STR,jsonRes.getString("stars-str"));
+
+                                context.getContentResolver().update(MemesContract.Tables.buildMemeUriWithID(idmeme),values,null,null);
+
+                                a.getLoaderManager().restartLoader(loader, null, (android.app.LoaderManager.LoaderCallbacks<?>) a);
+                            }
+                            else
+                                Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                        } catch (JSONException e) {
+                            System.out.println(response);
+                            Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("key", login.getString("key",""));
+                params.put("id", String.valueOf(idmeme));
+                return params;
+            }
+        };
+        Volley.newRequestQueue(context).add(postRequest);
     }
 }
