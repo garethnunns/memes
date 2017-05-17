@@ -1,7 +1,11 @@
 package com.garethnunns.memestagram;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -38,15 +42,28 @@ import java.util.Map;
 
 
 public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
+    // also loader numbers
+    public static final int FEED = 1;
+    public static final int HOT = 2;
+
+    private static final String ARG_TYPE = "arg_type";
+
+    private int type;
+
     MemeAdapter adapter;
 
-    private static final int MEMES_LOADER = 1;
     private int currentPage = 0;
     private SharedPreferences login;
     private boolean updating = false;
 
-    public FeedFragment() {
-        // Required empty public constructor
+    public static Fragment newInstance(int feedType) {
+        if((feedType != FEED) && (feedType != HOT))
+            feedType = FEED;
+        Fragment frag = new FeedFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_TYPE, feedType);
+        frag.setArguments(args);
+        return frag;
     }
 
     public static FeedFragment newInstance() {
@@ -76,32 +93,46 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //bind the adapter to the listview
-        if(savedInstanceState == null) {
-            // clear the existing feed
-            ContentValues clear = new ContentValues();
-            clear.put(MemesContract.Tables.MEME_FEED,0);
-            getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
-
-            // init the loader
-            getLoaderManager().initLoader(MEMES_LOADER, null,this);
-
-            adapter = new MemeAdapter(getContext(), null, getActivity(), MEMES_LOADER, FeedFragment.this, this);
-
-            updateFeed(currentPage);
-
-            ListView lv = (ListView) view.findViewById(R.id.memes_list);
-            lv.setAdapter(adapter);
+        if(savedInstanceState != null) {
+            type = savedInstanceState.getInt(ARG_TYPE);
         }
+        else {
+            Bundle args = getArguments();
+            type = args.getInt(ARG_TYPE);
+        }
+
+        // clear the existing feed
+        ContentValues clear = new ContentValues();
+        switch(type) {
+            case FEED:
+                clear.put(MemesContract.Tables.MEME_FEED, 0);
+                break;
+            case HOT:
+                clear.put(MemesContract.Tables.MEME_HOT, 0);
+                break;
+        }
+        getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
+
+        // init the loader
+        getLoaderManager().initLoader(type, null,this);
+
+        adapter = new MemeAdapter(getContext(), null, getActivity(), type, FeedFragment.this, this);
+
+        updateFeed(currentPage, view);
+
+        //bind the adapter to the listview
+        ListView lv = (ListView) view.findViewById(R.id.memes_list);
+        lv.setAdapter(adapter);
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(ARG_TYPE,type);
         // TODO store scroll position
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void updateFeed(final int page) {
+    public void updateFeed(final int page, View view) {
         // TODO: add some sort of loading sign
 
         if(updating) // prevent lots of web calls
@@ -118,7 +149,24 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
         updating = true;
 
-        String url = getString(R.string.api) + "feed";
+        TextView found = (TextView) view.findViewById(R.id.found);
+
+        final View progress = view.findViewById(R.id.feed_progress);
+        showProgress(progress);
+
+        String url;
+
+        switch(type) {
+            case FEED:
+                url = getString(R.string.api) + "feed";
+                break;
+            case HOT:
+                url = getString(R.string.api) + "hot";
+                break;
+            default:
+                url = getString(R.string.api) + "feed";
+                break;
+        }
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -135,11 +183,19 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                 for (int i = 0; i < jsonMemes.length(); i++) {
                                     Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
                                     ContentValues feed = new ContentValues();
+                                    switch(type) {
+                                        case FEED:
+                                            feed.put(MemesContract.Tables.MEME_FEED,1);
+                                            break;
+                                        case HOT:
+                                            feed.put(MemesContract.Tables.MEME_HOT,1);
+                                            break;
+                                    }
                                     feed.put(MemesContract.Tables.MEME_FEED,1);
                                     getContext().getContentResolver().update(added,feed,null,null);
                                 }
 
-                                getLoaderManager().restartLoader(MEMES_LOADER, null, FeedFragment.this);
+                                getLoaderManager().restartLoader(type, null, FeedFragment.this);
                             }
                             else
                                 Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
@@ -148,6 +204,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                             Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
                         }
                         updating = false;
+                        showProgress(progress);
                     }
                 },
                 new Response.ErrorListener() {
@@ -155,6 +212,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
                         updating = false;
+                        showProgress(progress);
                     }
                 }
         ) {
@@ -169,6 +227,29 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
             }
         };
         Volley.newRequestQueue(getContext()).add(postRequest);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final View progressView) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            progressView.setVisibility(updating ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    updating ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(updating ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(updating ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override
@@ -208,7 +289,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                updateFeed(0);
+                updateFeed(0,getView());
                 break;
         }
 

@@ -124,7 +124,7 @@
                 android:gravity="center"
                 android:src="@drawable/grey_comment"
                 app:layout_aspectRatio="100%"
-                app:layout_widthPercent="40%" />
+                app:layout_widthPercent="35%" />
 
             <TextView
                 android:id="@+id/meme_comments_num"
@@ -151,7 +151,7 @@
                 android:gravity="center"
                 android:src="@drawable/grey_star_empty"
                 app:layout_aspectRatio="100%"
-                app:layout_widthPercent="40%" />
+                app:layout_widthPercent="35%" />
 
             <TextView
                 android:id="@+id/meme_stars_num"
