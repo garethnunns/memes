@@ -15,6 +15,7 @@ public class MemesContract {
     public static final String PATH_MEMES = "memes";
     public static final String PATH_USERS = "users";
     public static final String PATH_FEED = "feed";
+    public static final String PATH_HOT = "hot";
 
     // TODO: create feed, hot, starred, profile tables
 
@@ -24,6 +25,16 @@ public class MemesContract {
         public static final Uri MEMES_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MEMES).build();
         public static final String MEMES_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
         public static final String MEMES_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
+
+        // feed URI
+        public static final Uri FEED_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FEED).build();
+        public static final String FEED_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_FEED;
+        public static final String FEED_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_FEED;
+
+        // hot URI
+        public static final Uri HOT_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_HOT).build();
+        public static final String HOT_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_HOT;
+        public static final String HOT_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_HOT;
 
         // meme table
         public static final String TABLE_MEME = "meme";
@@ -56,8 +67,8 @@ public class MemesContract {
 
         // users URI
         public static final Uri USERS_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();
-        public static final String USERS_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
-        public static final String USERS_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_MEMES;
+        public static final String USERS_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_USERS;
+        public static final String USERS_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_USERS;
 
         // user table
         public static final String TABLE_USER = "user";
@@ -75,6 +86,14 @@ public class MemesContract {
 
         public static Uri buildMemeUriWithID(long ID){
             return ContentUris.withAppendedId(MEMES_CONTENT_URI,ID);
+        }
+
+        public static Uri buildFeedUriWithID(long ID){
+            return ContentUris.withAppendedId(FEED_CONTENT_URI,ID);
+        }
+
+        public static Uri buildHotUriWithID(long ID){
+            return ContentUris.withAppendedId(HOT_CONTENT_URI,ID);
         }
 
         public static Uri buildUserUriWithID(long ID){

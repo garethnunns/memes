@@ -3,6 +3,7 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Build;
@@ -102,16 +103,14 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         }
 
         // clear the existing feed
-        ContentValues clear = new ContentValues();
         switch(type) {
             case FEED:
-                clear.put(MemesContract.Tables.MEME_FEED, 0);
+                getContext().getContentResolver().delete(MemesContract.Tables.FEED_CONTENT_URI,null,null);
                 break;
             case HOT:
-                clear.put(MemesContract.Tables.MEME_HOT, 0);
+                getContext().getContentResolver().delete(MemesContract.Tables.HOT_CONTENT_URI,null,null);
                 break;
         }
-        getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
 
         // init the loader
         getLoaderManager().initLoader(type, null,this);
@@ -149,8 +148,6 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
         updating = true;
 
-        TextView found = (TextView) view.findViewById(R.id.found);
-
         final View progress = view.findViewById(R.id.feed_progress);
         showProgress(progress);
 
@@ -164,9 +161,11 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 url = getString(R.string.api) + "hot";
                 break;
             default:
-                url = getString(R.string.api) + "feed";
+                url = getString(R.string.api);
                 break;
         }
+
+        Log.i("Updating memes",type+": "+url);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -182,17 +181,15 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                 // loop through the memes and store them
                                 for (int i = 0; i < jsonMemes.length(); i++) {
                                     Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
-                                    ContentValues feed = new ContentValues();
+                                    long id = ContentUris.parseId(added);
                                     switch(type) {
                                         case FEED:
-                                            feed.put(MemesContract.Tables.MEME_FEED,1);
+                                            getContext().getContentResolver().insert(MemesContract.Tables.buildFeedUriWithID(id),null);
                                             break;
                                         case HOT:
-                                            feed.put(MemesContract.Tables.MEME_HOT,1);
+                                            getContext().getContentResolver().insert(MemesContract.Tables.buildHotUriWithID(id),null);
                                             break;
                                     }
-                                    feed.put(MemesContract.Tables.MEME_FEED,1);
-                                    getContext().getContentResolver().update(added,feed,null,null);
                                 }
 
                                 getLoaderManager().restartLoader(type, null, FeedFragment.this);
@@ -254,7 +251,15 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        CursorLoader loader = new CursorLoader(getContext(),MemesContract.Tables.MEMES_CONTENT_URI,null,null,null,null);
+        CursorLoader loader = null;
+        switch(type) {
+            case FEED:
+                loader = new CursorLoader(getContext(),MemesContract.Tables.FEED_CONTENT_URI,null,null,null,null);
+                break;
+            case HOT:
+                loader = new CursorLoader(getContext(),MemesContract.Tables.HOT_CONTENT_URI,null,null,null,null);
+                break;
+        }
         Log.i("loader", "onCreateLoader");
         return loader;
     }
@@ -293,6 +298,6 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 break;
         }
 
-        return true;
+        return false;
     }
 }
