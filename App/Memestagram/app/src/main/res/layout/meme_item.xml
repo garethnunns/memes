@@ -178,7 +178,7 @@
                 android:gravity="center"
                 android:src="@drawable/grey_repost"
                 app:layout_aspectRatio="100%"
-                app:layout_widthPercent="40%" />
+                app:layout_widthPercent="35%" />
 
             <TextView
                 android:id="@+id/meme_reposts_num"

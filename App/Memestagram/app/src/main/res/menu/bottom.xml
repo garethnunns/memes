@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_feed"
+        android:title="@string/Feed"
+        android:icon="@drawable/ic_action_feed" />
+
+    <item
+        android:id="@+id/bottom_hot"
+        android:title="@string/Hot"
+        android:icon="@drawable/ic_action_hot" />
+
+    <item
+        android:id="@+id/bottom_add"
+        android:title="@string/Add"
+        android:icon="@drawable/ic_action_add" />
+
+    <item
+        android:id="@+id/notifications"
+        android:title="@string/Notifications"
+        android:icon="@drawable/ic_action_notifications" />
+
+    <item
+        android:id="@+id/profile"
+        android:title="@string/Profile"
+        android:icon="@drawable/pp" />
+</menu>

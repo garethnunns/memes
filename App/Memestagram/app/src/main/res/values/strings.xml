@@ -10,6 +10,11 @@
     <string name="Refresh">Refresh</string>
     <string name="Share">Share</string>
     <string name="Logout">Logout</string>
+    <string name="Feed">Feed</string>
+    <string name="Hot">Hot</string>
+    <string name="Add">Add</string>
+    <string name="Notifications">Notifications</string>
+    <string name="Profile">Profile</string>
 
     <!-- related to a meme -->
     <string name="desc_pp">User\'s profile picture</string>
