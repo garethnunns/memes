@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
         // init the loader
         getLoaderManager().initLoader(MEMES_LOADER, null, this);
 
-        adapter = new MemeAdapter(getApplicationContext(),null, MainActivity.this);
+        adapter = new MemeAdapter(getApplicationContext(),null, MainActivity.this, MEMES_LOADER);
         //bind the adapter to the listview
         ListView lv = (ListView) findViewById(R.id.memes_list);
         lv.setAdapter(adapter);

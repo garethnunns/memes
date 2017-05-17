@@ -1,11 +1,15 @@
 package com.garethnunns.memestagram;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.InputType;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -191,5 +195,35 @@ class memestagram {
             }
         };
         Volley.newRequestQueue(context).add(postRequest);
+    }
+
+    public static void repost(Context context, final Activity a, final Integer loader, final Integer idmeme) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(a);
+        builder.setTitle(context.getString(R.string.Repost));
+        builder.setMessage(context.getString(R.string.repost_prompt));
+
+        // Set up the input
+        final EditText input = new EditText(context);
+        // Specify the type of input expected
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(context.getString(R.string.Repost), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String caption = input.getText().toString();
+
+                // TODO: connect to API
+            }
+        });
+        builder.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 }

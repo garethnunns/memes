@@ -23,10 +23,12 @@ import com.squareup.picasso.Picasso;
 
 public class MemeAdapter extends CursorAdapter {
     private Activity activity;
+    private Integer loader;
 
-    public MemeAdapter(Context context, Cursor cursor, Activity a) {
+    public MemeAdapter(Context context, Cursor cursor, Activity a, Integer l) {
         super(context, cursor, 0);
         activity = a;
+        loader = l;
     }
 
     @Override
@@ -112,13 +114,9 @@ public class MemeAdapter extends CursorAdapter {
             caption.setText(strCaption);
         }
 
-        // TODO: make image do something on tap
-
         TextView comments_num = (TextView) view.findViewById(R.id.meme_comments_num);
         comments_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_NUM)) +
                 " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_STR)));
-
-        final Activity theActivity = activity;
 
         final ImageView ic_stars = (ImageView) view.findViewById(R.id.meme_ic_star);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARRED)) == 1)
@@ -132,7 +130,7 @@ public class MemeAdapter extends CursorAdapter {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        memestagram.star(context, theActivity, 1, (Integer) v.getTag());
+                        memestagram.star(context, activity, loader, (Integer) v.getTag());
                     }
                 }
         );
@@ -144,6 +142,19 @@ public class MemeAdapter extends CursorAdapter {
         ImageView ic_reposts = (ImageView) view.findViewById(R.id.meme_ic_repost);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTED)) == 1)
             ic_reposts.setImageResource(R.drawable.blue_repost);
+
+        if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTABLE)) == 1) {
+            ic_reposts.setClickable(true);
+            ic_reposts.setTag(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_IDMEME)));
+            ic_reposts.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            memestagram.repost(context, activity, loader, (Integer) v.getTag());
+                        }
+                    }
+            );
+        }
 
         TextView reposts_num = (TextView) view.findViewById(R.id.meme_reposts_num);
         reposts_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTS_NUM)) +

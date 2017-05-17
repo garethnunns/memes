@@ -4,6 +4,7 @@
     <string name="error_internal">There was an internal error</string>
     <string name="error_no_connection">There is currently no internet conneciton</string>
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
+    <string name="Cancel">Cancel</string>
 
     <!-- actions -->
     <string name="Refresh">Refresh</string>
@@ -20,6 +21,8 @@
     <string name="desc_star">Star icon</string>
     <string name="desc_repost">Repost icon</string>
     <string name="Starred">Starred</string>
+    <string name="Repost">Repost</string>
+    <string name="repost_prompt">Add a caption or just hit repost</string>
 
     <!-- login -->
     <string name="prompt_username">Username</string>
