@@ -86,7 +86,7 @@ public class MemesContentProvider extends ContentProvider {
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 long _id = db.insert(MemesContract.Tables.TABLE_MEME,null,values);
                 if (_id > 0)
-                    retUri = MemesContract.Tables.buildMemeUriWithID(_id);
+                    retUri = MemesContract.Tables.buildMemeUriWithID(values.getAsLong(MemesContract.Tables.MEME_IDMEME));
                 else
                     throw new SQLException("Failed to insert meme");
                 break;
@@ -130,16 +130,20 @@ public class MemesContentProvider extends ContentProvider {
             case MEME:{
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
                 Long id = ContentUris.parseId(uri);
-                Log.i(LOG_TAG, ""+id);
+                Log.i(LOG_TAG, "Updating meme "+id);
                 String[] args = new String[] {String.valueOf(id)};
                 return db.update(MemesContract.Tables.TABLE_MEME,values,MemesContract.Tables.MEME_IDMEME+" = ?",args);
             }
             case USERS: {
+                SQLiteDatabase db = theDBHelper.getWritableDatabase();
+                return db.update(MemesContract.Tables.TABLE_USER,values,selection,selectionArgs);
             }
             case USER:{
                 SQLiteDatabase db = theDBHelper.getWritableDatabase();
-                String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
-                return db.update(MemesContract.Tables.TABLE_USER,values,MemesContract.Tables.USER_IDUSER+"=?",args);
+                Long id = ContentUris.parseId(uri);
+                Log.i(LOG_TAG, "Updating meme "+id);
+                String[] args = new String[] {String.valueOf(id)};
+                return db.update(MemesContract.Tables.TABLE_USER,values,MemesContract.Tables.USER_IDUSER+" = ?",args);
             }
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
@@ -189,6 +193,7 @@ public class MemesContentProvider extends ContentProvider {
                         ", " + MemesContract.Tables.TABLE_USER +
                         " WHERE " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
                         " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
+                        " AND " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_FEED + " = 1 " +
                         " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC";
 
                 retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,null);

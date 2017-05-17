@@ -10,8 +10,7 @@ import android.util.Log;
  */
 
 public class MemesDBHelper extends SQLiteOpenHelper {
-    // If you change the database schema, you must increment the database version.
-    public static final int DB_VERSION = 22;
+    public static final int DB_VERSION = 23;
     public static final String DB_NAME = "memes.db";
 
     public SQLiteDatabase theDB;
@@ -73,6 +72,10 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_REPOSTED +
         " TINYINT(1) NULL, " +
         MemesContract.Tables.MEME_REPOSTABLE +
+        " TINYINT(1) NULL, " +
+        MemesContract.Tables.MEME_FEED +
+        " TINYINT(1) NULL, " +
+        MemesContract.Tables.MEME_HOT +
         " TINYINT(1) NULL " +
         ");";
 

@@ -14,6 +14,7 @@ public class MemesContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_MEMES = "memes";
     public static final String PATH_USERS = "users";
+    public static final String PATH_FEED = "feed";
 
     // TODO: create feed, hot, starred, profile tables
 
@@ -50,6 +51,8 @@ public class MemesContract {
         public static final String MEME_REPOSTS_STR = PRE_MEME + "reposts_str";
         public static final String MEME_REPOSTED = PRE_MEME + "reposted";
         public static final String MEME_REPOSTABLE = PRE_MEME + "repostable";
+        public static final String MEME_FEED = PRE_MEME + "feed"; // boolean as to whether it's in the feed
+        public static final String MEME_HOT = PRE_MEME + "hot"; // boolean as to whether it's in the hot feed
 
         // users URI
         public static final Uri USERS_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();

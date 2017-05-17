@@ -1,5 +1,7 @@
 package com.garethnunns.memestagram;
 
+import android.content.ContentValues;
+import android.net.Uri;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -41,6 +43,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     private static final int MEMES_LOADER = 1;
     private int currentPage = 0;
     private SharedPreferences login;
+    private boolean updating = false;
 
     public FeedFragment() {
         // Required empty public constructor
@@ -60,6 +63,11 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
             memestagram.logout(getContext(),getActivity());
 
         login = memestagram.getLogin(getContext());
+
+        // clear the existing feed
+        ContentValues clear = new ContentValues();
+        clear.put(MemesContract.Tables.MEME_FEED,0);
+        getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
 
         // init the loader
         getLoaderManager().initLoader(MEMES_LOADER, null,this);
@@ -90,6 +98,9 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public void updateFeed(final int page) {
         // TODO: add some sort of loading sign
 
+        if(updating) // prevent lots of web calls
+            return;
+
         ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if(cm.getActiveNetworkInfo() == null
@@ -99,6 +110,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
             return;
         }
 
+        updating = true;
 
         String url = getString(R.string.api) + "feed";
 
@@ -114,8 +126,12 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                 JSONArray jsonMemes = jsonRes.getJSONArray("memes");
 
                                 // loop through the memes and store them
-                                for (int i = 0; i < jsonMemes.length(); i++)
-                                    memestagram.insertMeme(getContext(),jsonMemes.getJSONObject(i));
+                                for (int i = 0; i < jsonMemes.length(); i++) {
+                                    Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
+                                    ContentValues feed = new ContentValues();
+                                    feed.put(MemesContract.Tables.MEME_FEED,1);
+                                    getContext().getContentResolver().update(added,feed,null,null);
+                                }
 
                                 getLoaderManager().restartLoader(MEMES_LOADER, null, FeedFragment.this);
                             }
@@ -125,12 +141,14 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                             System.out.println(response);
                             Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
                         }
+                        updating = false;
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        updating = false;
                     }
                 }
         ) {
@@ -177,6 +195,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         Log.i("menu in fragment","yes, it's being created");
         super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.action_share).setVisible(false);
     }
 
     @Override
