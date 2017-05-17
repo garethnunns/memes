@@ -109,15 +109,23 @@ public class MemeAdapter extends CursorAdapter {
             caption.setText(strCaption);
         }
 
-        // TODO: make image do something
+        // TODO: make image do something on tap
 
         TextView comments_num = (TextView) view.findViewById(R.id.meme_comments_num);
         comments_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_NUM)) +
                 " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_STR)));
 
+        ImageView ic_stars = (ImageView) view.findViewById(R.id.meme_ic_star);
+        if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARRED)) == 1)
+            ic_stars.setImageResource(R.drawable.blue_star_full);
+
         TextView stars_num = (TextView) view.findViewById(R.id.meme_stars_num);
         stars_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARS_NUM)) +
                 " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARS_STR)));
+
+        ImageView ic_reposts = (ImageView) view.findViewById(R.id.meme_ic_repost);
+        if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTED)) == 1)
+            ic_reposts.setImageResource(R.drawable.blue_repost);
 
         TextView reposts_num = (TextView) view.findViewById(R.id.meme_reposts_num);
         reposts_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTS_NUM)) +
