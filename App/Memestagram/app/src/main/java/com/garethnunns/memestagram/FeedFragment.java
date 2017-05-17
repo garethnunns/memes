@@ -63,18 +63,6 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
             memestagram.logout(getContext(),getActivity());
 
         login = memestagram.getLogin(getContext());
-
-        // clear the existing feed
-        ContentValues clear = new ContentValues();
-        clear.put(MemesContract.Tables.MEME_FEED,0);
-        getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
-
-        // init the loader
-        getLoaderManager().initLoader(MEMES_LOADER, null,this);
-
-        adapter = new MemeAdapter(getContext(), null, getActivity(), MEMES_LOADER, FeedFragment.this, this);
-
-        updateFeed(currentPage);
     }
 
     @Override
@@ -90,9 +78,27 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
         //bind the adapter to the listview
         if(savedInstanceState == null) {
+            // clear the existing feed
+            ContentValues clear = new ContentValues();
+            clear.put(MemesContract.Tables.MEME_FEED,0);
+            getContext().getContentResolver().update(MemesContract.Tables.MEMES_CONTENT_URI,clear,null,null);
+
+            // init the loader
+            getLoaderManager().initLoader(MEMES_LOADER, null,this);
+
+            adapter = new MemeAdapter(getContext(), null, getActivity(), MEMES_LOADER, FeedFragment.this, this);
+
+            updateFeed(currentPage);
+
             ListView lv = (ListView) view.findViewById(R.id.memes_list);
             lv.setAdapter(adapter);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // TODO store scroll position
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     public void updateFeed(final int page) {
