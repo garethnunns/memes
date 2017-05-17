@@ -20,10 +20,12 @@ public class MemesContentProvider extends ContentProvider {
     public static final int USERS = 101;
     public static final int FEEDS = 102;
     public static final int HOTS = 103;
+    public static final int STARREDS = 104;
     public static final int MEME = 200;
     public static final int USER = 201;
     public static final int FEED = 202;
     public static final int HOT = 203;
+    public static final int STARRED = 204;
     private static final UriMatcher theUriMatcher = buildUriMatcher();
     public static MemesDBHelper theDBHelper;
 
@@ -36,6 +38,8 @@ public class MemesContentProvider extends ContentProvider {
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_HOT,HOTS);
 
+        matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_STARRED,STARREDS);
+
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_MEMES+"/#",MEME);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_USERS,USERS);
@@ -45,6 +49,8 @@ public class MemesContentProvider extends ContentProvider {
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_FEED+"/#",FEED);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_HOT+"/#",HOT);
+
+        matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_STARRED+"/#",STARRED);
 
         return matcher;
     }
@@ -75,9 +81,9 @@ public class MemesContentProvider extends ContentProvider {
             case USER:
                 return MemesContract.Tables.USERS_CONTENT_TYPE_ITEM;
             case FEED:
-                return MemesContract.Tables.USERS_CONTENT_TYPE_ITEM;
+                return MemesContract.Tables.FEED_CONTENT_TYPE_ITEM;
             case HOT:
-                return MemesContract.Tables.USERS_CONTENT_TYPE_ITEM;
+                return MemesContract.Tables.HOT_CONTENT_TYPE_ITEM;
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
         }
@@ -279,6 +285,21 @@ public class MemesContentProvider extends ContentProvider {
                 retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,null);
 
                 Log.i(LOG_TAG, "Returning all "+retCursor.getCount()+" memes for the hot feed");
+                break;
+            }
+            case STARREDS: {
+                String sql = "SELECT "+MemesContract.Tables.TABLE_MEME+".*, "+
+                        MemesContract.Tables.TABLE_USER+".* " +
+                        "FROM " + MemesContract.Tables.TABLE_MEME+
+                        ", " + MemesContract.Tables.TABLE_USER +
+                        " WHERE " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
+                        " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
+                        " AND " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_STARRED + " = 1 " +
+                        " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC";
+
+                retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,null);
+
+                Log.i(LOG_TAG, "Returning all "+retCursor.getCount()+" memes for the starred feed");
                 break;
             }
             case MEME: {

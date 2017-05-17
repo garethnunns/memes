@@ -16,6 +16,7 @@ public class MemesContract {
     public static final String PATH_USERS = "users";
     public static final String PATH_FEED = "feed";
     public static final String PATH_HOT = "hot";
+    public static final String PATH_STARRED = "hot";
 
     // TODO: create feed, hot, starred, profile tables
 
@@ -35,6 +36,11 @@ public class MemesContract {
         public static final Uri HOT_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_HOT).build();
         public static final String HOT_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_HOT;
         public static final String HOT_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_HOT;
+
+        // starred URI
+        public static final Uri STARRED_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_STARRED).build();
+        public static final String STARRED_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_STARRED;
+        public static final String STARRED_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_STARRED;
 
         // meme table
         public static final String TABLE_MEME = "meme";
