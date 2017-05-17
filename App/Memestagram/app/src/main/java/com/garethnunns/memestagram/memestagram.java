@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.text.InputType;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -145,7 +147,7 @@ class memestagram {
         return context.getContentResolver().insert(MemesContract.Tables.MEMES_CONTENT_URI,meme);
     }
 
-    public static void star(final Context context, final Activity a, final Integer loader, final Integer idmeme) {
+    public static void star(final Context context, final Activity a, final Integer loader, final Integer idmeme, final LoaderManager.LoaderCallbacks<?> callbacks, final Fragment f) {
         // stars a meme with idmeme, then updates the loader
 
         final SharedPreferences login = getLogin(context);
@@ -167,7 +169,7 @@ class memestagram {
 
                                 context.getContentResolver().update(MemesContract.Tables.buildMemeUriWithID(idmeme),values,null,null);
 
-                                a.getLoaderManager().restartLoader(loader, null, (android.app.LoaderManager.LoaderCallbacks<?>) a);
+                                f.getLoaderManager().restartLoader(loader, null, callbacks);
                             }
                             else
                                 Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_LONG).show();

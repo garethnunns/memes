@@ -3,6 +3,8 @@ package com.garethnunns.memestagram;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,11 +26,15 @@ import com.squareup.picasso.Picasso;
 public class MemeAdapter extends CursorAdapter {
     private Activity activity;
     private Integer loader;
+    private LoaderCallbacks<?> cb;
+    private Fragment frag;
 
-    public MemeAdapter(Context context, Cursor cursor, Activity a, Integer l) {
+    public MemeAdapter(Context context, Cursor cursor, Activity a, Integer l, LoaderCallbacks<?> callbacks, Fragment fragment) {
         super(context, cursor, 0);
         activity = a;
         loader = l;
+        cb = callbacks;
+        frag = fragment;
     }
 
     @Override
@@ -130,7 +136,7 @@ public class MemeAdapter extends CursorAdapter {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        memestagram.star(context, activity, loader, (Integer) v.getTag());
+                        memestagram.star(context, activity, loader, (Integer) v.getTag(), cb, frag);
                     }
                 }
         );
