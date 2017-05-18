@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectFragment(MenuItem item) {
+        if(selectedItem == item.getItemId())
+            return; // don't do anything if they're already on that page
         // update selected item
         selectedItem = item.getItemId();
 
@@ -104,17 +106,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        // the idea for this is that you go back through the history of pages you've been on
+
+        // it gets messy because we've removed some items out of the stack
+        // and android keeps the reference to them
         FragmentManager fm = getSupportFragmentManager();
-        int next = fm.getBackStackEntryCount()-2;
-        for(int i = next; i >= 0; i--) {
+        int bottom = fm.getBackStackEntryCount()-1;
+        int next = bottom-1;
+        boolean more = true;
+        for(int i = bottom; i >= 0; i--) {
             Fragment f = fm.findFragmentByTag(fm.getBackStackEntryAt(i).getName());
-            if (!f.isRemoving() && !f.isDetached()) {
-                next = i;
-                break;
+            if (!f.isRemoving() || !f.isDetached()) { // exists
+                more = true;
+                bottom = i;
             }
+            else if((f.isDetached() || f.isRemoving()) && more) // doesn't exist and just after one that does exist
+                bottom = i;
+            else more = false;
         }
-        Log.i("Next",""+next);
-        if (next > 1) {
+        if (next >= bottom) {
             String name = fm.getBackStackEntryAt(next).getName();
             // select it in the bottom nav if it's there
             for (int i = 0; i< bottomNav.getMenu().size(); i++) {
@@ -125,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             fm.popBackStack(next,0);
         }
         else {
-            for(int i = 0; i < fm.getBackStackEntryCount(); i++)
+            for(int i = fm.getBackStackEntryCount(); i >= 0 ; i--)
                 fm.popBackStack();
             super.onBackPressed();
         }
