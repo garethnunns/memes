@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/meme_grid_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/meme_heading"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/desc_meme"
+        android:scaleType="fitStart" />
+</LinearLayout>

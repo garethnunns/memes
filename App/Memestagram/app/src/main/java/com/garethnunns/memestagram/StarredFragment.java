@@ -1,22 +1,23 @@
 package com.garethnunns.memestagram;
 
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.net.Uri;
-import android.os.Build;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,16 +45,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
-    // also loader numbers
-    public static final int FEED = 1;
-    public static final int HOT = 2;
-
-    private static final String ARG_TYPE = "arg_type";
-
-    private int type;
-
-    MemeAdapter adapter;
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link StarredFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class StarredFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    MemeGridAdapter adapter;
 
     private int currentPage = 0;
     private SharedPreferences login;
@@ -60,14 +59,11 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     private boolean firstUpdate = true;
     private boolean end = false; // if they've reached the end
 
-    public static Fragment newInstance(int feedType) {
-        if((feedType != FEED) && (feedType != HOT))
-            feedType = FEED;
-        Fragment frag = new FeedFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_TYPE, feedType);
-        frag.setArguments(args);
-        return frag;
+    public static final int STARRED_LOADER = 6;
+
+    public static StarredFragment newInstance() {
+        StarredFragment fragment = new StarredFragment();
+        return fragment;
     }
 
     @Override
@@ -85,32 +81,24 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        return inflater.inflate(R.layout.fragment_starred, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if(savedInstanceState != null) {
-            type = savedInstanceState.getInt(ARG_TYPE);
-            firstUpdate = false; // don't clear the cache if it's just a screen rotation
-        }
-        else {
-            Bundle args = getArguments();
-            type = args.getInt(ARG_TYPE);
-        }
 
         // init the loader
-        getLoaderManager().initLoader(type, null,this);
+        getLoaderManager().initLoader(STARRED_LOADER, null,this);
 
-        adapter = new MemeAdapter(getContext(), null, getActivity(), type, FeedFragment.this, this);
+        adapter = new MemeGridAdapter(getContext(), null, getActivity(), STARRED_LOADER, StarredFragment.this, this);
 
-        //bind the adapter to the listview
-        ListView lv = (ListView) view.findViewById(R.id.memes_list);
-        lv.setAdapter(adapter);
+        // bind the adapter to the gridview
+        GridView gv = (GridView) view.findViewById(R.id.starred_grid);
+        gv.setAdapter(adapter);
 
-        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+        gv.setOnScrollListener(new AbsListView.OnScrollListener() {
             public void onScrollStateChanged(AbsListView view, int scrollState) {}
 
             public void onScroll(AbsListView view, int firstVisibleItem,
@@ -119,18 +107,12 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 // update on scroll
                 if(firstVisibleItem+visibleItemCount > totalItemCount-2 && totalItemCount!=0)
                     if(!updating)
-                        updateFeed(++currentPage,getView());
+                        updateStarred(++currentPage,getView());
             }
         });
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putInt(ARG_TYPE,type);
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    public void updateFeed(final int page, View view) {
+    public void updateStarred(final int page, View view) {
         if(updating || (end && page > 0)) // prevent lots of web calls
             return;
 
@@ -146,15 +128,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         // clear the cache the first time it's refreshed as the user might have unfollowed/followed more people
         if(firstUpdate) {
             // clear the existing feed
-            switch(type) {
-                case FEED:
-                    getContext().getContentResolver().delete(MemesContract.Tables.FEED_CONTENT_URI,null,null);
-                    break;
-                case HOT:
-                    getContext().getContentResolver().delete(MemesContract.Tables.HOT_CONTENT_URI,null,null);
-                    break;
-            }
-            if(page != 0) updateFeed(0,view);
+            if(page != 0) updateStarred(0,view);
             firstUpdate = false;
         }
 
@@ -163,21 +137,9 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         final View progress = view.findViewById(R.id.feed_progress);
         showProgress(progress);
 
-        String url;
+        String url = getString(R.string.api)+"starred";
 
-        switch(type) {
-            case FEED:
-                url = getString(R.string.api) + "feed";
-                break;
-            case HOT:
-                url = getString(R.string.api) + "hot";
-                break;
-            default:
-                url = getString(R.string.api);
-                break;
-        }
-
-        Log.i("Updating memes",type+": "+url);
+        Log.i("Updating memes","Starred: "+url);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -201,21 +163,9 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                 for (int i = 0; i < jsonMemes.length(); i++) {
                                     Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
                                     long id = ContentUris.parseId(added);
-                                    switch(type) {
-                                        case FEED:
-                                            getContext().getContentResolver().insert(MemesContract.Tables.buildFeedUriWithID(id),null);
-                                            break;
-                                        case HOT:
-                                            // this is where it gets a bit messy
-                                            // we store the position of the meme in the hot feed
-                                            ContentValues position = new ContentValues();
-                                            position.put(MemesContract.Tables.MEME_HOT,(i+1)+(page*20));
-                                            getContext().getContentResolver().update(MemesContract.Tables.buildHotUriWithID(id),position,null,null);
-                                            break;
-                                    }
                                 }
 
-                                getLoaderManager().restartLoader(type, null, FeedFragment.this);
+                                getLoaderManager().restartLoader(STARRED_LOADER, null, StarredFragment.this);
                             }
                             else
                                 Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
@@ -274,15 +224,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        CursorLoader loader = null;
-        switch(type) {
-            case FEED:
-                loader = new CursorLoader(getContext(),MemesContract.Tables.FEED_CONTENT_URI,null,null,null,null);
-                break;
-            case HOT:
-                loader = new CursorLoader(getContext(),MemesContract.Tables.HOT_CONTENT_URI,null,null,null,null);
-                break;
-        }
+        CursorLoader loader = new CursorLoader(getContext(),MemesContract.Tables.STARRED_CONTENT_URI,null,null,null,null);
         Log.i("loader", "onCreateLoader");
         return loader;
     }
@@ -292,7 +234,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         adapter.swapCursor(data);
 
         if(firstUpdate)
-            updateFeed(currentPage, getView());
+            updateStarred(currentPage, getView());
 
         TextView found = (TextView) getView().findViewById(R.id.found);
         if((data == null) || (data.getCount()==0))
@@ -319,7 +261,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                updateFeed(0,getView());
+                updateStarred(0,getView());
                 break;
         }
         return false;

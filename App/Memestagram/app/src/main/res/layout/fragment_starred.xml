@@ -1,0 +1,39 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.garethnunns.memestagram.StarredFragment">
+
+    <GridView
+        android:id="@+id/starred_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/pad_md"
+        android:horizontalSpacing="@dimen/pad_md"
+        android:verticalSpacing="@dimen/pad_md"
+        android:numColumns="3" />
+
+    <TextView
+        android:id="@+id/found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/pad_lg"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_md" />
+
+    <RelativeLayout
+        android:id="@+id/feed_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/pad_lg" />
+    </RelativeLayout>
+</FrameLayout>

@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.bottom_profile:
                     //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
                     break;
+                case R.id.action_starred:
+                    frag = StarredFragment.newInstance();
+                    break;
             }
         }
 
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
 
             case R.id.action_starred:
-                Toast.makeText(this, "Starred selected", Toast.LENGTH_SHORT).show();
+                selectFragment(item);
                 break;
 
             case R.id.action_settings:
