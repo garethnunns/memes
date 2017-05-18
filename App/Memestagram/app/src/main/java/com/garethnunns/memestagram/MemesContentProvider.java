@@ -12,6 +12,7 @@ import android.util.Log;
 
 /**
  * Created by gareth on 09/05/2017.
+ * content provider for the app
  */
 
 public class MemesContentProvider extends ContentProvider {
@@ -21,11 +22,13 @@ public class MemesContentProvider extends ContentProvider {
     public static final int FEEDS = 102;
     public static final int HOTS = 103;
     public static final int STARREDS = 104;
+    public static final int PROFILES = USERS; // same as users
     public static final int MEME = 200;
     public static final int USER = 201;
     public static final int FEED = 202;
     public static final int HOT = 203;
     public static final int STARRED = 204;
+    public static final int PROFILE = 205;
     private static final UriMatcher theUriMatcher = buildUriMatcher();
     public static MemesDBHelper theDBHelper;
 
@@ -40,6 +43,8 @@ public class MemesContentProvider extends ContentProvider {
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_STARRED,STARREDS);
 
+        matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_PROFILE,PROFILES);
+
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_MEMES+"/#",MEME);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_USERS,USERS);
@@ -51,6 +56,8 @@ public class MemesContentProvider extends ContentProvider {
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_HOT+"/#",HOT);
 
         matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_STARRED+"/#",STARRED);
+
+        matcher.addURI(MemesContract.CONTENT_AUTHORITY,MemesContract.PATH_PROFILE+"/#",PROFILE);
 
         return matcher;
     }
@@ -74,6 +81,8 @@ public class MemesContentProvider extends ContentProvider {
                 return MemesContract.Tables.FEED_CONTENT_TYPE_DIR;
             case HOTS:
                 return MemesContract.Tables.HOT_CONTENT_TYPE_DIR;
+            case STARREDS:
+                return MemesContract.Tables.STARRED_CONTENT_TYPE_DIR;
             case MEME:
                 return MemesContract.Tables.MEMES_CONTENT_TYPE_ITEM;
             case USERS:
@@ -84,6 +93,10 @@ public class MemesContentProvider extends ContentProvider {
                 return MemesContract.Tables.FEED_CONTENT_TYPE_ITEM;
             case HOT:
                 return MemesContract.Tables.HOT_CONTENT_TYPE_ITEM;
+            case STARRED:
+                return MemesContract.Tables.STARRED_CONTENT_TYPE_ITEM;
+            case PROFILE:
+                return MemesContract.Tables.PROFILE_CONTENT_TYPE_ITEM;
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
         }
@@ -318,8 +331,24 @@ public class MemesContentProvider extends ContentProvider {
                 );
                 break;
             }
+            case PROFILE: {
+                String sql = "SELECT "+MemesContract.Tables.TABLE_MEME+".*, "+
+                        MemesContract.Tables.TABLE_USER+".* " +
+                        "FROM " + MemesContract.Tables.TABLE_USER +
+                        " LEFT JOIN " + MemesContract.Tables.TABLE_MEME +
+                        " ON " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
+                        " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
+                        " WHERE " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER + " = ? " +
+                        " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC";
+
+                String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
+                retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,args);
+
+                Log.i(LOG_TAG, "Returning all "+retCursor.getCount()+" memes for the profile feed");
+                break;
+            }
             default:
-                throw new UnsupportedOperationException("Not yet implemented");
+                throw new UnsupportedOperationException("Query not yet implemented for "+uri.toString());
         }
 
         return retCursor;

@@ -6,6 +6,7 @@ import android.provider.BaseColumns;
 
 /**
  * Created by gareth on 09/05/2017.
+ * URIs and tables definitions
  */
 
 public class MemesContract {
@@ -17,6 +18,7 @@ public class MemesContract {
     public static final String PATH_FEED = "feed";
     public static final String PATH_HOT = "hot";
     public static final String PATH_STARRED = "starred";
+    public static final String PATH_PROFILE = "profile";
 
     // TODO: create feed, hot, starred, profile tables
 
@@ -76,6 +78,10 @@ public class MemesContract {
         public static final String USERS_CONTENT_TYPE_DIR = "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_USERS;
         public static final String USERS_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_USERS;
 
+        // profile URI
+        public static final Uri PROFILE_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PROFILE).build();
+        public static final String PROFILE_CONTENT_TYPE_ITEM = "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_PROFILE;
+
         // user table
         public static final String TABLE_USER = "user";
         public static final String PRE_USER = TABLE_USER + "_";
@@ -104,6 +110,10 @@ public class MemesContract {
 
         public static Uri buildUserUriWithID(long ID){
             return ContentUris.withAppendedId(USERS_CONTENT_URI,ID);
+        }
+
+        public static Uri buildProfileUriWithID(long ID){
+            return ContentUris.withAppendedId(PROFILE_CONTENT_URI,ID);
         }
     }
 }
