@@ -148,6 +148,7 @@ public class MemeAdapter extends CursorAdapter {
         ImageView ic_reposts = (ImageView) view.findViewById(R.id.meme_ic_repost);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTED)) == 1)
             ic_reposts.setImageResource(R.drawable.blue_repost);
+        else ic_reposts.setImageResource(R.drawable.grey_repost);
 
         if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_REPOSTABLE)) == 1) {
             ic_reposts.setClickable(true);

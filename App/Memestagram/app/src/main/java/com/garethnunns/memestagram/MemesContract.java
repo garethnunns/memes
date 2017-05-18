@@ -16,7 +16,7 @@ public class MemesContract {
     public static final String PATH_USERS = "users";
     public static final String PATH_FEED = "feed";
     public static final String PATH_HOT = "hot";
-    public static final String PATH_STARRED = "hot";
+    public static final String PATH_STARRED = "starred";
 
     // TODO: create feed, hot, starred, profile tables
 

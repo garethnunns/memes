@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,8 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     private int currentPage = 0;
     private SharedPreferences login;
     private boolean updating = false;
+    private boolean firstUpdate = true;
+    private boolean end = false; // if they've reached the end
 
     public static Fragment newInstance(int feedType) {
         if((feedType != FEED) && (feedType != HOT))
@@ -102,26 +105,27 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
             type = args.getInt(ARG_TYPE);
         }
 
-        // clear the existing feed
-        switch(type) {
-            case FEED:
-                getContext().getContentResolver().delete(MemesContract.Tables.FEED_CONTENT_URI,null,null);
-                break;
-            case HOT:
-                getContext().getContentResolver().delete(MemesContract.Tables.HOT_CONTENT_URI,null,null);
-                break;
-        }
-
         // init the loader
         getLoaderManager().initLoader(type, null,this);
 
         adapter = new MemeAdapter(getContext(), null, getActivity(), type, FeedFragment.this, this);
 
-        updateFeed(currentPage, view);
-
         //bind the adapter to the listview
         ListView lv = (ListView) view.findViewById(R.id.memes_list);
         lv.setAdapter(adapter);
+
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+
+                // update on scroll
+                if(firstVisibleItem+visibleItemCount > totalItemCount-2 && totalItemCount!=0)
+                    if(!updating)
+                        updateFeed(++currentPage,getView());
+            }
+        });
     }
 
     @Override
@@ -132,9 +136,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     }
 
     public void updateFeed(final int page, View view) {
-        // TODO: add some sort of loading sign
-
-        if(updating) // prevent lots of web calls
+        if(updating || (end && page > 0)) // prevent lots of web calls
             return;
 
         ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -144,6 +146,21 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 || !cm.getActiveNetworkInfo().isConnected()) {
             Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_LONG).show();
             return;
+        }
+
+        // clear the cache the first time it's refreshed as the user might have unfollowed/followed more people
+        if(firstUpdate) {
+            // clear the existing feed
+            switch(type) {
+                case FEED:
+                    getContext().getContentResolver().delete(MemesContract.Tables.FEED_CONTENT_URI,null,null);
+                    break;
+                case HOT:
+                    getContext().getContentResolver().delete(MemesContract.Tables.HOT_CONTENT_URI,null,null);
+                    break;
+            }
+            if(page != 0) updateFeed(0,view);
+            firstUpdate = false;
         }
 
         updating = true;
@@ -177,6 +194,13 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                             if(success) {
                                 // get the memes
                                 JSONArray jsonMemes = jsonRes.getJSONArray("memes");
+
+                                if(jsonMemes.length() == 0) {
+                                    end = true;
+                                    updating = false;
+                                    showProgress(progress);
+                                    return;
+                                }
 
                                 // loop through the memes and store them
                                 for (int i = 0; i < jsonMemes.length(); i++) {
@@ -268,6 +292,9 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
 
+        if(firstUpdate)
+            updateFeed(currentPage, getView());
+
         TextView found = (TextView) getView().findViewById(R.id.found);
         if((data == null) || (data.getCount()==0))
             found.setText(R.string.error_no_memes);
@@ -285,7 +312,6 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.i("menu in fragment","yes, it's being created");
         super.onCreateOptionsMenu(menu, inflater);
         menu.findItem(R.id.action_share).setVisible(false);
     }
@@ -297,7 +323,6 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 updateFeed(0,getView());
                 break;
         }
-
         return false;
     }
 }
