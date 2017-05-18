@@ -63,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
         Fragment already= fm.findFragmentByTag(fragTitle);
         if(already != null) {
             Log.i("selectFragment()",fragTitle+" is already in stack");
-            fm.beginTransaction().remove(fm.findFragmentByTag(fragTitle)).commitAllowingStateLoss();
-            //fm.beginTransaction().remove(already).commit();
             frag = already;
         }
         else {
@@ -91,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (frag != null) {
             fm.beginTransaction()
-                    .add(R.id.container, frag, fragTitle)
+                    .replace(R.id.container, frag, fragTitle)
                     .addToBackStack(fragTitle)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commit();
@@ -106,38 +104,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // the idea for this is that you go back through the history of pages you've been on
-
-        // it gets messy because we've removed some items out of the stack
-        // and android keeps the reference to them
         FragmentManager fm = getSupportFragmentManager();
-        int bottom = fm.getBackStackEntryCount()-1;
-        int next = bottom-1;
-        boolean more = true;
-        for(int i = bottom; i >= 0; i--) {
-            Fragment f = fm.findFragmentByTag(fm.getBackStackEntryAt(i).getName());
-            if (!f.isRemoving() || !f.isDetached()) { // exists
-                more = true;
-                bottom = i;
-            }
-            else if((f.isDetached() || f.isRemoving()) && more) // doesn't exist and just after one that does exist
-                bottom = i;
-            else more = false;
-        }
-        if (next >= bottom) {
-            String name = fm.getBackStackEntryAt(next).getName();
-            // select it in the bottom nav if it's there
-            for (int i = 0; i< bottomNav.getMenu().size(); i++) {
-                MenuItem menuItem = bottomNav.getMenu().getItem(i);
-                if(name.equals("Bottom "+menuItem.getItemId()))
-                    menuItem.setChecked(true);
-            }
-            fm.popBackStack(next,0);
+
+        int next = fm.getBackStackEntryCount()-2;
+        String nextName = fm.getBackStackEntryAt(next).getName();
+
+        if(selectedItem == R.id.bottom_feed) {
+            for(int i = fm.getBackStackEntryCount(); i >= 0 ; i--)
+                fm.popBackStack(); // clear backstack
+            super.onBackPressed();
         }
         else {
-            for(int i = fm.getBackStackEntryCount(); i >= 0 ; i--)
-                fm.popBackStack();
-            super.onBackPressed();
+            for (int i = 0; i< bottomNav.getMenu().size(); i++) {
+                MenuItem menuItem = bottomNav.getMenu().getItem(i);
+                if (nextName.equals("Bottom " + menuItem.getItemId())) {
+                    menuItem.setChecked(true);
+                    selectedItem = menuItem.getItemId();
+                }
+            }
+
+            fm.popBackStack();
         }
     }
 
