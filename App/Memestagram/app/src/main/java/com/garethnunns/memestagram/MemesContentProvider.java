@@ -117,8 +117,8 @@ public class MemesContentProvider extends ContentProvider {
                     throw new SQLException("Failed to insert meme");
                 break;
             }
-            case USERS: { // same as an individual meme (below)
-            }
+            case USERS: // same as an individual meme (below)
+            case HOT:
             case USER:{
                 try {
                     Long iduser = values.getAsLong(MemesContract.Tables.USER_IDUSER);
@@ -136,20 +136,12 @@ public class MemesContentProvider extends ContentProvider {
                     throw new SQLException("Failed to insert user");
                 break;
             }
-            case FEED:
-            case HOT: {
+            case FEED: {
                 Long id = ContentUris.parseId(uri);
                 Log.i(LOG_TAG, "Inserting into feed "+id);
                 String[] args = new String[] {String.valueOf(id)};
                 ContentValues add = new ContentValues();
-                switch(theUriMatcher.match(uri)) {
-                    case(FEED):
-                        add.put(MemesContract.Tables.MEME_FEED, 1);
-                        break;
-                    case(HOT):
-                        add.put(MemesContract.Tables.MEME_HOT, 1);
-                        break;
-                }
+                add.put(MemesContract.Tables.MEME_FEED, 1);
                 update(uri,add,MemesContract.Tables.MEME_IDMEME+" = ?",args);
                 break;
             }
@@ -279,8 +271,8 @@ public class MemesContentProvider extends ContentProvider {
                         ", " + MemesContract.Tables.TABLE_USER +
                         " WHERE " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
                         " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
-                        " AND " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_HOT + " = 1 " +
-                        " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC";
+                        " AND " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_HOT + " > 0 " +
+                        " ORDER BY " + MemesContract.Tables.MEME_HOT + " ASC";
 
                 retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,null);
 

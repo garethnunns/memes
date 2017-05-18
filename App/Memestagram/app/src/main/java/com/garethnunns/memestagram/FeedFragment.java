@@ -211,7 +211,11 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                             getContext().getContentResolver().insert(MemesContract.Tables.buildFeedUriWithID(id),null);
                                             break;
                                         case HOT:
-                                            getContext().getContentResolver().insert(MemesContract.Tables.buildHotUriWithID(id),null);
+                                            // this is where it gets a bit messy
+                                            // we store the position of the meme in the hot feed
+                                            ContentValues position = new ContentValues();
+                                            position.put(MemesContract.Tables.MEME_HOT,(i+1)+(page*20));
+                                            getContext().getContentResolver().update(MemesContract.Tables.buildHotUriWithID(id),position,null,null);
                                             break;
                                     }
                                 }
