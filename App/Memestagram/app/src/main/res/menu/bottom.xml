@@ -16,12 +16,12 @@
         android:icon="@drawable/ic_action_add" />
 
     <item
-        android:id="@+id/notifications"
+        android:id="@+id/bottom_notifications"
         android:title="@string/Notifications"
         android:icon="@drawable/ic_action_notifications" />
 
     <item
-        android:id="@+id/profile"
+        android:id="@+id/bottom_profile"
         android:title="@string/Profile"
         android:icon="@drawable/pp" />
 </menu>

@@ -10,7 +10,7 @@ import android.util.Log;
  */
 
 public class MemesDBHelper extends SQLiteOpenHelper {
-    public static final int DB_VERSION = 23;
+    public static final int DB_VERSION = 24;
     public static final String DB_NAME = "memes.db";
 
     public SQLiteDatabase theDB;
@@ -76,7 +76,7 @@ public class MemesDBHelper extends SQLiteOpenHelper {
         MemesContract.Tables.MEME_FEED +
         " TINYINT(1) NULL, " +
         MemesContract.Tables.MEME_HOT +
-        " TINYINT(1) NULL " +
+        " INT NULL " +
         ");";
 
         db.execSQL(meme);
