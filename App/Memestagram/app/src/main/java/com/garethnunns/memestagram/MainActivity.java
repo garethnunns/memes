@@ -30,11 +30,6 @@ public class MainActivity extends AppCompatActivity {
         if(!memestagram.loggedIn(getApplicationContext()))
             memestagram.logout(getApplicationContext(),this);
 
-        /*Fragment feed = new FeedFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.container,feed);
-        ft.commit();*/
-
         bottomNav = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -60,15 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment frag = null;
 
-        String fragTitle = "Fragment "+item.getItemId();
+        String fragTitle = "Bottom "+item.getItemId();
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment already= fm.findFragmentByTag(fragTitle);
         if(already != null) {
             Log.i("selectFragment()",fragTitle+" is already in stack");
-            fm.beginTransaction().remove(already).commit();
+            fm.beginTransaction().remove(fm.findFragmentByTag(fragTitle)).commitAllowingStateLoss();
+            //fm.beginTransaction().remove(already).commit();
             frag = already;
-            //fm.popBackStack(fragTitle, 0);
         }
         else {
             // init corresponding fragment
@@ -96,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             fm.beginTransaction()
                     .add(R.id.container, frag, fragTitle)
                     .addToBackStack(fragTitle)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commit();
         }
     }
@@ -108,10 +104,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // TODO: fix back button so the bottom navigation changes and it doesn't have a blank at the end
-        if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStack();
-        } else {
+        FragmentManager fm = getSupportFragmentManager();
+        int next = fm.getBackStackEntryCount()-2;
+        for(int i = next; i >= 0; i--) {
+            Fragment f = fm.findFragmentByTag(fm.getBackStackEntryAt(i).getName());
+            if (!f.isRemoving() && !f.isDetached()) {
+                next = i;
+                break;
+            }
+        }
+        Log.i("Next",""+next);
+        if (next > 1) {
+            String name = fm.getBackStackEntryAt(next).getName();
+            // select it in the bottom nav if it's there
+            for (int i = 0; i< bottomNav.getMenu().size(); i++) {
+                MenuItem menuItem = bottomNav.getMenu().getItem(i);
+                if(name.equals("Bottom "+menuItem.getItemId()))
+                    menuItem.setChecked(true);
+            }
+            fm.popBackStack(next,0);
+        }
+        else {
+            for(int i = 0; i < fm.getBackStackEntryCount(); i++)
+                fm.popBackStack();
             super.onBackPressed();
         }
     }

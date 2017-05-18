@@ -99,6 +99,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
         if(savedInstanceState != null) {
             type = savedInstanceState.getInt(ARG_TYPE);
+            firstUpdate = false; // don't clear the cache if it's just a screen rotation
         }
         else {
             Bundle args = getArguments();
