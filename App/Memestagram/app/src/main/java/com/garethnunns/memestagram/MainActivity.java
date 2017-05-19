@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         String fragTitle = "Bottom "+item.getItemId();
 
-        if(selectedItem == item.getItemId())
-            return;// don't do anything if they're already on that page
+        //if(selectedItem == item.getItemId())
+            //return;// don't do anything if they're already on that page
 
         // update selected item
         selectedItem = item.getItemId();
