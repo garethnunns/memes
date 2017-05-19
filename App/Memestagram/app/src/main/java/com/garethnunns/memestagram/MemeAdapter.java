@@ -72,21 +72,19 @@ public class MemeAdapter extends CursorAdapter {
 
         Long o_post = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
 
-        TextView posted = (TextView) view.findViewById(R.id.meme_posted);
-        TextView name = (TextView) view.findViewById(R.id.meme_name);
+        String posted;
+        String name;
+
         if (o_post == 0) {
-            posted.setText(R.string.posted);
-            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
+            posted = context.getString(R.string.posted);
+            name = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME));
         } else {
-            posted.setText(R.string.originally_posted);
-            name.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_USERNAME)));
+            posted = context.getString(R.string.originally_posted);
+            name = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_USERNAME));
         }
 
-        TextView by = (TextView) view.findViewById(R.id.meme_by);
-        by.setText(" " + context.getString(R.string.by) + " ");
-
-        TextView ago = (TextView) view.findViewById(R.id.meme_ago);
-        ago.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_AGO)));
+        TextView posted_by = (TextView) view.findViewById(R.id.meme_posted_by);
+        posted_by.setText(posted+" "+context.getString(R.string.by)+" "+name);
 
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));

@@ -40,33 +40,13 @@
                 tools:text="Username" />
 
             <TextView
-                android:id="@+id/meme_posted"
+                android:id="@+id/meme_posted_by"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/meme_username"
                 android:textColor="@color/black"
                 android:textSize="@dimen/font_md"
-                tools:text="Posted" />
-
-            <TextView
-                android:id="@+id/meme_by"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/meme_username"
-                android:layout_toEndOf="@+id/meme_posted"
-                android:textColor="@color/black"
-                android:textSize="@dimen/font_md"
-                tools:text=" by " />
-
-            <TextView
-                android:id="@+id/meme_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/meme_username"
-                android:layout_toEndOf="@+id/meme_by"
-                android:textColor="@color/black"
-                android:textSize="@dimen/font_md"
-                tools:text="poster's name" />
+                tools:text="Posted by user's name" />
 
         </RelativeLayout>
 
