@@ -4,6 +4,7 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,17 +18,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemeFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String ARG_MEME = "arg_meme";
     private int meme;
 
+    private int currentPage = 0;
+    private SharedPreferences login;
     private boolean updating = false;
     private boolean firstUpdate = true;
-    private boolean end = false; // if they've reached the end
 
     public static final int MEME_LOADER = 7;
     private MemeAdapter adapter;
@@ -43,6 +57,17 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+        if(!memestagram.loggedIn(getContext()))
+            memestagram.logout(getContext(),getActivity());
+
+        login = memestagram.getLogin(getContext());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -55,7 +80,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
 
         if(savedInstanceState != null) {
             meme = savedInstanceState.getInt(ARG_MEME);
-            firstUpdate = false; // don't clear the cache if it's just a screen rotation
+            firstUpdate = false; // don't look it up again if it's just a rotation
         }
         else {
             Bundle args = getArguments();
@@ -76,6 +101,76 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt(ARG_MEME,meme);
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void updateProfile(final int page, View view) {
+        if(updating) // prevent lots of web calls
+            return;
+
+        if(!memestagram.internetAvailable(getContext())) {
+            Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(firstUpdate) {
+            // update from the start at the first time
+            if(page != 0) updateProfile(0,view);
+            firstUpdate = false;
+        }
+
+        updating = true;
+
+        final View progress = view.findViewById(R.id.feed_progress);
+        showProgress(progress);
+
+        String url = getString(R.string.api)+"meme";
+
+        Log.i("Updating memes",ARG_MEME+": "+url);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonRes = new JSONObject(response);
+                            Boolean success = jsonRes.getBoolean("success");
+                            if(success) {
+                                // update the meme
+                                memestagram.insertMeme(getContext(), jsonRes.getJSONObject("meme"));
+
+                                getLoaderManager().restartLoader(MEME_LOADER, null, MemeFragment.this);
+                            }
+                            else
+                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            System.out.println(response);
+                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                        }
+                        updating = false;
+                        showProgress(progress);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                        updating = false;
+                        showProgress(progress);
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("key", login.getString("key",""));
+                params.put("id", String.valueOf(meme));
+                params.put("limitComments", "0");
+                return params;
+            }
+        };
+        Volley.newRequestQueue(getContext()).add(postRequest);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -112,8 +207,8 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
 
-        //if(firstUpdate)
-            //updateMeme(currentPage, getView());
+        if(firstUpdate)
+            updateProfile(currentPage, getView());
 
         TextView found = (TextView) getView().findViewById(R.id.found);
         if((data == null) || (data.getCount()==0))

@@ -67,7 +67,7 @@ public class MemeGridAdapter extends CursorAdapter {
                                 .into(image);
                     }
                 });
-        
+
         final int idmeme = cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_IDMEME));
         image.setOnClickListener(new View.OnClickListener() {
             @Override
