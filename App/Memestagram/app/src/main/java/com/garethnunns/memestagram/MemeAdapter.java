@@ -252,7 +252,7 @@ public class MemeAdapter extends CursorAdapter {
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            memestagram.repost(context, activity, loader, (Integer) v.getTag());
+                            memestagram.repost(context, activity, loader, (Integer) v.getTag(), cb, frag);
                         }
                     }
             );

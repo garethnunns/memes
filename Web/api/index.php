@@ -314,6 +314,9 @@
 				'id' => [
 					'type' => 'int'
 				],
+				'caption' => [
+					'type' => 'string(140)'
+				],
 			],
 		],
 		'comment' => [

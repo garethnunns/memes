@@ -10,8 +10,12 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -214,7 +218,12 @@ class memestagram {
         Volley.newRequestQueue(context).add(postRequest);
     }
 
-    public static void repost(Context context, final Activity a, final Integer loader, final Integer idmeme) {
+    public static void repost(final Context context, final Activity a, final Integer loader, final Integer idmeme, final LoaderManager.LoaderCallbacks<?> callbacks, final Fragment f) {
+        if(!internetAvailable(context)) {
+            Toast.makeText(context, context.getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(a);
         builder.setTitle(context.getString(R.string.Repost));
         builder.setMessage(context.getString(R.string.repost_prompt));
@@ -229,9 +238,62 @@ class memestagram {
         builder.setPositiveButton(context.getString(R.string.Repost), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String caption = input.getText().toString();
+                final String caption = input.getText().toString();
 
-                // TODO: connect to API
+                final SharedPreferences login = getLogin(context);
+
+                String url = context.getString(R.string.api) + "repost";
+
+                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject jsonRes = new JSONObject(response);
+                                    Boolean success = jsonRes.getBoolean("success");
+                                    if(success) {
+                                        int idmeme = jsonRes.getInt("idmeme");
+
+                                        Log.i("click", "Going to meme " + idmeme);
+                                        String fragTitle = "Meme " + idmeme;
+                                        FragmentManager fm = ((FragmentActivity) a).getSupportFragmentManager();
+                                        Fragment frag = MemeFragment.newInstance(idmeme);
+                                        Fragment already = fm.findFragmentByTag(fragTitle);
+                                        if (already != null) frag = already;
+                                        fm.beginTransaction()
+                                                .replace(R.id.container, frag, fragTitle)
+                                                .addToBackStack(fragTitle)
+                                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                                                .commit();
+                                    }
+                                    else
+                                        Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
+                                }
+                                catch (JSONException e) {
+                                    System.out.println(response);
+                                    Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                ) {
+                    @Override
+                    protected Map<String, String> getParams()
+                    {
+                        Map<String, String>  params = new HashMap<>();
+                        // the POST parameters:
+                        params.put("key", login.getString("key",""));
+                        params.put("id", String.valueOf(idmeme));
+                        params.put("caption", caption);
+                        return params;
+                    }
+                };
+                Volley.newRequestQueue(context).add(postRequest);
             }
         });
         builder.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
