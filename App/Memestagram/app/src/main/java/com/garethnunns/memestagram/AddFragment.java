@@ -18,6 +18,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -234,5 +236,11 @@ public class AddFragment extends Fragment {
             // and hide the relevant UI components.
             progressView.setVisibility(uploading ? View.VISIBLE : View.GONE);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.action_share).setVisible(false);
     }
 }
