@@ -102,7 +102,7 @@ public class MemeAdapter extends CursorAdapter {
         username.setOnClickListener(clickPoster);
         pp.setOnClickListener(clickPoster);
 
-        Long o_post = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
+        final int o_post = cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
 
         String posted;
         String name;
@@ -149,6 +149,32 @@ public class MemeAdapter extends CursorAdapter {
             }
         };
         ssPosted.setSpan(poster,(posted.length()+by.length()+2),(posted.length()+by.length()+2+name.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (o_post != 0) {
+            ClickableSpan originalPost = new ClickableSpan() {
+                @Override
+                public void onClick(View textView) {
+                    Log.i("click", "Going to meme " + o_post);
+                    String fragTitle = "Meme "+o_post;
+                    FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
+                    Fragment frag = MemeFragment.newInstance(o_post);
+                    Fragment already = fm.findFragmentByTag(fragTitle);
+                    if(already != null) frag = already;
+                    fm.beginTransaction()
+                            .replace(R.id.container, frag, fragTitle)
+                            .addToBackStack(fragTitle)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit();
+                }
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                }
+            };
+
+            ssPosted.setSpan(originalPost,0,posted.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
 
         posted_by.setText(ssPosted);
         posted_by.setMovementMethod(LinkMovementMethod.getInstance());
