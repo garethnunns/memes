@@ -4,6 +4,9 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -56,6 +59,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private MemeGridAdapter adapter;
     private TextView tUserName;
     private Button follow;
+
+    private boolean following;
 
     private int currentPage = 0;
     private SharedPreferences login;
@@ -113,6 +118,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         tUserName.setText(username);
 
         follow = (Button) view.findViewById(R.id.profile_follow);
+
+        follow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!following) follow();
+            }
+        });
 
         // init the loader
         getLoaderManager().initLoader(PROFILE_LOADER, null, this);
@@ -250,6 +262,73 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             }
         };
         Volley.newRequestQueue(getContext()).add(postRequest);
+    }
+
+    private void follow() {
+        if(following)
+            return; // don't follow and then unfollow by the user pressing the button
+
+        final Context context = getContext();
+
+        if(!memestagram.internetAvailable(getContext())) {
+            Toast.makeText(context, getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        following = true;
+
+        String url = getContext().getString(R.string.api) + "follow";
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonRes = new JSONObject(response);
+                            Boolean success = jsonRes.getBoolean("success");
+                            if(success) {
+                                ContentValues values = new ContentValues();
+                                values.put(MemesContract.Tables.USER_FOLLOWING,jsonRes.getBoolean("followed") ? 1 : 0);
+
+                                ContentProvider cp = new MemesContentProvider();
+                                cp.update(MemesContract.Tables.buildUserUriWithID(iduser),values,null,null);
+                                getLoaderManager().restartLoader(PROFILE_LOADER, null, ProfileFragment.this);
+
+                                TextView tFollowersNum = (TextView) getView().findViewById(R.id.profile_followers_num);
+                                tFollowersNum.setText(jsonRes.getString("followers-num"));
+
+                                TextView tFollowersStr = (TextView) getView().findViewById(R.id.profile_followers_str);
+                                tFollowersStr.setText(jsonRes.getString("followers-str"));
+                            }
+                            else
+                                Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
+
+                            following = false;
+                        }
+                        catch (JSONException e) {
+                            System.out.println(response);
+                            Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("key", login.getString("key",""));
+                params.put("id", String.valueOf(iduser));
+                return params;
+            }
+        };
+        Volley.newRequestQueue(context).add(postRequest);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
