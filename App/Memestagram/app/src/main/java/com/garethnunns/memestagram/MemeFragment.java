@@ -4,6 +4,9 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,6 +14,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,6 +29,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +51,12 @@ import java.util.Map;
 
 public class MemeFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String ARG_MEME = "arg_meme";
+    public static final String ARG_COMMENTING = "arg_commenting";
     private int meme;
+    private boolean commenting = false;
+    private boolean postingComment = false;
+
+    private EditText tComment;
 
     private int currentPage = 0;
     private SharedPreferences login;
@@ -64,6 +77,14 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         MemeFragment fragment = new MemeFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_MEME, meme);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    public static MemeFragment newInstance(int meme, boolean commenting) {
+        MemeFragment fragment = new MemeFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_MEME, meme);
+        args.putBoolean(ARG_COMMENTING,commenting);
         fragment.setArguments(args);
         return fragment;
     }
@@ -103,6 +124,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         else {
             Bundle args = getArguments();
             meme = args.getInt(ARG_MEME);
+            commenting = args.getBoolean(ARG_COMMENTING,commenting);
         }
 
         // init the loader
@@ -120,6 +142,20 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         clv = (ListView) view.findViewById(R.id.meme_frag_comments);
         clv.setAdapter(commentAdapter);
         memestagram.setListViewHeightBasedOnChildren(clv);
+
+        tComment = (EditText) view.findViewById(R.id.meme_frag_comment);
+        if(commenting) tComment.requestFocus();
+
+        Button commentButton = (Button) view.findViewById(R.id.meme_frag_comment_button);
+        commentButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(!postingComment)
+                            comment();
+                    }
+                }
+        );
     }
 
     @Override
@@ -223,6 +259,86 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
             }
         };
         Volley.newRequestQueue(getContext()).add(postRequest);
+    }
+
+    private void comment() {
+        if(postingComment)
+            return; // don't post it twice by the user pressing the button
+
+        final Context context = getContext();
+
+        if(!memestagram.internetAvailable(getContext())) {
+            Toast.makeText(context, getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        postingComment = true;
+
+        final String strComment = tComment.getText().toString().trim();
+
+        String url = getContext().getString(R.string.api) + "comment";
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonRes = new JSONObject(response);
+                            Boolean success = jsonRes.getBoolean("success");
+                            if(success) {
+                                ContentValues values = new ContentValues();
+                                values.put(MemesContract.Tables.MEME_COMMENTS_NUM,jsonRes.getString("comments-num"));
+                                values.put(MemesContract.Tables.MEME_COMMENTS_STR,jsonRes.getString("comments-str"));
+
+                                ContentProvider cp = new MemesContentProvider();
+                                cp.update(MemesContract.Tables.buildMemeUriWithID(meme),values,null,null);
+                                getLoaderManager().restartLoader(MEME_LOADER, null, MemeFragment.this);
+
+                                JSONObject jsonCommenter = jsonRes.getJSONObject("commenter");
+                                Comment comment = new Comment(
+                                        jsonCommenter.getLong("iduser"),
+                                        jsonCommenter.getString("pic"),
+                                        jsonCommenter.getString("username"),
+                                        "1s",
+                                        strComment
+                                );
+
+                                comments.add(comment);
+                                commentAdapter.notifyDataSetChanged();
+                                memestagram.setListViewHeightBasedOnChildren(clv);
+
+                                tComment.setText(""); // clear the comment
+                            }
+                            else
+                                Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
+
+                            postingComment = false;
+                        }
+                        catch (JSONException e) {
+                            System.out.println(response);
+                            Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("key", login.getString("key",""));
+                params.put("id", String.valueOf(meme));
+                params.put("comment", strComment);
+                return params;
+            }
+        };
+        Volley.newRequestQueue(context).add(postRequest);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)

@@ -188,7 +188,7 @@ public class MemeAdapter extends CursorAdapter {
                 Log.i("click", "Going to meme " + idmeme);
                 String fragTitle = "Meme "+idmeme;
                 FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
-                Fragment frag = MemeFragment.newInstance(idmeme);
+                Fragment frag = MemeFragment.newInstance(idmeme,v.getId()==R.id.meme_ic_comment);
                 Fragment already = fm.findFragmentByTag(fragTitle);
                 if(already != null) frag = already;
                 fm.beginTransaction()

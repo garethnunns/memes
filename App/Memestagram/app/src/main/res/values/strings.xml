@@ -31,6 +31,7 @@
     <string name="Starred">Starred</string>
     <string name="Repost">Repost</string>
     <string name="repost_prompt">Add a caption or just hit repost</string>
+    <string name="Comment">Comment</string>
 
     <!-- add -->
     <string name="Post">Post</string>
