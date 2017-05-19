@@ -117,24 +117,20 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
 
-        int next = fm.getBackStackEntryCount()-2;
-        String nextName = fm.getBackStackEntryAt(next).getName();
-
-        if(selectedItem == R.id.bottom_feed) {
-            for(int i = fm.getBackStackEntryCount(); i >= 0 ; i--)
-                fm.popBackStack(); // clear backstack
-            super.onBackPressed();
-        }
-        else {
+        if(fm.getBackStackEntryCount() > 1) {
             for (int i = 0; i< bottomNav.getMenu().size(); i++) {
                 MenuItem menuItem = bottomNav.getMenu().getItem(i);
-                if (nextName.equals("Bottom " + menuItem.getItemId())) {
+                if (fm.getBackStackEntryAt(fm.getBackStackEntryCount()-2).getName().equals("Bottom " + menuItem.getItemId())) {
                     menuItem.setChecked(true);
                     selectedItem = menuItem.getItemId();
                 }
             }
-
             fm.popBackStack();
+        }
+        else {
+            for(int i = fm.getBackStackEntryCount(); i >= 0 ; i--)
+                fm.popBackStack(); // clear backstack
+            super.onBackPressed();
         }
     }
 

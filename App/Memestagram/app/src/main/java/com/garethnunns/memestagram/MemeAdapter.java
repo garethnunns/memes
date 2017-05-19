@@ -3,9 +3,18 @@ package com.garethnunns.memestagram;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,23 +77,72 @@ public class MemeAdapter extends CursorAdapter {
                 });
 
         TextView username = (TextView) view.findViewById(R.id.meme_username);
-        username.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME)));
+        final String strUsername = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME));
+        username.setText(strUsername);
+
+        final Long iduser = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_IDUSER));
+
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("click","Username: "+strUsername+" user: "+iduser);
+                FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
+                Fragment frag = ProfileFragment.newInstance(iduser, strUsername);
+                fm.beginTransaction()
+                        .replace(R.id.container, frag)
+                        .addToBackStack(null)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+        });
 
         Long o_post = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
 
         String posted;
         String name;
+        final Long oIduser;
+        final String oUsername;
 
         if (o_post == 0) {
             posted = context.getString(R.string.posted);
             name = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME));
-        } else {
+            oIduser = iduser;
+            oUsername = strUsername;
+        }
+        else {
             posted = context.getString(R.string.originally_posted);
             name = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_USERNAME));
+            oIduser = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOSTER_ID));
+            oUsername = name;
         }
 
+        String by = context.getString(R.string.by);
+
         TextView posted_by = (TextView) view.findViewById(R.id.meme_posted_by);
-        posted_by.setText(posted+" "+context.getString(R.string.by)+" "+name);
+
+        SpannableString ssPosted = new SpannableString(posted+" "+by+" "+name);
+        ClickableSpan poster = new ClickableSpan() {
+            @Override
+            public void onClick(View textView) {
+                FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
+                Fragment frag = ProfileFragment.newInstance(oIduser, oUsername);
+                fm.beginTransaction()
+                        .replace(R.id.container, frag)
+                        .addToBackStack(null)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        };
+        ssPosted.setSpan(poster,(posted.length()+by.length()+2),(posted.length()+by.length()+2+name.length()), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        posted_by.setText(ssPosted);
+        posted_by.setMovementMethod(LinkMovementMethod.getInstance());
+        posted_by.setHighlightColor(Color.TRANSPARENT);
 
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));
