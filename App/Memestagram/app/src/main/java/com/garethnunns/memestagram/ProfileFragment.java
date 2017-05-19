@@ -4,12 +4,9 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.ContentUris;
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +14,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,6 +64,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private boolean end = false; // if they've reached the end
 
     public static final int PROFILE_LOADER = 5;
+
+    private ShareActionProvider mShareActionProvider;
 
     public static ProfileFragment newInstance(Long profile, String username) {
         ProfileFragment fragment = new ProfileFragment();
@@ -319,11 +320,18 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             TextView tName = (TextView) getView().findViewById(R.id.profile_name);
             tName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
 
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT,cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_LINK)));
+            mShareActionProvider.setShareIntent(shareIntent);
+
             if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_YOU)) == 1) {
                 follow.setText("Settings");
+                // TODO: make it go to settings
             }
             else {
                 follow.setText(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_FOLLOWING)) == 1 ? getContext().getString(R.string.Unfollow) : getContext().getString(R.string.Follow));
+                // TODO: make it follow
             }
         }
 
@@ -342,7 +350,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        // todo: set share provider
+        MenuItem item = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(item);
     }
 
     @Override
