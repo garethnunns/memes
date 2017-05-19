@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         String fragTitle = "Bottom "+item.getItemId();
 
-        if(fm.getBackStackEntryCount()>1 && fm.getBackStackEntryAt(fm.getBackStackEntryCount()-1).getName().equals("Bottom "+selectedItem))
+        if(selectedItem == item.getItemId())
             return;// don't do anything if they're already on that page
 
         // update selected item
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(Intent.createChooser(intent, "Select Meme"), PICK_IMAGE_REQUEST);
                     break;
                 case R.id.bottom_notifications:
-                    //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
+                    frag = NotificationsFragment.newInstance();
                     break;
                 case R.id.bottom_profile:
                     SharedPreferences login = getLogin(getApplicationContext());
@@ -108,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.action_starred:
                     frag = StarredFragment.newInstance();
+                    break;
+                case R.id.action_settings:
+                    frag = SettingsFragment.newInstance();
                     break;
             }
         }

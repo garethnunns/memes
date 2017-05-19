@@ -58,7 +58,4 @@
     <string name="web">http://memes.garethnunns.com/</string>
     <string name="api">http://memes.garethnunns.com/api/0.1/</string>
     <string name="title_activity_web">WebActivity</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
