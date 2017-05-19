@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,5 +67,23 @@ public class MemeGridAdapter extends CursorAdapter {
                                 .into(image);
                     }
                 });
+        
+        final int idmeme = cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_IDMEME));
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("click", "Going to meme " + idmeme);
+                String fragTitle = "Meme "+idmeme;
+                FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
+                Fragment frag = MemeFragment.newInstance(idmeme);
+                Fragment already = fm.findFragmentByTag(fragTitle);
+                if(already != null) frag = already;
+                fm.beginTransaction()
+                        .replace(R.id.container, frag, fragTitle)
+                        .addToBackStack(fragTitle)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+        });
     }
 }

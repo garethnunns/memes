@@ -308,15 +308,19 @@ public class MemesContentProvider extends ContentProvider {
                 break;
             }
             case MEME: {
-                retCursor = theDBHelper.getReadableDatabase().query(
-                        MemesContract.Tables.TABLE_MEME,
-                        projection,
-                        MemesContract.Tables.MEME_IDMEME + " = '" + ContentUris.parseId(uri) + "'",
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
+                String sql = "SELECT "+MemesContract.Tables.TABLE_MEME+".*, "+
+                        MemesContract.Tables.TABLE_USER+".* " +
+                        "FROM " + MemesContract.Tables.TABLE_MEME+
+                        ", " + MemesContract.Tables.TABLE_USER +
+                        " WHERE " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDUSER +
+                        " = " + MemesContract.Tables.TABLE_USER + "." + MemesContract.Tables.USER_IDUSER +
+                        " AND " + MemesContract.Tables.TABLE_MEME + "." + MemesContract.Tables.MEME_IDMEME + " = ? " +
+                        " ORDER BY " + MemesContract.Tables.MEME_EPOCH + " DESC LIMIT 1";
+
+                String[] args = new String[] {Long.toString(ContentUris.parseId(uri))};
+                retCursor = theDBHelper.getReadableDatabase().rawQuery(sql,args);
+
+                Log.i(LOG_TAG, "Returning the meme "+ContentUris.parseId(uri));
                 break;
             }
             case USER: {

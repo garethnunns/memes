@@ -88,9 +88,12 @@ public class MemeAdapter extends CursorAdapter {
                 Log.i("click", "Username: " + strUsername + " user: " + iduser);
                 FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
                 Fragment frag = ProfileFragment.newInstance(iduser, strUsername);
+                String fragTitle = "User "+iduser;
+                Fragment already = fm.findFragmentByTag(fragTitle);
+                if(already != null) frag = already;
                 fm.beginTransaction()
-                        .replace(R.id.container, frag)
-                        .addToBackStack(null)
+                        .replace(R.id.container, frag, fragTitle)
+                        .addToBackStack(fragTitle)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         .commit();
             }
@@ -127,11 +130,15 @@ public class MemeAdapter extends CursorAdapter {
         ClickableSpan poster = new ClickableSpan() {
             @Override
             public void onClick(View textView) {
+                Log.i("click", "Username: " + oUsername + " user: " + oIduser);
                 FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
                 Fragment frag = ProfileFragment.newInstance(oIduser, oUsername);
+                String fragTitle = "User "+oIduser;
+                Fragment already = fm.findFragmentByTag(fragTitle);
+                if(already != null) frag = already;
                 fm.beginTransaction()
-                        .replace(R.id.container, frag)
-                        .addToBackStack(null)
+                        .replace(R.id.container, frag, fragTitle)
+                        .addToBackStack(fragTitle)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         .commit();
             }
@@ -146,6 +153,30 @@ public class MemeAdapter extends CursorAdapter {
         posted_by.setText(ssPosted);
         posted_by.setMovementMethod(LinkMovementMethod.getInstance());
         posted_by.setHighlightColor(Color.TRANSPARENT);
+
+        final int idmeme = cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_IDMEME));
+
+        View.OnClickListener clickMeme = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("click", "Going to meme " + idmeme);
+                String fragTitle = "Meme "+idmeme;
+                FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
+                Fragment frag = MemeFragment.newInstance(idmeme);
+                Fragment already = fm.findFragmentByTag(fragTitle);
+                if(already != null) frag = already;
+                fm.beginTransaction()
+                        .replace(R.id.container, frag, fragTitle)
+                        .addToBackStack(fragTitle)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+        };
+
+        TextView ago = (TextView) view.findViewById(R.id.meme_ago);
+        ago.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_AGO)));
+
+        ago.setOnClickListener(clickMeme);
 
         // load the full image
         final String full = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_FULL));
@@ -170,6 +201,8 @@ public class MemeAdapter extends CursorAdapter {
                     }
                 });
 
+        image.setOnClickListener(clickMeme);
+
         TextView caption = (TextView) view.findViewById(R.id.meme_caption);
         String strCaption = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_CAPTION));
         if (TextUtils.isEmpty(strCaption))
@@ -183,6 +216,9 @@ public class MemeAdapter extends CursorAdapter {
         comments_num.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_NUM)) +
                 " " + cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_COMMENTS_STR)));
 
+        ImageView ic_comments = (ImageView) view.findViewById(R.id.meme_ic_comment);
+        ic_comments.setOnClickListener(clickMeme);
+
         final ImageView ic_stars = (ImageView) view.findViewById(R.id.meme_ic_star);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_STARRED)) == 1)
             ic_stars.setImageResource(R.drawable.blue_star_full);
@@ -190,7 +226,7 @@ public class MemeAdapter extends CursorAdapter {
             ic_stars.setImageResource(R.drawable.grey_star_empty);
 
         ic_stars.setClickable(true);
-        ic_stars.setTag(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_IDMEME)));
+        ic_stars.setTag(idmeme);
         ic_stars.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
