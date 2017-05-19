@@ -54,16 +54,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectFragment(MenuItem item) {
-        if(selectedItem == item.getItemId())
-            return; // don't do anything if they're already on that page
+        FragmentManager fm = getSupportFragmentManager();
+        String fragTitle = "Bottom "+item.getItemId();
+
+        if(fm.getBackStackEntryCount()>1 && fm.getBackStackEntryAt(fm.getBackStackEntryCount()-2).getName().equals("Bottom "+selectedItem))
+            return;// don't do anything if they're already on that page
+
         // update selected item
         selectedItem = item.getItemId();
 
         Fragment frag = null;
 
-        String fragTitle = "Bottom "+item.getItemId();
-
-        FragmentManager fm = getSupportFragmentManager();
         Fragment already= fm.findFragmentByTag(fragTitle);
         if(already != null) {
             Log.i("selectFragment()",fragTitle+" is already in stack");

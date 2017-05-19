@@ -5,10 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MemeFragment">
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true">
             <ListView
                 android:id="@+id/meme_frag_meme"
                 android:layout_width="match_parent"
@@ -16,8 +18,8 @@
             <ListView
                 android:id="@+id/meme_frag_comments"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/meme_frag_meme"/>
             <TextView
                 android:id="@+id/found"
                 android:layout_width="wrap_content"
@@ -41,5 +43,5 @@
                     android:layout_centerHorizontal="true"
                     android:layout_margin="@dimen/pad_lg" />
             </RelativeLayout>
-        </LinearLayout>
+        </RelativeLayout>
 </ScrollView>

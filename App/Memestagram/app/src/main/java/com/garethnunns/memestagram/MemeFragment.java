@@ -28,9 +28,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +47,11 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
 
     public static final int MEME_LOADER = 7;
     private MemeAdapter adapter;
+    ListView lv;
+
+    private ArrayList<Comment> comments;
+    private CommentAdapter commentAdapter;
+    ListView clv;
 
     private ShareActionProvider mShareActionProvider;
 
@@ -93,8 +100,14 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         adapter = new MemeAdapter(getContext(), null, getActivity(), MEME_LOADER, MemeFragment.this, this);
 
         //bind the adapter to the listview
-        ListView lv = (ListView) view.findViewById(R.id.meme_frag_meme);
+        lv = (ListView) view.findViewById(R.id.meme_frag_meme);
         lv.setAdapter(adapter);
+
+        // comments section
+        comments = new ArrayList<Comment>();
+        commentAdapter = new CommentAdapter(getContext(),comments);
+        clv = (ListView) view.findViewById(R.id.meme_frag_comments);
+        clv.setAdapter(commentAdapter);
     }
 
     @Override
@@ -103,7 +116,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void updateProfile(final int page, View view) {
+    public void updateProfile(final int page, final View view) {
         if(updating) // prevent lots of web calls
             return;
 
@@ -136,9 +149,36 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
                             Boolean success = jsonRes.getBoolean("success");
                             if(success) {
                                 // update the meme
-                                memestagram.insertMeme(getContext(), jsonRes.getJSONObject("meme"));
+                                JSONObject jsonMeme = jsonRes.getJSONObject("meme");
+                                memestagram.insertMeme(getContext(), jsonMeme);
+
+                                if(jsonMeme.getInt("comments-num")>0) {
+                                    // there are some comments on the meme
+                                    JSONArray jsonComments = jsonMeme.getJSONArray("comments");
+
+                                    for (int i = 0; i < jsonComments.length(); i++) {
+                                        JSONObject jsonComment = jsonComments.getJSONObject(i);
+
+                                        JSONObject jsonCommenter = jsonComment.getJSONObject("commenter");
+
+                                        // whilst we're here we may as well store all of the users in the database
+                                        memestagram.insertUser(getContext(), jsonCommenter);
+
+                                        Comment comment = new Comment(
+                                                jsonCommenter.getLong("iduser"),
+                                                jsonCommenter.getString("pic"),
+                                                jsonCommenter.getString("username"),
+                                                jsonComment.getJSONObject("time").getString("ago"),
+                                                jsonComment.getString("comment")
+                                        );
+
+                                        comments.add(comment);
+                                    }
+                                }
 
                                 getLoaderManager().restartLoader(MEME_LOADER, null, MemeFragment.this);
+                                commentAdapter.notifyDataSetChanged();
+                                memestagram.setListViewHeightBasedOnChildren(clv);
                             }
                             else
                                 Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
@@ -206,6 +246,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        memestagram.setListViewHeightBasedOnChildren(lv);
 
         if(firstUpdate)
             updateProfile(currentPage, getView());
