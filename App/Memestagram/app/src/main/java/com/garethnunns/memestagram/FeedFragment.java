@@ -313,11 +313,12 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                updateFeed(0,getView());
-                break;
-        }
+        if(getUserVisibleHint())
+            switch (item.getItemId()) {
+                case R.id.action_refresh:
+                    updateFeed(0,getView());
+                    break;
+            }
         return false;
     }
 }

@@ -347,12 +347,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // todo: fix refresh button refreshing in all windows
-        // could test for bottom bar selected
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                //updateProfile(0,getView());
-                break;
+        if(getUserVisibleHint()) {
+            switch (item.getItemId()) {
+                case R.id.action_refresh:
+                    Log.i("refresh","profile");
+                    updateProfile(0, getView());
+                    break;
+            }
         }
         return false;
     }

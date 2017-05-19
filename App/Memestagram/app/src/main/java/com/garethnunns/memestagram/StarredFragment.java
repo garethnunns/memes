@@ -253,11 +253,12 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                updateStarred(0,getView());
-                break;
-        }
+        if(getUserVisibleHint())
+            switch (item.getItemId()) {
+                case R.id.action_refresh:
+                    updateStarred(0,getView());
+                    break;
+            }
         return false;
     }
 }
