@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.garethnunns.memestagram">
-    <uses-permission android:name="android.permission.INTERNET"/>
+    
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <permission
@@ -17,8 +18,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="Memestagram">
-        </activity>
+            android:label="Memestagram" />
 
         <provider
             android:name=".MemesContentProvider"
@@ -27,7 +27,7 @@
             android:exported="true"
             android:permission="com.garethnunns.memestagram.providerPermission" />
 
-        <application android:name=".Global"></application>
+        <application android:name=".Global" />
 
         <activity
             android:name=".LoginActivity"
@@ -38,6 +38,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".WebActivity"
+            android:label="@string/title_activity_web"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

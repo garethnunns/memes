@@ -184,8 +184,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.action_settings:
-                Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
+                selectFragment(item);
                 break;
+
+            case R.id.action_guide:
+                Intent goGuide = new Intent(MainActivity.this,WebActivity.class);
+                goGuide.putExtra(WebActivity.ARG_URL,getApplication().getString(R.string.web)+"guide");
+                this.startActivity(goGuide);
+                break;
+
             case R.id.action_logout:
                 memestagram.logout(getApplicationContext(),this);
                 break;

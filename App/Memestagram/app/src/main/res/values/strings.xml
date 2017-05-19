@@ -6,6 +6,7 @@
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
     <string name="Cancel">Cancel</string>
     <string name="Loading">Loading...</string>
+    <string name="not_implemented">This feature has not yet been implemented due to lack of resources</string>
 
     <!-- actions -->
     <string name="Refresh">Refresh</string>
@@ -16,6 +17,7 @@
     <string name="Add">Add</string>
     <string name="Notifications">Notifications</string>
     <string name="Profile">Profile</string>
+    <string name="Guide">Guide</string>
 
     <!-- related to a meme -->
     <string name="desc_pp">User\'s profile picture</string>
@@ -47,6 +49,7 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="error_field_required">This field is required</string>
+    <string name="sign_up">Signup</string>
 
     <!-- settings -->
     <string name="Settings">Settings</string>
@@ -54,4 +57,8 @@
     <!-- resources -->
     <string name="web">http://memes.garethnunns.com/</string>
     <string name="api">http://memes.garethnunns.com/api/0.1/</string>
+    <string name="title_activity_web">WebActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
