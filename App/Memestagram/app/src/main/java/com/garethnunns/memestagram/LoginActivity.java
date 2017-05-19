@@ -149,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
             if(cm.getActiveNetworkInfo() == null
                     || !cm.getActiveNetworkInfo().isAvailable()
                     || !cm.getActiveNetworkInfo().isConnected())
-                Toast.makeText(getApplicationContext(), getString(R.string.error_no_connection), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
         else {
             // Show a progress spinner and perform the user login attempt.
             showProgress(true);
@@ -183,10 +183,10 @@ public class LoginActivity extends AppCompatActivity {
                                     showProgress(false);
                                 }
                                 else
-                                    Toast.makeText(getApplicationContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
                             } catch (JSONException e) {
                                 System.out.println(response);
-                                Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                             }
                             showProgress(false);
                         }
@@ -194,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                             showProgress(false);
                         }
                     }

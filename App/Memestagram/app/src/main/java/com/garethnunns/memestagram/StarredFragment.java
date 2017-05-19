@@ -113,14 +113,10 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void updateStarred(final int page, View view) {
-        if(updating || (end && page > 0)) // prevent lots of web calls
+        if(updating || end) // prevent lots of web calls
             return;
 
-        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if(cm.getActiveNetworkInfo() == null
-                || !cm.getActiveNetworkInfo().isAvailable()
-                || !cm.getActiveNetworkInfo().isConnected()) {
+        if(!memestagram.internetAvailable(getContext())) {
             Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -160,18 +156,16 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
                                 }
 
                                 // loop through the memes and store them
-                                for (int i = 0; i < jsonMemes.length(); i++) {
-                                    Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
-                                    long id = ContentUris.parseId(added);
-                                }
+                                for (int i = 0; i < jsonMemes.length(); i++)
+                                    memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
 
                                 getLoaderManager().restartLoader(STARRED_LOADER, null, StarredFragment.this);
                             }
                             else
-                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             System.out.println(response);
-                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         }
                         updating = false;
                         showProgress(progress);
@@ -180,7 +174,7 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         updating = false;
                         showProgress(progress);
                     }

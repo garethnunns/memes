@@ -218,10 +218,10 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                                 getLoaderManager().restartLoader(type, null, FeedFragment.this);
                             }
                             else
-                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             System.out.println(response);
-                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         }
                         updating = false;
                         showProgress(progress);
@@ -230,7 +230,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         updating = false;
                         showProgress(progress);
                     }

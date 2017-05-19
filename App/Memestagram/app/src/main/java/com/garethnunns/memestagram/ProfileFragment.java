@@ -43,13 +43,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ProfileFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String ARG_PROFILE = "arg_profile";
     public static final String ARG_USERNAME = "arg_username";
@@ -100,13 +96,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         super.onViewCreated(view, savedInstanceState);
 
         if(savedInstanceState != null) {
-            iduser = savedInstanceState.getLong(ARG_PROFILE,0);
+            iduser = savedInstanceState.getLong(ARG_PROFILE);
             username = savedInstanceState.getString(ARG_USERNAME,"Username");
             firstUpdate = false; // don't clear the cache if it's just a screen rotation
         }
         else {
             Bundle args = getArguments();
-            iduser = args.getLong(ARG_PROFILE,0);
+            iduser = args.getLong(ARG_PROFILE);
             username = args.getString(ARG_USERNAME,"Username");
         }
 
@@ -129,7 +125,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                                  int visibleItemCount, int totalItemCount) {
 
                 // update on scroll
-                if(firstVisibleItem+visibleItemCount > totalItemCount-2 && totalItemCount!=0)
+                if(firstVisibleItem+visibleItemCount > totalItemCount-4 && totalItemCount!=0)
                     if(!updating)
                         updateProfile(++currentPage,getView());
             }
@@ -143,34 +139,29 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void updateProfile(final int page, View view) {
-        if(updating || (end && page > 0)) // prevent lots of web calls
+    public void updateProfile(final int page, final View view) {
+        if(updating || end) // prevent lots of web calls
             return;
 
-        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if(cm.getActiveNetworkInfo() == null
-                || !cm.getActiveNetworkInfo().isAvailable()
-                || !cm.getActiveNetworkInfo().isConnected()) {
+        if(!memestagram.internetAvailable(getContext())) {
             Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // clear the cache the first time it's refreshed as the user might have unfollowed/followed more people
         if(firstUpdate) {
-            // clear the existing feed
+            // update from the start at the first time
             if(page != 0) updateProfile(0,view);
             firstUpdate = false;
         }
 
         updating = true;
 
-        /*final View progress = view.findViewById(R.id.feed_progress);
+        final View progress = view.findViewById(R.id.feed_progress);
         showProgress(progress);
 
-        String url = getString(R.string.api)+"starred";
+        String url = getString(R.string.api)+"profile";
 
-        Log.i("Updating memes","Starred: "+url);
+        Log.i("Updating memes","Profile: "+url);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -180,6 +171,33 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                             JSONObject jsonRes = new JSONObject(response);
                             Boolean success = jsonRes.getBoolean("success");
                             if(success) {
+                                // update the stats
+                                JSONObject jsonStats = jsonRes.getJSONObject("stats");
+
+                                TextView tPostsNum = (TextView) view.findViewById(R.id.profile_posts_num);
+                                tPostsNum.setText(jsonStats.getString("posts"));
+
+                                TextView tPostsStr = (TextView) view.findViewById(R.id.profile_posts_str);
+                                tPostsStr.setText(jsonStats.getString("posts-str"));
+
+                                TextView tFollowersNum = (TextView) view.findViewById(R.id.profile_followers_num);
+                                tFollowersNum.setText(jsonStats.getString("followers"));
+
+                                TextView tFollowersStr = (TextView) view.findViewById(R.id.profile_followers_str);
+                                tFollowersStr.setText(jsonStats.getString("followers-str"));
+
+                                TextView tFollowingNum = (TextView) view.findViewById(R.id.profile_following_num);
+                                tFollowingNum.setText(jsonStats.getString("following"));
+
+                                TextView tFollowingStr = (TextView) view.findViewById(R.id.profile_following_str);
+                                tFollowingStr.setText(jsonStats.getString("following-str"));
+
+                                TextView tStarsNum = (TextView) view.findViewById(R.id.profile_stars_num);
+                                tStarsNum.setText(jsonStats.getString("stars"));
+
+                                TextView tStarsStr = (TextView) view.findViewById(R.id.profile_stars_str);
+                                tStarsStr.setText(jsonStats.getString("stars-str"));
+
                                 // get the memes
                                 JSONArray jsonMemes = jsonRes.getJSONArray("memes");
 
@@ -191,18 +209,16 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                                 }
 
                                 // loop through the memes and store them
-                                for (int i = 0; i < jsonMemes.length(); i++) {
-                                    Uri added = memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
-                                    long id = ContentUris.parseId(added);
-                                }
+                                for (int i = 0; i < jsonMemes.length(); i++)
+                                    memestagram.insertMeme(getContext(), jsonMemes.getJSONObject(i));
 
                                 getLoaderManager().restartLoader(PROFILE_LOADER, null, ProfileFragment.this);
                             }
                             else
-                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             System.out.println(response);
-                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         }
                         updating = false;
                         showProgress(progress);
@@ -211,7 +227,7 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         updating = false;
                         showProgress(progress);
                     }
@@ -223,11 +239,12 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                 Map<String, String>  params = new HashMap<>();
                 // the POST parameters:
                 params.put("key", login.getString("key",""));
+                params.put("id", String.valueOf(iduser));
                 params.put("page", String.valueOf(page));
                 return params;
             }
         };
-        Volley.newRequestQueue(getContext()).add(postRequest);*/
+        Volley.newRequestQueue(getContext()).add(postRequest);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -264,9 +281,6 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         adapter.swapCursor(cursor);
 
-        if(firstUpdate)
-            updateProfile(currentPage, getView());
-
         TextView found = (TextView) getView().findViewById(R.id.found);
         if((cursor == null) || (cursor.getCount()==0))
             found.setText(R.string.error_no_memes);
@@ -296,11 +310,14 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                         }
                     });
 
-            //tUserName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME)));
+            tUserName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME)));
 
             TextView tName = (TextView) getView().findViewById(R.id.profile_name);
             tName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
         }
+
+        if(firstUpdate)
+            updateProfile(currentPage, getView());
 
         Log.i("Loader","onLoadFinished");
     }
@@ -319,9 +336,11 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // todo: fix refresh button refreshing in all windows
+        // could test for bottom bar selected
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                updateProfile(0,getView());
+                //updateProfile(0,getView());
                 break;
         }
         return false;

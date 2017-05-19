@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -63,6 +64,11 @@ class memestagram {
         gologin.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(gologin);
         activity.finish();
+    }
+
+    public static boolean internetAvailable(Context context) {
+        final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
     }
 
     public static Uri insertUser(Context context, JSONObject jsonUser) throws JSONException {
@@ -172,17 +178,17 @@ class memestagram {
                                 f.getLoaderManager().restartLoader(loader, null, callbacks);
                             }
                             else
-                                Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(context, jsonRes.getString("error"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             System.out.println(response);
-                            Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, context.getString(R.string.error_internal), Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {

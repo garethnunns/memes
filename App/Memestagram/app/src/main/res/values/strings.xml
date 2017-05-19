@@ -5,6 +5,7 @@
     <string name="error_no_connection">There is currently no internet conneciton</string>
     <string name="error_no_memes">There currently aren\'t any memes to show</string>
     <string name="Cancel">Cancel</string>
+    <string name="Loading">Loading...</string>
 
     <!-- actions -->
     <string name="Refresh">Refresh</string>
