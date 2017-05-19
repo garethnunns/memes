@@ -4,6 +4,7 @@ package com.garethnunns.memestagram;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -78,6 +80,12 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onViewStateRestored(Bundle inState) {
+        super.onViewStateRestored(inState);
+        updateMeme(0,getView());
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -111,6 +119,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         commentAdapter = new CommentAdapter(getContext(),comments);
         clv = (ListView) view.findViewById(R.id.meme_frag_comments);
         clv.setAdapter(commentAdapter);
+        memestagram.setListViewHeightBasedOnChildren(clv);
     }
 
     @Override
@@ -247,18 +256,24 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        adapter.swapCursor(cursor);
         memestagram.setListViewHeightBasedOnChildren(lv);
 
         if(firstUpdate)
             updateMeme(currentPage, getView());
 
         TextView found = (TextView) getView().findViewById(R.id.found);
-        if((data == null) || (data.getCount()==0))
+        if((cursor == null) || (cursor.getCount()==0))
             found.setText(R.string.error_no_memes);
-        else
+        else {
             found.setText("");
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT,cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_LINK)));
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
 
         Log.i("Loader","onLoadFinished");
     }
@@ -272,7 +287,8 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        menu.findItem(R.id.action_share).setVisible(false);
+        MenuItem item = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
     }
 
     @Override

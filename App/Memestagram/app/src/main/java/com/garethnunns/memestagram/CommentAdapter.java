@@ -1,6 +1,11 @@
 package com.garethnunns.memestagram;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +36,30 @@ public class CommentAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         // Get the data item for this position
-        Comment comment = (Comment) getItem(position);
+        final Comment comment = (Comment) getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.comment, parent, false);
         }
+
+        // go to user event
+        View.OnClickListener clickCommenter = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("click", "Username: " + comment.username + " user: " + comment.iduser);
+                FragmentManager fm = ((FragmentActivity) ((Activity) context)).getSupportFragmentManager();
+                Fragment frag = ProfileFragment.newInstance(comment.iduser, comment.username);
+                String fragTitle = "User "+comment.iduser;
+                Fragment already = fm.findFragmentByTag(fragTitle);
+                if(already != null) frag = already;
+                fm.beginTransaction()
+                        .replace(R.id.container, frag, fragTitle)
+                        .addToBackStack(fragTitle)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+        };
+
         // get the views and fill them
         final String ppURL = comment.pp;
         final ImageView pp = (ImageView) view.findViewById(R.id.comment_pp);
@@ -58,9 +82,11 @@ public class CommentAdapter extends ArrayAdapter {
                                 .into(pp);
                     }
                 });
+        pp.setOnClickListener(clickCommenter);
 
         TextView tUsername = (TextView) view.findViewById(R.id.comment_username);
         tUsername.setText(comment.username);
+        tUsername.setOnClickListener(clickCommenter);
 
         TextView tAgo = (TextView) view.findViewById(R.id.comment_ago);
         tAgo.setText(comment.ago);
