@@ -16,6 +16,9 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -116,7 +119,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void updateProfile(final int page, final View view) {
+    public void updateMeme(final int page, final View view) {
         if(updating) // prevent lots of web calls
             return;
 
@@ -127,7 +130,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
 
         if(firstUpdate) {
             // update from the start at the first time
-            if(page != 0) updateProfile(0,view);
+            if(page != 0) updateMeme(0,view);
             firstUpdate = false;
         }
 
@@ -249,7 +252,7 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         memestagram.setListViewHeightBasedOnChildren(lv);
 
         if(firstUpdate)
-            updateProfile(currentPage, getView());
+            updateMeme(currentPage, getView());
 
         TextView found = (TextView) getView().findViewById(R.id.found);
         if((data == null) || (data.getCount()==0))
@@ -266,4 +269,20 @@ public class MemeFragment extends Fragment implements LoaderManager.LoaderCallba
         Log.i("loader","onLoaderReset");
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.action_share).setVisible(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(getUserVisibleHint())
+            switch (item.getItemId()) {
+                case R.id.action_refresh:
+                    updateMeme(0,getView());
+                    break;
+            }
+        return false;
+    }
 }
