@@ -8,22 +8,26 @@
     tools:context="com.garethnunns.memestagram.ProfileFragment">
 
     <LinearLayout
-        android:id="@+id/profile_header"
+        android:id="@+id/profile_full"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/pad_md"
         android:orientation="vertical"
         android:animateLayoutChanges="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pad_md"
+            android:layout_marginEnd="@dimen/pad_md">
 
             <ImageView
                 android:id="@+id/profile_pp"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_centerVertical="true"
-                android:layout_margin="@dimen/pad_lg"
+                android:layout_marginStart="@dimen/pad_md"
+                android:layout_marginEnd="@dimen/pad_md"
                 android:contentDescription="@string/desc_pp"
                 app:srcCompat="@drawable/pp" />
 
@@ -193,7 +197,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="@dimen/font_sm"
-            android:layout_below="@id/profile_header"
             android:background="@android:color/darker_gray" />
 
         <GridView

@@ -35,6 +35,8 @@
     <string name="followers">followers</string>
     <string name="following">following</string>
     <string name="stars">stars</string>
+    <string name="Follow">Follow</string>
+    <string name="Unfollow">Unfollow</string>
 
     <!-- login -->
     <string name="prompt_username">Username</string>

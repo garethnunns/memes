@@ -134,11 +134,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         if(updating || (end && page > 0)) // prevent lots of web calls
             return;
 
-        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if(cm.getActiveNetworkInfo() == null
-                || !cm.getActiveNetworkInfo().isAvailable()
-                || !cm.getActiveNetworkInfo().isConnected()) {
+        if(!memestagram.internetAvailable(getContext())) {
             Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
             return;
         }

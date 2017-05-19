@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,8 +54,9 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     private Long iduser;
     private String username;
 
-    MemeGridAdapter adapter;
-    TextView tUserName;
+    private MemeGridAdapter adapter;
+    private TextView tUserName;
+    private Button follow;
 
     private int currentPage = 0;
     private SharedPreferences login;
@@ -108,6 +110,8 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
 
         tUserName = (TextView) view.findViewById(R.id.profile_username);
         tUserName.setText(username);
+
+        follow = (Button) view.findViewById(R.id.profile_follow);
 
         // init the loader
         getLoaderManager().initLoader(PROFILE_LOADER, null, this);
@@ -314,6 +318,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
 
             TextView tName = (TextView) getView().findViewById(R.id.profile_name);
             tName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
+
+            if(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_YOU)) == 1) {
+                follow.setText("Settings");
+            }
+            else {
+                follow.setText(cursor.getInt(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_FOLLOWING)) == 1 ? getContext().getString(R.string.Unfollow) : getContext().getString(R.string.Follow));
+            }
         }
 
         if(firstUpdate)

@@ -94,7 +94,7 @@ class memestagram {
         JSONObject jsonPoster = jsonMeme.getJSONObject("poster");
 
         // store the poster of this meme
-        memestagram.insertUser(context,jsonPoster);
+        insertUser(context,jsonPoster);
 
         // see if it is an original post
         Object original = jsonMeme.get("original");
@@ -155,6 +155,11 @@ class memestagram {
 
     public static void star(final Context context, final Activity a, final Integer loader, final Integer idmeme, final LoaderManager.LoaderCallbacks<?> callbacks, final Fragment f) {
         // stars a meme with idmeme, then updates the loader
+
+        if(!internetAvailable(context)) {
+            Toast.makeText(context, context.getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         final SharedPreferences login = getLogin(context);
 
