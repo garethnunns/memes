@@ -1,6 +1,9 @@
 package com.garethnunns.memestagram;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -14,6 +17,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import static com.garethnunns.memestagram.memestagram.getLogin;
 import static com.garethnunns.memestagram.memestagram.loggedIn;
 import static com.garethnunns.memestagram.memestagram.logout;
@@ -23,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private int selectedItem;
 
     private static final String ARG_SELECTED = "arg_selected";
+
+    private int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +88,13 @@ public class MainActivity extends AppCompatActivity {
                     frag = FeedFragment.newInstance(FeedFragment.HOT);
                     break;
                 case R.id.bottom_add:
-                    //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
+                    // select an image
+                    Intent intent = new Intent();
+                    // Show only images, no videos or anything else
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    // Always show the chooser (if there are multiple options available)
+                    startActivityForResult(Intent.createChooser(intent, "Select Meme"), PICK_IMAGE_REQUEST);
                     break;
                 case R.id.bottom_notifications:
                     //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
@@ -103,6 +116,24 @@ public class MainActivity extends AppCompatActivity {
             fm.beginTransaction()
                     .replace(R.id.container, frag, fragTitle)
                     .addToBackStack(fragTitle)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commit();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri filePath = data.getData();
+
+            FragmentManager fm = getSupportFragmentManager();
+
+            Fragment frag = AddFragment.newInstance(filePath);
+
+            fm.beginTransaction()
+                    .replace(R.id.container, frag)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commit();
         }
