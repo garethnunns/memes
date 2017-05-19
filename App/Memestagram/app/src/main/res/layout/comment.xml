@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/pad_lg">
+    <ImageView
+        android:id="@+id/comment_pp"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:id="@+id/comment_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/comment_pp"
+        android:layout_toStartOf="@+id/comment_ago"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_md"
+        android:textStyle="bold"
+        tools:text="Username" />
+
+    <TextView
+        android:id="@+id/comment_ago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="2dp"
+        android:textSize="@dimen/font_sm"
+        tools:text="25w" />
+
+    <TextView
+        android:id="@+id/comment_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/comment_pp"
+        android:layout_below="@id/comment_username"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_md"
+        tools:text="Comment text" />
+</RelativeLayout>
