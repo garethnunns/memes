@@ -5,7 +5,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -27,7 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.GridView;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,22 +35,30 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link StarredFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
-public class StarredFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ProfileFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    public static final String ARG_PROFILE = "arg_profile";
+    public static final String ARG_USERNAME = "arg_username";
+
+    private Long iduser;
+    private String username;
+
     MemeGridAdapter adapter;
+    TextView tUserName;
 
     private int currentPage = 0;
     private SharedPreferences login;
@@ -59,10 +66,14 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
     private boolean firstUpdate = true;
     private boolean end = false; // if they've reached the end
 
-    public static final int STARRED_LOADER = 6;
+    public static final int PROFILE_LOADER = 5;
 
-    public static StarredFragment newInstance() {
-        StarredFragment fragment = new StarredFragment();
+    public static ProfileFragment newInstance(Long profile, String username) {
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_PROFILE, profile);
+        args.putString(ARG_USERNAME, username);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -81,21 +92,34 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_starred, container, false);
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if(savedInstanceState != null) {
+            iduser = savedInstanceState.getLong(ARG_PROFILE,0);
+            username = savedInstanceState.getString(ARG_USERNAME,"Username");
+            firstUpdate = false; // don't clear the cache if it's just a screen rotation
+        }
+        else {
+            Bundle args = getArguments();
+            iduser = args.getLong(ARG_PROFILE,0);
+            username = args.getString(ARG_USERNAME,"Username");
+        }
+
+        tUserName = (TextView) view.findViewById(R.id.profile_username);
+        tUserName.setText(username);
 
         // init the loader
-        getLoaderManager().initLoader(STARRED_LOADER, null,this);
+        getLoaderManager().initLoader(PROFILE_LOADER, null, this);
 
-        adapter = new MemeGridAdapter(getContext(), null, getActivity(), STARRED_LOADER, StarredFragment.this, this);
+        adapter = new MemeGridAdapter(getContext(), null, getActivity(), PROFILE_LOADER, ProfileFragment.this, this);
 
         // bind the adapter to the gridview
-        GridView gv = (GridView) view.findViewById(R.id.starred_grid);
+        GridView gv = (GridView) view.findViewById(R.id.profile_grid);
         gv.setAdapter(adapter);
 
         gv.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -107,12 +131,19 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
                 // update on scroll
                 if(firstVisibleItem+visibleItemCount > totalItemCount-2 && totalItemCount!=0)
                     if(!updating)
-                        updateStarred(++currentPage,getView());
+                        updateProfile(++currentPage,getView());
             }
         });
     }
 
-    public void updateStarred(final int page, View view) {
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putLong(ARG_PROFILE,iduser);
+        savedInstanceState.putString(ARG_USERNAME,username);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void updateProfile(final int page, View view) {
         if(updating || (end && page > 0)) // prevent lots of web calls
             return;
 
@@ -128,13 +159,13 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
         // clear the cache the first time it's refreshed as the user might have unfollowed/followed more people
         if(firstUpdate) {
             // clear the existing feed
-            if(page != 0) updateStarred(0,view);
+            if(page != 0) updateProfile(0,view);
             firstUpdate = false;
         }
 
         updating = true;
 
-        final View progress = view.findViewById(R.id.feed_progress);
+        /*final View progress = view.findViewById(R.id.feed_progress);
         showProgress(progress);
 
         String url = getString(R.string.api)+"starred";
@@ -165,7 +196,7 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
                                     long id = ContentUris.parseId(added);
                                 }
 
-                                getLoaderManager().restartLoader(STARRED_LOADER, null, StarredFragment.this);
+                                getLoaderManager().restartLoader(PROFILE_LOADER, null, ProfileFragment.this);
                             }
                             else
                                 Toast.makeText(getContext(), jsonRes.getString("error"), Toast.LENGTH_LONG).show();
@@ -196,7 +227,7 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
                 return params;
             }
         };
-        Volley.newRequestQueue(getContext()).add(postRequest);
+        Volley.newRequestQueue(getContext()).add(postRequest);*/
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -224,23 +255,52 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        CursorLoader loader = new CursorLoader(getContext(),MemesContract.Tables.STARRED_CONTENT_URI,null,null,null,null);
+        CursorLoader loader = new CursorLoader(getContext(), MemesContract.Tables.buildProfileUriWithID(iduser),null,null,null,null);
         Log.i("loader", "onCreateLoader");
         return loader;
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        adapter.swapCursor(cursor);
 
         if(firstUpdate)
-            updateStarred(currentPage, getView());
+            updateProfile(currentPage, getView());
 
         TextView found = (TextView) getView().findViewById(R.id.found);
-        if((data == null) || (data.getCount()==0))
+        if((cursor == null) || (cursor.getCount()==0))
             found.setText(R.string.error_no_memes);
-        else
+        else {
             found.setText("");
+
+            cursor.moveToFirst();
+            final String ppURL = cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_PIC));
+            final ImageView pp = (ImageView) getView().findViewById(R.id.profile_pp);
+            Picasso.with(getContext())
+                    .load(ppURL)
+                    .networkPolicy(NetworkPolicy.OFFLINE) // try use the cache
+                    .placeholder(R.drawable.pp)
+                    .into(pp, new Callback() {
+                        @Override
+                        public void onSuccess() { // look in the cache
+                            Log.i("Picasso", "Image found in the cache - " + ppURL);
+                        }
+
+                        @Override
+                        public void onError() {
+                            //Try again online if cache failed
+                            Picasso.with(getContext())
+                                    .load(ppURL)
+                                    .error(R.drawable.pp)
+                                    .into(pp);
+                        }
+                    });
+
+            //tUserName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_USERNAME)));
+
+            TextView tName = (TextView) getView().findViewById(R.id.profile_name);
+            tName.setText(cursor.getString(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_NAME)));
+        }
 
         Log.i("Loader","onLoadFinished");
     }
@@ -254,14 +314,14 @@ public class StarredFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        menu.findItem(R.id.action_share).setVisible(false);
+        // todo: set share provider
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                updateStarred(0,getView());
+                updateProfile(0,getView());
                 break;
         }
         return false;

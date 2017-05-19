@@ -24,18 +24,37 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="9dp"
+                android:layout_marginTop="@dimen/pad_md"
                 android:contentDescription="@string/desc_pp"
                 app:srcCompat="@drawable/pp" />
 
+            <TextView
+                android:id="@+id/profile_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/profile_pp"
+                android:layout_margin="@dimen/pad_sm"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_lg" />
+
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/profile_username"
+                android:layout_margin="@dimen/pad_xs"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_md" />
+
             <android.support.percent.PercentRelativeLayout
                 android:id="@+id/profile_info"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/profile_pp"
-                android:layout_marginTop="19dp"
-                app:layout_widthPercent="25%">
+                android:layout_below="@+id/profile_name"
+                android:layout_marginTop="@dimen/pad_lg">
 
                 <android.support.percent.PercentRelativeLayout
                     android:id="@+id/profile_posts"
@@ -61,7 +80,7 @@
                         android:layout_centerInParent="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/font_sm"
-                        tools:text="posts" />
+                        android:text="@string/posts" />
                 </android.support.percent.PercentRelativeLayout>
 
                 <android.support.percent.PercentRelativeLayout
@@ -89,11 +108,9 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/profile_followers_num"
                         android:layout_centerInParent="true"
-
-                        android:textAlignment="center"
                         android:textColor="@color/black"
                         android:textSize="@dimen/font_sm"
-                        tools:text="followers" />
+                        android:text="@string/followers" />
                 </android.support.percent.PercentRelativeLayout>
 
                 <android.support.percent.PercentRelativeLayout
@@ -122,8 +139,7 @@
                         android:layout_centerHorizontal="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/font_sm"
-                        tools:text="following" />
-
+                        android:text="@string/followers" />
                 </android.support.percent.PercentRelativeLayout>
 
                 <android.support.percent.PercentRelativeLayout
@@ -151,7 +167,7 @@
                         android:layout_centerHorizontal="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/font_sm"
-                        tools:text="stars" />
+                        android:text="@string/stars" />
 
 
                 </android.support.percent.PercentRelativeLayout>
@@ -168,8 +184,8 @@
             android:layout_below="@id/profile_header"
             android:background="@android:color/darker_gray" />
 
-        <GridLayout
-            android:id="@+id/profile_content"
+        <GridView
+            android:id="@+id/profile_grid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/profile_line"
@@ -177,6 +193,29 @@
             android:horizontalSpacing="@dimen/pad_md"
             android:verticalSpacing="@dimen/pad_md"
             android:numColumns="3" />
+    </RelativeLayout>
 
+    <TextView
+        android:id="@+id/found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/pad_lg"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_md" />
+
+    <RelativeLayout
+        android:id="@+id/feed_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/pad_lg" />
     </RelativeLayout>
 </FrameLayout>

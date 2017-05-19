@@ -29,6 +29,12 @@
     <string name="Repost">Repost</string>
     <string name="repost_prompt">Add a caption or just hit repost</string>
 
+    <!-- profile -->
+    <string name="posts">posts</string>
+    <string name="followers">followers</string>
+    <string name="following">following</string>
+    <string name="stars">stars</string>
+
     <!-- login -->
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
@@ -41,7 +47,4 @@
     <!-- resources -->
     <string name="web">http://memes.garethnunns.com/</string>
     <string name="api">http://memes.garethnunns.com/api/0.1/</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

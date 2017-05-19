@@ -175,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
                                     loginEditor.putString("username",username);
                                     loginEditor.putString("password",password);
                                     loginEditor.putString("key",key);
-                                    loginEditor.putInt("iduser",id);
+                                    loginEditor.putLong("iduser",id);
 
                                     loginEditor.commit();
 

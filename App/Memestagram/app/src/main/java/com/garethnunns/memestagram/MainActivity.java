@@ -1,11 +1,11 @@
 package com.garethnunns.memestagram;
 
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +13,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import static com.garethnunns.memestagram.memestagram.getLogin;
+import static com.garethnunns.memestagram.memestagram.loggedIn;
+import static com.garethnunns.memestagram.memestagram.logout;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
@@ -27,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(!memestagram.loggedIn(getApplicationContext()))
-            memestagram.logout(getApplicationContext(),this);
+        if(!loggedIn(getApplicationContext()))
+            logout(getApplicationContext(),this);
 
         bottomNav = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -82,7 +86,11 @@ public class MainActivity extends AppCompatActivity {
                     //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
                     break;
                 case R.id.bottom_profile:
-                    //frag = MenuFragment.newInstance(getString(R.string.text_search), getColorFromRes(R.color.color_search));
+                    SharedPreferences login = getLogin(getApplicationContext());
+                    Long id = login.getLong("iduser",-1);
+                    if(id == -1) logout(getApplicationContext(),this);
+                    String username = login.getString("username","username");
+                    frag = ProfileFragment.newInstance(id, username);
                     break;
                 case R.id.action_starred:
                     frag = StarredFragment.newInstance();

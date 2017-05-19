@@ -48,7 +48,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
     public static final int FEED = 1;
     public static final int HOT = 2;
 
-    private static final String ARG_TYPE = "arg_type";
+    public static final String ARG_TYPE = "arg_type";
 
     private int type;
 
@@ -93,12 +93,12 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         super.onViewCreated(view, savedInstanceState);
 
         if(savedInstanceState != null) {
-            type = savedInstanceState.getInt(ARG_TYPE);
+            type = savedInstanceState.getInt(ARG_TYPE, FEED);
             firstUpdate = false; // don't clear the cache if it's just a screen rotation
         }
         else {
             Bundle args = getArguments();
-            type = args.getInt(ARG_TYPE);
+            type = args.getInt(ARG_TYPE, FEED);
         }
 
         // init the loader
@@ -139,7 +139,7 @@ public class FeedFragment extends Fragment implements LoaderCallbacks<Cursor> {
         if(cm.getActiveNetworkInfo() == null
                 || !cm.getActiveNetworkInfo().isAvailable()
                 || !cm.getActiveNetworkInfo().isConnected()) {
-            Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show();
             return;
         }
 
