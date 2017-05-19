@@ -82,10 +82,10 @@ public class MemeAdapter extends CursorAdapter {
 
         final Long iduser = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.USER_IDUSER));
 
-        username.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener clickPoster = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("click","Username: "+strUsername+" user: "+iduser);
+                Log.i("click", "Username: " + strUsername + " user: " + iduser);
                 FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
                 Fragment frag = ProfileFragment.newInstance(iduser, strUsername);
                 fm.beginTransaction()
@@ -94,7 +94,10 @@ public class MemeAdapter extends CursorAdapter {
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         .commit();
             }
-        });
+        };
+
+        username.setOnClickListener(clickPoster);
+        pp.setOnClickListener(clickPoster);
 
         Long o_post = cursor.getLong(cursor.getColumnIndexOrThrow(MemesContract.Tables.MEME_OPOST));
 
