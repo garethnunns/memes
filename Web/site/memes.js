@@ -80,21 +80,48 @@ function htmlEncode(s) { // adapted from http://stackoverflow.com/a/784698
 	return el.innerHTML;
 }
 
-// the current page we're on
-var page = 0;
+var page = 0; // the current page we're on
+var updating = false; // whether it's currently updating
 
 $(window).scroll(function() {
-	if(typeof feed !== undefined)
+	// load more on scroll
+
+	if(updating)
 		return;
 
-	var url = '/ajax/more'+feed+'.php';
+	var url = '';
 
-	switch(feed) {
-		case 'feed':
-			var container = $('body > .wrapper')
+	var container = 'body > .wrapper'; // container holding the memes
+
+	switch(window.location.pathname) {
+		case '/':
+		case '/index.php':
+			url = '/ajax/morefeed.php';
 			break;
 
 		default:
 			return;
 	}
+
+	var wheight = $(window).height();
+	var dheight = $(document).height();
+	var scroll = $(document).scrollTop();
+
+	if(scroll > (dheight - 2 * wheight)) {
+		console.log('loading more');
+		updating = true;
+
+		var updateText = $('<h3 class="center">Updating&hellip;</h3>').appendTo(container);
+
+		$.post(url, {page: ++page}, function (data) {
+			updateText.remove();
+			if(data == '') return;
+
+			$(container).append(data);
+
+			updating = false;
+		});
+	}
+
+	//console.log('height: '+height+' scroll: '+scroll);
 });
