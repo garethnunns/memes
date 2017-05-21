@@ -95,7 +95,7 @@ $(window).scroll(function() {
 
 	var id = 0;
 
-	if(typeof profile !== undefined) {
+	if(typeof profile !== 'undefined') {
 		// you can't easily url match these and I don't want to make the default 
 		id = profile;
 		url += 'profile.php';
@@ -120,6 +120,13 @@ $(window).scroll(function() {
 			case '/starred/index.php':
 				url += 'starred.php';
 				container += ' .memeGrid';
+				break;
+
+			case '/notifications':
+			case '/notifications/':
+			case '/notifications/index.php':
+				url += 'notifications.php';
+				container += ' .notifications-containter';
 				break;
 
 			default:
