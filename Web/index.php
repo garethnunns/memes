@@ -64,9 +64,11 @@
 			echo "<p class='error'>".(isset($memes['error']) ? $memes['error'] : "There was an error fetching the memes")."</p>";
 		elseif(!count($memes['memes']))
 			echo "<p><i>There are no memes to show at the moment, see the best posts in the <a href='/hot'>hot feed</a></i></p>";
-		else
+		else {
 			foreach ($memes['memes'] as $meme) 
 				displayMeme($meme);
+			echo "<script type='text/javascript'>var feed = 'feed';</script>";
+		}
 ?>
 <?php
 	} // end of being logged in

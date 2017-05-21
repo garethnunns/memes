@@ -74,9 +74,27 @@ function expand(elem) {
 	$(elem).slideDown();
 }
 
-function htmlEncode(s) { // http://stackoverflow.com/a/784698
+function htmlEncode(s) { // adapted from http://stackoverflow.com/a/784698
 	var el = document.createElement("div");
 	el.innerText = el.textContent = s;
-	s = el.innerHTML;
-	return s;
+	return el.innerHTML;
 }
+
+// the current page we're on
+var page = 0;
+
+$(window).scroll(function() {
+	if(typeof feed !== undefined)
+		return;
+
+	var url = '/ajax/more'+feed+'.php';
+
+	switch(feed) {
+		case 'feed':
+			var container = $('body > .wrapper')
+			break;
+
+		default:
+			return;
+	}
+});
