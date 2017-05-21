@@ -89,32 +89,42 @@ $(window).scroll(function() {
 	if(updating)
 		return;
 
-	var url = '';
+	var url = '/ajax/more';
 
 	var container = 'body > .wrapper'; // container holding the memes
 
-	// do some url matching because that seems like a totally reliable way of doing it...
-	switch(window.location.pathname) {
-		case '/':
-		case '/index.php':
-			url = '/ajax/morefeed.php';
-			break;
+	var id = 0;
+
+	if(typeof profile !== undefined) {
+		// you can't easily url match these and I don't want to make the default 
+		id = profile;
+		url += 'profile.php';
+		container += ' .memeGrid';
+	}
+	else { // do some url matching because that seems like a totally reliable way of doing it...
+		switch(window.location.pathname) {
+			case '/':
+			case '/index.php':
+				url += 'feed.php';
+				break;
 
 
-		case '/hot':
-		case '/hot/':
-		case '/hot/index.php':
-			url = '/ajax/morehot.php';
-			break;
+			case '/hot':
+			case '/hot/':
+			case '/hot/index.php':
+				url += 'hot.php';
+				break;
 
-		case '/starred':
-		case '/starred/':
-		case '/starred/index.php':
-			url = '/ajax/morestarred.php';
-			break;
+			case '/starred':
+			case '/starred/':
+			case '/starred/index.php':
+				url += 'starred.php';
+				container += ' .memeGrid';
+				break;
 
-		default:
-			return;
+			default:
+				return;
+		}
 	}
 
 	var wheight = $(window).height();
@@ -127,7 +137,7 @@ $(window).scroll(function() {
 
 		var updateText = $('<h3 class="center">Updating&hellip;</h3>').appendTo(container);
 
-		$.post(url, {page: ++page}, function (data) {
+		$.post(url, {page: ++page, profile: id}, function (data) {
 			updateText.remove();
 			if(data == '') return;
 

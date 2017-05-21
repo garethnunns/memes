@@ -16,6 +16,7 @@
 	<head>
 		<title><?php echo $title . ' · ' . $sitename; ?></title>
 
+		<script type="text/javascript">var profile = <?php echo $username->iduser ?>;</script>
 		<?php include 'site/head.php'; ?>
 	</head>
 
