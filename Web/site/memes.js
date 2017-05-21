@@ -106,6 +106,13 @@ $(window).scroll(function() {
 		case '/hot/index.php':
 			url = '/ajax/morehot.php';
 			break;
+
+		case '/starred':
+		case '/starred/':
+		case '/starred/index.php':
+			url = '/ajax/morestarred.php';
+			break;
+
 		default:
 			return;
 	}
