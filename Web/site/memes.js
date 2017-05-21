@@ -93,12 +93,19 @@ $(window).scroll(function() {
 
 	var container = 'body > .wrapper'; // container holding the memes
 
+	// do some url matching because that seems like a totally reliable way of doing it...
 	switch(window.location.pathname) {
 		case '/':
 		case '/index.php':
 			url = '/ajax/morefeed.php';
 			break;
 
+
+		case '/hot':
+		case '/hot/':
+		case '/hot/index.php':
+			url = '/ajax/morehot.php';
+			break;
 		default:
 			return;
 	}
