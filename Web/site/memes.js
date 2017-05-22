@@ -42,7 +42,11 @@ function star(button, id, num=null, numStr=null) {
 			if(numStr!=null) $(numStr).html(data['stars-str']);
 		}
 		console.log('like()',data);
-	}, 'json');
+	}, 'json').fail(function () {
+		if(xhr.responseURL.search("goingto=")>-1) 
+			// user not logged in (probably)
+			expandFooter();
+	});
 }
 
 function comment(button, id, comment, comments=null, num=null, numStr=null) {
@@ -64,7 +68,11 @@ function comment(button, id, comment, comments=null, num=null, numStr=null) {
 			if(numStr!=null) $(numStr).html(data['comments-str']);
 		}
 		console.log('comment()',data);
-	}, 'json');
+	}, 'json').fail(function () {
+		if(xhr.responseURL.search("goingto=")>-1) 
+			// user not logged in (probably)
+			expandFooter();
+	});
 }
 
 function repost(id, caption) {
@@ -75,7 +83,11 @@ function repost(id, caption) {
 	$.post('/ajax/repost.php', {id: id, caption: $(caption).val()}, function (data) {
 		if(data.success) window.location.href = data.link;
 		console.log('repost()',data);
-	}, 'json');
+	}, 'json').fail(function () {
+		if(xhr.responseURL.search("goingto=")>-1) 
+			// user not logged in (probably)
+			expandFooter();
+	});
 }
 
 
