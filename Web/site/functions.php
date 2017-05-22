@@ -3,6 +3,7 @@
 	require_once dirname(__FILE__).'/secure.php'; // database connection
 
 	$sitename = 'Memestagram'; // allow site to be easily rebranded
+	$tagline = 'Share &amp; enjoy your dankest memes';
 
 	$res = "http://memes-store.garethnunns.com/"; // resource server
 	$web = "http://memes.garethnunns.com/"; // web server

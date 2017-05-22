@@ -18,8 +18,8 @@
 				<table>
 					<tr>
 						<td colspan="2">
-							<h1>Welcome to <? echo $sitename; ?></h1>
-							<h3>{ we're currently working on the site&hellip; }</h3>
+							<h1>Welcome to <?php echo $sitename; ?></h1>
+							<h3><?php echo $tagline; ?></h3>
 							<h2>Please login</h2>
 
 <?php

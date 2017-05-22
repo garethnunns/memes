@@ -1,5 +1,6 @@
 <?php
 	require_once 'site/web.php';
+	if(!loggedIn()) $_SESSION['key'] = 'public';
 
 	$found = true;
 
