@@ -10,15 +10,39 @@
 
 	$found = $profile['success'];
 
-	if($found) $title = "{$profile['user']['name']} ({$profile['user']['username']})";
-	else $title = "User not found";
+	if($found) $title = "{$profile['user']['name']} ({$profile['user']['username']}) · $sitename";
+	else $title = "User not found · $sitename";
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo $title . ' · ' . $sitename; ?></title>
+		<title><?php echo $title ?></title>
 
 		<script type="text/javascript">var profile = <?php echo $username->iduser ?>;</script>
-		<?php include 'site/head.php'; ?>
+		<?php 
+			include 'site/head.php'; 
+			if($found) {
+				$link = $profile['user']['link'];
+				$image = $profile['user']['pic'];
+				$desc = possessive($profile['user']['firstName'])." profile on {$sitename} - {$tagline}";
+
+				echo "
+				<meta property=\"og:url\" content=\"{$link}\">
+				<meta property=\"og:title\" content=\"{$title}\">
+				<meta property=\"og:description\" content=\"{$desc}\">
+				<meta property=\"og:image\" content=\"{$image}\">
+
+				<meta property=\"og:type\" content=\"profile\">
+				<meta property=\"profile:first_name\" content=\"{$profile['user']['firstName']}\">
+				<meta property=\"profile:last_name\" content=\"{$profile['user']['surname']}\">
+
+				<meta property=\"twitter:title\" content=\"{$title}\">
+				<meta property=\"twitter:description\" content=\"{$desc}\">
+				<meta property=\"twitter:image\" content=\"{$image}\">
+
+				<link rel=\"canonical\" href=\"{$link}\"/>
+				<meta name=\"description\" content=\"{$desc}\">";
+			}
+		?>
 	</head>
 
 	<body>

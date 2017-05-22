@@ -2263,4 +2263,10 @@ AND star.idmeme = @meme";
 
 		return $number == 1 ? $word : (substr($word, -1) == 's' ? $word . 'es' : $word . 's');
 	}
+
+	function possessive($word) {
+		// returns the plural of the $word depending on the number of the $word
+
+		return (substr($word, -1) == 's' ? $word . "'" : $word . "'s");
+	}
 ?>

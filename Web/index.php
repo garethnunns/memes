@@ -5,7 +5,26 @@
 	<head>
 		<title><?php echo $sitename; ?></title>
 
-		<?php include 'site/head.php'; ?>
+		<?php 
+			include 'site/head.php'; 
+
+			$link = $web;
+			$image = "http://memes-store.garethnunns.com/full/1000/22.jpg";
+			$desc = $tagline;
+
+			echo "
+			<meta property=\"og:url\" content=\"{$link}\">
+			<meta property=\"og:title\" content=\"{$title}\">
+			<meta property=\"og:description\" content=\"{$desc}\">
+			<meta property=\"og:image\" content=\"{$image}\">
+
+			<meta property=\"twitter:title\" content=\"{$title}\">
+			<meta property=\"twitter:description\" content=\"{$desc}\">
+			<meta property=\"twitter:image\" content=\"{$image}\">
+
+			<link rel=\"canonical\" href=\"{$link}\"/>
+			<meta name=\"description\" content=\"{$desc}\">";
+		?>
 	</head>
 
 	<body>

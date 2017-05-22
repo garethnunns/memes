@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="/site/memes.css?version=<?php echo time(); // remove when out of dev ?>">
+<link rel="stylesheet" type="text/css" href="/site/memes.css?version=<?php //echo time(); ?>">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 
 <!-- favicons -->
@@ -27,4 +27,14 @@
 	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	crossorigin="anonymous"></script>
 
-<script src="/site/memes.js?version=<?php echo time(); // remove when out of dev ?>"></script>
+<script src="/site/memes.js?version=1<?php //echo time(); ?>"></script>
+
+<meta name="author" content="Gareth Nunns">
+
+<!-- Facebook Open Graph and Twitter Card Generics -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@GarethNunns">
+<meta name="twitter:creator" content="@GarethNunns">
+<meta name="twitter:domain" content="memes.garethnunns.com">
+
+<meta property="og:site_name" content="<?php echo $sitename?>"/>

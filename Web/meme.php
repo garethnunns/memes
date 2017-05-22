@@ -5,7 +5,6 @@
 	$found = true;
 
 	if(($user = userDetailsFromUsername($_GET['username']))===false) $found = false;
-
 	else {
 		try { // extra check for web to check that meme is associated with that username
 			$sql = "SELECT meme.idmeme
@@ -23,19 +22,43 @@
 			$found = false;
 		}
 
-		$meme = meme($_SESSION['key'],$_GET['meme'],null,1000,false);
-
-		$found = $meme['success'];
+		if($found) {
+			$meme = meme($_SESSION['key'],$_GET['meme'],null,1000,false);
+			$found = $meme['success'];
+		}
 	}
 
-	if($found) $title = "Post by {$meme['meme']['poster']['username']}";
-	else $title = "Post not found";
+	if($found) $title = "Post by {$meme['meme']['poster']['username']} · $sitename";
+	else $title = "Post not found · $sitename";
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title><?php echo $title . ' · ' . $sitename; ?></title>
+		<title><?php echo $title ?></title>
 
-		<?php include 'site/head.php'; ?>
+		<?php
+			include 'site/head.php';
+			if($found) {
+				$link = $meme['meme']['link'];
+				$image = $meme['meme']['images']['full'];
+				if(empty($meme['meme']['caption']))
+					$desc = possessive($meme['meme']['poster']['firstName'])." post on {$sitename} - {$tagline}";
+				else
+					$desc = possessive($meme['meme']['poster']['firstName'])." post on {$sitename} - &quot;".htmlspecialchars($meme['meme']['caption'])."&quot;";
+
+				echo "
+				<meta property=\"og:url\" content=\"{$link}\">
+				<meta property=\"og:title\" content=\"{$title}\">
+				<meta property=\"og:description\" content=\"{$desc}\">
+				<meta property=\"og:image\" content=\"{$image}\">
+
+				<meta property=\"twitter:title\" content=\"{$title}\">
+				<meta property=\"twitter:description\" content=\"{$desc}\">
+				<meta property=\"twitter:image\" content=\"{$image}\">
+
+				<link rel=\"canonical\" href=\"{$link}\"/>
+				<meta name=\"description\" content=\"{$desc}\">";
+			}
+		?>
 	</head>
 
 	<body>
