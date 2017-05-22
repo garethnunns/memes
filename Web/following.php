@@ -1,5 +1,6 @@
 <?php
 	require_once 'site/web.php';
+	check();
 
 	$found = true;
 

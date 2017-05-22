@@ -17,6 +17,10 @@
 		// redirects them to the home page if not
 
 		if(!loggedIn()) { // user not logged in
+			$_SESSION['key'] = 'public';
+			
+			// fallback for none JS browsers
+			header("refresh:5; url=/?goingto=".filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL)); 
 			header("Location: /?goingto=".filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL));
 			die('Please login'); //stop the rest of the script executing
 		}

@@ -1,3 +1,10 @@
+var xhr;
+var _orgAjax = jQuery.ajaxSettings.xhr;
+jQuery.ajaxSettings.xhr = function () {
+  xhr = _orgAjax();
+  return xhr;
+};
+
 function follow(button, id, num=null, numStr=null) {
 	// follows the user with $id, expects:
 	// button 	to be the html button that triggered this event
@@ -13,7 +20,11 @@ function follow(button, id, num=null, numStr=null) {
 			if(numStr!=null) $(numStr).html(data['followers-str']);
 		}
 		console.log('follow()',data);
-	}, 'json');
+	}, 'json').fail(function () {
+		if(xhr.responseURL.search("goingto=")>-1) 
+			// user not logged in (probably)
+			expandFooter();
+	});
 }
 
 function star(button, id, num=null, numStr=null) {
@@ -70,8 +81,14 @@ function repost(id, caption) {
 
 function expand(elem) {
 	// expand them [elem]ent
-
 	$(elem).slideDown();
+}
+
+function expandFooter() {
+	//expand the footer
+	$('footer .wrapper.signup').animate({paddingTop: "20px",paddingBottom: "20px"},100,'swing',function() {
+		$(this).animate({paddingTop: "0px",paddingBottom: "0px"},1500,'swing')
+	});
 }
 
 function htmlEncode(s) { // adapted from http://stackoverflow.com/a/784698
@@ -80,12 +97,13 @@ function htmlEncode(s) { // adapted from http://stackoverflow.com/a/784698
 	return el.innerHTML;
 }
 
+
+// load more on scroll
+
 var page = 0; // the current page we're on
 var updating = false; // whether it's currently updating
 
 $(window).scroll(function() {
-	// load more on scroll
-
 	if(updating)
 		return;
 

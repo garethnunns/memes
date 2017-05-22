@@ -1,6 +1,5 @@
 <?php
 	require_once '../site/web.php';
-	check();
 
 	$memes = profile($_SESSION['key'],$_POST['profile'],$_POST['page']);
 
