@@ -178,6 +178,9 @@ $(window).scroll(function() {
 			updateText.remove();
 			if(data == '') return;
 
+			if(xhr.responseURL.search("goingto=")>-1)
+				return 
+			
 			$(container).append(data);
 
 			updating = false;
