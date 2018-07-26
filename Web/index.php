@@ -9,7 +9,7 @@
 			include 'site/head.php'; 
 
 			$link = $web;
-			$image = "http://memes-store.garethnunns.com/full/1000/22.jpg";
+			$image = $res . "full/1000/22.jpg";
 			$desc = $tagline;
 
 			echo "

@@ -56,7 +56,7 @@
     <string name="Settings">Settings</string>
 
     <!-- resources -->
-    <string name="web">http://memes.garethnunns.com/</string>
-    <string name="api">http://memes.garethnunns.com/api/0.1/</string>
+    <string name="web">https://memes.garethnunns.com/</string>
+    <string name="api">https://memes.garethnunns.com/api/0.1/</string>
     <string name="title_activity_web">WebActivity</string>
 </resources>

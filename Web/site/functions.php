@@ -5,8 +5,8 @@
 	$sitename = 'Memestagram'; // allow site to be easily rebranded
 	$tagline = 'Share &amp; enjoy your dankest memes';
 
-	$res = "http://memes-store.garethnunns.com/"; // resource server
-	$web = "http://memes.garethnunns.com/"; // web server
+	$res = "https://memes-store.garethnunns.com/"; // resource server
+	$web = "https://memes.garethnunns.com/"; // web server
 
 
 	// can be added to later, but for now just JPGs and PNGs
