@@ -7,6 +7,11 @@ DirectoryIndex index.php index.html
 	RewriteEngine on
 	RewriteBase /
 
+	# HTTPS 301s
+	RewriteCond %{HTTPS} off          [OR]
+	RewriteCond %{HTTP_HOST} ^www\.   [NC]
+	RewriteRule ^ https://memes.garethnunns.com%{REQUEST_URI} [R=301,L,NE]
+
 	# forbidden things
 	RewriteRule \.exe - [F]
 	RewriteRule site/PHPMailer [F]
