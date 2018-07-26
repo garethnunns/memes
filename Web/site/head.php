@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="/site/memes.css?version=<?php //echo time(); ?>">
+<link rel="stylesheet" type="text/css" href="/site/memes.css?version=1<?php //echo time(); ?>">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
 
 <!-- favicons -->
@@ -27,7 +27,7 @@
 	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	crossorigin="anonymous"></script>
 
-<script src="/site/memes.js?version=1<?php //echo time(); ?>"></script>
+<script src="/site/memes.js?version=4<?php //echo time(); ?>"></script>
 
 <meta name="author" content="Gareth Nunns">
 
